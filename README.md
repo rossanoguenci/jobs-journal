@@ -33,7 +33,7 @@ We are committed to publishing this project as open-source and welcome any contr
 1. Clone the repository:
 
     ```bash
-    git clone <your-repo-url>
+    git clone https://github.com/rossanoguenci/jobs-journal.git
     cd jobs-journal
     ```
 
@@ -50,16 +50,16 @@ We are committed to publishing this project as open-source and welcome any contr
     cargo install
     ```
 
-4. Run the app in development mode:
+4. Run the app in development mode (frontend):
 
     ```bash
     pnpm dev
     ```
 
-5. Run the Tauri app:
+   or run the whole app:
 
     ```bash
-    pnpm tauri dev
+    pnpm app
     ```
 
 ## Project Structure
