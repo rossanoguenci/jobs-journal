@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS jobs
+(
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    insert_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    company TEXT NOT NULL,
+    title TEXT NOT NULL,
+    link TEXT,
+    application_date TEXT NOT NULL DEFAULT CURRENT_DATE,
+    status TEXT NOT NULL DEFAULT 'sent'
+);
