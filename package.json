@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "app": "pnpm tauri dev",
+    "build_app": "pnpm tauri build",
     "app_debug": "RUST_BACKTRACE=full pnpm tauri dev"
   },
   "dependencies": {
