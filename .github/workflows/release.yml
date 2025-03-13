@@ -9,7 +9,7 @@ jobs:
   build:
     strategy:
       matrix:
-        platform: [macos-latest, ubuntu-latest, windows-latest]
+        platform: [ macos-latest, ubuntu-latest, windows-latest ]
 
     runs-on: ${{ matrix.platform }}
 
@@ -19,6 +19,9 @@ jobs:
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --locked
 
       - name: Install Tauri dependencies (Linux)
         if: matrix.platform == 'ubuntu-latest'
