@@ -37,19 +37,16 @@ type JobsListRow = JobsListType["rows"][number];
 export default function Component() {
     const {data, loading, error, refresh} = useJobsList();
 
-    const handleTrashClick = async (id: number) => {
+    const handleTrashClick = React.useCallback(async (id: number) => {
         console.log('handleTrashClick() clicked -> ', id);
-
         try {
             const response: string = await invoke("trash_job_entry", {id});
             console.log(response);
-
-            // Refresh the list after deletion
             refresh();
         } catch (error) {
             console.error("Failed to delete job:", error);
         }
-    };
+    }, [refresh]);
 
 
     const renderCell = React.useCallback((item: JobsListRow, columnKey: React.Key) => {
@@ -94,7 +91,7 @@ export default function Component() {
             default:
                 return cellValue;
         }
-    }, []);
+    }, [handleTrashClick]);
 
     return (
         <div className={style.container}>

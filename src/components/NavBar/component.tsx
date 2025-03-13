@@ -3,7 +3,7 @@
 import React from "react";
 
 import {
-    Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, NavbarMenu, NavbarMenuItem, Link, Button, Avatar
+    Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, Button, Avatar
 } from "@heroui/react";
 
 import {useActionContext} from "@components/ActionProvider";

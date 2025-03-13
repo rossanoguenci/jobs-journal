@@ -8,7 +8,6 @@ import {Button, DatePicker, Input, Form, Autocomplete, AutocompleteItem} from "@
 
 import {invoke} from "@tauri-apps/api/core"
 
-import {World} from "@components/Icons/World";
 import {useActionContext} from "@components/ActionProvider";
 
 type insertProps = {
