@@ -1,0 +1,50 @@
+name: Build and Release Jobs Journal
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform: [macos-latest, ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Tauri dependencies (Linux)
+        if: matrix.platform == 'ubuntu-latest'
+        run: sudo apt update && sudo apt install libwebkit2gtk-4.0-dev libappindicator3-dev -y
+
+      - name: Build Tauri App
+        run: cargo tauri build
+
+      - name: Upload Release Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jobs-journal-${{ runner.os }}
+          path: src-tauri/target/release/bundle/**/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create Release and Upload Binaries
+        uses: softprops/action-gh-release@v1
+        with:
+          files: jobs-journal-*/**/*
+          tag_name: ${{ github.ref }}
+          name: Jobs Journal Alpha ${{ github.ref_name }}
+          draft: false
+          prerelease: true
