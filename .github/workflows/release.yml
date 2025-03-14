@@ -1,59 +1,64 @@
-name: Build and Release Jobs Journal (macOS)
+name: Build and Release Jobs Journal
 
 on:
   push:
     tags:
-      - 'v*'  # Runs on new version tags
-  workflow_dispatch:  # Allows manual runs
+      - 'v*'
 
 jobs:
-  build-macos:
-    runs-on: macos-latest  # Only run on macOS (for now)
+  build:
+    strategy:
+      matrix:
+        platform: [ macos-latest, ubuntu-latest, windows-latest ]
+
+    runs-on: ${{ matrix.platform }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install Node.js and pnpm
-        uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 23.7.0
-          cache: 'pnpm'
+          node-version: '23.7.0'
 
       - name: Install pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
+        run: npm install -g pnpm
 
-      - name: Install dependencies
-        run: pnpm install
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Install Tauri CLI
         run: cargo install tauri-cli --locked
 
-      - name: Build Tauri App (macOS)
-        run: cargo tauri build
+      - name: Install Tauri dependencies (Linux)
+        if: matrix.platform == 'ubuntu-latest'
+        run: sudo apt update && sudo apt install libwebkit2gtk-4.0-dev libappindicator3-dev -y
 
-      - name: Upload macOS Release Artifact
+      - name: Install project dependencies
+        run: pnpm install
+
+      - name: Build Tauri App
+        run: pnpm build && cargo tauri build
+
+      - name: Upload Release Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jobs-journal-macos
-          path: src-tauri/target/release/bundle/macos/**/*
+          name: jobs-journal-${{ runner.os }}
+          path: src-tauri/target/release/bundle/**/*
 
   release:
-    needs: build-macos
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Download macOS artifact
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
-        with:
-          name: jobs-journal-macos
 
-      - name: Create Release and Upload macOS Binary
+      - name: Create Release and Upload Binaries
         uses: softprops/action-gh-release@v1
         with:
-          files: jobs-journal-macos/**/*
+          files: jobs-journal-*/**
           tag_name: ${{ github.ref }}
-          name: Jobs Journal Alpha macOS ${{ github.ref_name }}
+          name: Jobs Journal Alpha ${{ github.ref_name }}
           draft: false
           prerelease: true
