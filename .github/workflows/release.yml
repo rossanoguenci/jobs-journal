@@ -33,7 +33,12 @@ jobs:
 
       - name: Install Tauri dependencies (Linux)
         if: matrix.platform == 'ubuntu-latest'
-        run: sudo apt update && sudo apt install libwebkit2gtk-4.0-dev libappindicator3-dev -y
+        run: |
+          sudo apt update
+          sudo apt install software-properties-common -y
+          sudo add-apt-repository 'deb https://archive.ubuntu.com/ubuntu focal main universe'
+          sudo apt update
+          sudo apt install libwebkit2gtk-4.0-dev libappindicator3-dev -y
 
       - name: Install project dependencies
         run: pnpm install
