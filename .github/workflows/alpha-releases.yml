@@ -16,29 +16,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create zip archive of source code
-        run: |
-          zip -r source-code.zip .
-
-      - name: Debug - List contents of source code zip
-        run: |
-          echo "Listing contents of source code zip:"
-          unzip -l source-code.zip
-
-      - name: Set output if source code zip exists
-        id: check_files
-        run: |
-          if ls *.zip 1> /dev/null 2>&1; then
-            echo "file_exists=true" >> $GITHUB_ENV
-          else
-            echo "file_exists=false" >> $GITHUB_ENV
-          fi
-
       - name: Create GitHub release
-        if: env.file_exists == 'true'
         uses: softprops/action-gh-release@v1
         with:
-          files: source-code.zip
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
