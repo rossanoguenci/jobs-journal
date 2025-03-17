@@ -62,6 +62,12 @@ We are committed to publishing this project as open-source and welcome any contr
     pnpm app
     ```
 
+5. To build the app:
+
+   ```bash
+   pnpm build_app
+   ```
+
 ## Project Structure
 
 - `src/`: Frontend code using Next.js (app routing)
