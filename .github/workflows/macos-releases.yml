@@ -1,0 +1,113 @@
+name: Build & Release - macOS universal binaries
+
+#Not running until enrolled to the Apple Developer Program
+#on:
+#  push:
+#    tags:
+#      - "v0.*-macos"
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    permissions:
+      contents: write  # Grant the necessary permissions
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: |
+          brew install sqlite
+          rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 23.7.0
+          cache: 'pnpm'
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Build Tauri app for x86_64
+        run: |
+          rustup target add x86_64-apple-darwin
+          pnpm tauri build --target x86_64-apple-darwin
+
+      - name: Debug - List contents of x86_64 build directory
+        run: |
+          echo "Listing contents of x86_64 build directory:"
+          ls -R /Users/runner/work/jobs-journal/jobs-journal/src-tauri/target/x86_64-apple-darwin/release/bundle/macos || echo "x86_64 build directory not found"
+
+      - name: Build Tauri app for arm64
+        run: |
+          rustup target add aarch64-apple-darwin
+          pnpm tauri build --target aarch64-apple-darwin
+
+      - name: Debug - List contents of arm64 build directory
+        run: |
+          echo "Listing contents of arm64 build directory:"
+          ls -R /Users/runner/work/jobs-journal/jobs-journal/src-tauri/target/aarch64-apple-darwin/release/bundle/macos || echo "arm64 build directory not found"
+
+      - name: Create universal binary
+        run: |
+          mkdir -p release/universal
+          lipo -create -output release/universal/jobs-journal \
+            /Users/runner/work/jobs-journal/jobs-journal/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/jobs-journal.app/Contents/MacOS/app \
+            /Users/runner/work/jobs-journal/jobs-journal/src-tauri/target/aarch64-apple-darwin/release/bundle/macos/jobs-journal.app/Contents/MacOS/app
+          cp -R /Users/runner/work/jobs-journal/jobs-journal/src-tauri/target/x86_64-apple-darwin/release/bundle/macos/jobs-journal.app release/universal/
+          mv release/universal/jobs-journal release/universal/jobs-journal.app/Contents/MacOS/jobs-journal
+
+      - name: Debug - List contents of universal binary directory
+        run: |
+          echo "Listing contents of universal binary directory:"
+          ls release/universal
+          ls release/universal/jobs-journal.app/Contents/MacOS
+
+      - name: Create zip archive of .app package
+        if: success()
+        run: |
+          cd release/universal
+          zip -r jobs-journal.zip jobs-journal.app
+          cd ../..
+
+      - name: Notarize the app
+        env:
+          ASC_PROVIDER: ${{ secrets.ASC_PROVIDER }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+        run: |
+          xcrun altool --notarize-app -f release/universal/jobs-journal.zip --primary-bundle-id "com.example.jobs-journal" --username "$APPLE_ID" --password "$APPLE_ID_PASSWORD" --asc-provider "$ASC_PROVIDER"
+          xcrun altool --notarization-info <UUID> --username "$APPLE_ID" --password "$APPLE_ID_PASSWORD"
+          xcrun stapler staple release/universal/jobs-journal.zip
+
+      - name: Debug - List contents of release directory
+        if: success()
+        run: |
+          echo "Listing contents of release directory before creating GitHub release:"
+          ls release/universal
+
+      - name: Set output if files exist
+        id: check_files
+        run: |
+          if ls release/universal/*.zip 1> /dev/null 2>&1; then
+            echo "file_exists=true" >> $GITHUB_ENV
+          else
+            echo "file_exists=false" >> $GITHUB_ENV
+          fi
+
+      - name: Create GitHub release
+        if: env.file_exists == 'true'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/universal/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
