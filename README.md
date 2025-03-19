@@ -50,22 +50,16 @@ We are committed to publishing this project as open-source and welcome any contr
     cargo install
     ```
 
-4. Run the app in development mode (frontend):
+4. Run the app in development mode:
 
     ```bash
     pnpm dev
     ```
-
-   or run the whole app:
-
-    ```bash
-    pnpm app
-    ```
-
+   
 5. To build the app:
 
    ```bash
-   pnpm build_app
+   pnpm build
    ```
 
 ## Project Structure
