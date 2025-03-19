@@ -1,18 +1,18 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "jobs-journal",
-  "version": "0.1.0",
+  "version": "0.1.1-alpha",
   "identifier": "io.github.rossanoguenci.jobsjournal",
   "build": {
     "frontendDist": "../out",
     "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "pnpm dev",
-    "beforeBuildCommand": "pnpm build"
+    "beforeDevCommand": "pnpm run sync-config && next dev --turbopack",
+    "beforeBuildCommand": "pnpm run sync-config && next build"
   },
   "app": {
     "windows": [
       {
-        "title": "jobs-journal",
+        "title": "Jobs Journal - 0.1.1-alpha",
         "width": 800,
         "height": 1000,
         "resizable": true,

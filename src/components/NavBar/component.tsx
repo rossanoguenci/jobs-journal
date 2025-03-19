@@ -30,7 +30,8 @@ export default function Component() {
                 <NavbarBrand>
                     <div className="flex items-center justify-between flex-col">
                         <p className="font-bold text-inherit">Jobs Journal</p>
-                        <p className="text-xs font-extralight text-inherit">- Alpha 1.0 -</p>
+                        <p className="text-xs font-extralight text-inherit">- {process.env.NEXT_PUBLIC_VERSION} -</p>
+                        <p className="text-xs font-extralight text-inherit">({process.env.NEXT_PUBLIC_BUILD_NUMBER})</p>
                     </div>
                 </NavbarBrand>
             </NavbarContent>
