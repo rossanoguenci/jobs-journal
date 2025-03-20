@@ -1,6 +1,6 @@
 # Jobs Journal
 
-A simple and efficient job journal app to help you track and manage your job search process. Built with Next.js (app routing), Tauri v2, NextUI, Rust, and SQLite.
+A simple and efficient job journal app to help you track and manage your job search process. Built with Next.js (app routing), Tauri v2, HeroUI, Rust, and SQLite.
 
 ## Current Status
 
@@ -16,7 +16,7 @@ We are committed to publishing this project as open-source and welcome any contr
 
 ## Tech Stack
 
-- **Frontend**: Next.js (app routing), NextUI (React UI library)
+- **Frontend**: Next.js (app routing), HeroUI (React UI library)
 - **Backend**: Rust, SQLite, Tauri v2
 - **Package Management**: pnpm
 
