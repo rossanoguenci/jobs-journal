@@ -11,8 +11,8 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "pnpm tauri dev",
-    "build": "pnpm tauri build",
+    "dev": "NEXT_PUBLIC_ENV=development pnpm tauri dev",
+    "build": "NEXT_PUBLIC_ENV=production pnpm tauri build",
     "debug": "RUST_BACKTRACE=full pnpm tauri dev",
     "sync-config": "node scripts/sync-config.js"
   },
