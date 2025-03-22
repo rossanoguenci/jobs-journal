@@ -1,9 +1,6 @@
 use super::Database;
 use serde::Serialize;
-use sqlx::{Error, SqlitePool};
-use std::sync::Arc;
 use tauri::State;
-use tokio::sync::Mutex;
 
 #[derive(Debug, Serialize, sqlx::FromRow)]
 pub struct Job {

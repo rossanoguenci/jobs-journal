@@ -1,7 +1,7 @@
 mod queries;
 mod db;
 
-use tauri::{Builder, Manager};
+use tauri::{Builder};
 use db::{get_db_path, setup_database};
 
 use queries::insert_job_entry::insert_job_entry;
@@ -9,12 +9,19 @@ use queries::delete_job_entry::delete_job_entry;
 use queries::get_jobs::get_jobs;
 use queries::trash_job_entry::{trash_job_entry, restore_job_entry};
 
+
 #[tokio::main]
 async fn main() {
     Builder::default()
         .setup(|app| {
             let app_handle = app.handle();
-            let db_path = get_db_path(&app_handle);
+            
+            #[cfg(feature = "dev")]
+            let db_path = get_db_path();
+
+            #[cfg(not(feature = "dev"))]
+            let db_path = get_db_path(app_handle);
+
 
             let app_handle_clone = app_handle.clone();
             tokio::spawn(async move {
