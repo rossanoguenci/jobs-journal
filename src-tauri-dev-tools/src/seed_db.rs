@@ -1,11 +1,30 @@
 #[cfg(feature = "cli")]
-use jobs_journal::db::get_db_path;
-use sqlx::SqlitePool;
-use rand::{Rng};
-use std::env;
+use rand::Rng;
 use rand::prelude::IndexedRandom;
+use sqlx::SqlitePool;
+use std::env;
 use tokio::runtime::Runtime;
 
+fn get_db_path() -> String {
+    use std::env;
+
+    let current_dir = env::current_dir().expect("Failed to get current directory");
+
+    // Move up one level from `src/` to `src-tauri-dev-tools/`
+    let project_root = current_dir.parent().expect("Failed to find project root");
+
+    let db_path = project_root
+        .join("src-tauri-dev-tools")
+        .join("dev_jobs_journal.db");
+
+    db_path.to_str().unwrap().to_string()
+}
+
+/*Example: run
+
+cargo run --bin seed_db --features cli,dev -- seed 10
+
+*/
 fn main() {
     let rt = Runtime::new().expect("Failed to create runtime");
     let args: Vec<String> = env::args().collect();
@@ -17,7 +36,9 @@ fn main() {
 
     let db_url = get_db_path(); // Standalone call without `AppHandle`
     rt.block_on(async {
-        let pool = SqlitePool::connect(&db_url).await.expect("Failed to connect to DB");
+        let pool = SqlitePool::connect(&db_url)
+            .await
+            .expect("Failed to connect to DB");
 
         match args[1].as_str() {
             "seed" if args.len() == 3 => {
@@ -27,13 +48,13 @@ fn main() {
                     Err(e) => eprintln!("Error: {}", e),
                 }
             }
-            "clear" => {
-                match clear_database(&pool).await {
-                    Ok(msg) => println!("{}", msg),
-                    Err(e) => eprintln!("Error: {}", e),
-                }
+            "clear" => match clear_database(&pool).await {
+                Ok(msg) => println!("{}", msg),
+                Err(e) => eprintln!("Error: {}", e),
+            },
+            _ => {
+                println!("Invalid command. Usage: cargo run --bin seed_db -- <seed NUM> | <clear>")
             }
-            _ => println!("Invalid command. Usage: cargo run --bin seed_db -- <seed NUM> | <clear>"),
         }
     });
 }
@@ -41,10 +62,16 @@ fn main() {
 /// Inserts random job entries into the database
 async fn seed_database(pool: &SqlitePool, num_entries: usize) -> Result<String, String> {
     let companies = vec!["Google", "Microsoft", "Amazon", "Apple", "Spotify"];
-    let titles = vec!["Frontend Developer", "Backend Developer", "Full-Stack Engineer", "DevOps Engineer", "UI/UX Designer"];
+    let titles = vec![
+        "Frontend Developer",
+        "Backend Developer",
+        "Full-Stack Engineer",
+        "DevOps Engineer",
+        "UI/UX Designer",
+    ];
     let statuses = vec!["sent", "in_progress", "got_offer", "rejected"];
     let insert_statuses = vec!["inserted", "trashed"];
-    
+
     let mut rng = rand::rng();
 
     for _ in 0..num_entries {
@@ -53,7 +80,14 @@ async fn seed_database(pool: &SqlitePool, num_entries: usize) -> Result<String, 
 
         let company = companies.choose(&mut rng).unwrap();
         let title = titles.choose(&mut rng).unwrap();
-        let link = if rng.random_bool(0.7) { Some(format!("https://joblisting.com/{}", rng.random_range(1000..9999))) } else { None };
+        let link = if rng.random_bool(0.7) {
+            Some(format!(
+                "https://joblisting.com/{}",
+                rng.random_range(1000..9999)
+            ))
+        } else {
+            None
+        };
         let status = statuses.choose(&mut rng).unwrap();
         let insert_status = insert_statuses.choose(&mut rng).unwrap();
 
@@ -78,7 +112,10 @@ async fn seed_database(pool: &SqlitePool, num_entries: usize) -> Result<String, 
         }
     }
 
-    Ok(format!("Inserted {} random job entries into the database.", num_entries))
+    Ok(format!(
+        "Inserted {} random job entries into the database.",
+        num_entries
+    ))
 }
 
 /// Clears the database

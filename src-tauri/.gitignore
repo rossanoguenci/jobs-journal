@@ -2,7 +2,3 @@
 # will have compiled files and executables
 /target/
 /gen/schemas
-
-# Exclude any databases created during development.
-# In production, the database is stored in the OS-specific app data folder.
-/src/dev/*.db

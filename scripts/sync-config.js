@@ -28,12 +28,12 @@ tauriConf.identifier = config.identifier;
 tauriConf.app.windows[0].title = `${config.title} - ${buildInfo.version}`;
 writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
 
-// Update Cargo.toml
+// Update src-tauri/Cargo.toml
 const cargoTomlPath = "src-tauri/Cargo.toml";
 let cargoToml = readFileSync(cargoTomlPath, "utf8");
 
 // Replace values in Cargo.toml using regex
-cargoToml = cargoToml.replace(/name = ".*"/, `name = "${config.name}"`);
+cargoToml = cargoToml.replace(/name = ".*"/, `name = "${config.name.replace(/-/g, "_")}"`);
 cargoToml = cargoToml.replace(/version = ".*"/, `version = "${buildInfo.version}"`);
 cargoToml = cargoToml.replace(/description = ".*"/, `description = "${config.description}"`);
 cargoToml = cargoToml.replace(/authors = \[".*"]/, `authors = ["${config.author}"]`);

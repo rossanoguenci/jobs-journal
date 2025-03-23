@@ -1,0 +1,6 @@
+[workspace]
+resolver = "3"
+members = [
+    "src-tauri",            # The production Tauri app
+    "src-tauri-dev-tools"   # The dev tools
+]

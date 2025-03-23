@@ -9,10 +9,14 @@ use crate::queries::Database;
 #[cfg(feature = "dev")]
 pub fn get_db_path() -> String {
     use std::env;
-    let base_dir = Path::new(env::current_dir().expect("Failed to get current directory").to_str().unwrap())
-        .join("src/dev");
     
-    let db_path = base_dir.join("dev_jobs_journal.db");
+    let current_dir = env::current_dir().expect("Failed to get current directory");
+
+    // Move up one level from `src-tauri/` to `jobs-journal/`
+    let project_root = current_dir.parent().expect("Failed to find project root");
+
+    let db_path = project_root.join("src-tauri-dev-tools").join("dev_jobs_journal.db");
+
     db_path.to_str().unwrap().to_string()
 }
 

@@ -1,0 +1,19 @@
+[package]
+name = "jobs_journal_dev_tools"
+version = "0.1.1-alpha"
+edition = "2024"
+
+[[bin]]
+name = "seed_db"
+path = "src/seed_db.rs"
+required-features = ["cli"]
+
+[features]
+cli = []
+dev = []
+
+[dependencies]
+tokio = { version = "1.44.1", features = ["full"] }
+sqlx = { version = "0.8.3", features = ["sqlite", "chrono", "runtime-tokio"] }
+rand = "0.9.0"
+chrono = "0.4.40"
