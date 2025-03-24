@@ -20,11 +20,16 @@ We are committed to publishing this project as open-source and welcome any contr
 - **Backend**: Rust, SQLite, Tauri v2
 - **Package Management**: pnpm
 
+## Preview
+
+![Preview of Jobs Journal](preview/preview_1.png)
+
+
 ## Installation
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or above)
+- [Node.js](https://nodejs.org/) (v23 or above)
 - [Rust](https://www.rust-lang.org/)
 - [pnpm](https://pnpm.io/)
 
