@@ -18,6 +18,7 @@ import {
 import useJobsList, {JobsListType} from "@/queries/useJobsList";
 import {Eye, Edit, Delete} from "@components/Icons";
 import {invoke} from "@tauri-apps/api/core";
+import Link from "next/link";
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
     sent: "primary",
@@ -69,17 +70,17 @@ export default function Component() {
             case "actions":
                 return (
                     <div className="relative flex items-center gap-2">
-                        <Tooltip color="warning" content="This is still in development" showArrow={true}>
+                        <Link href={`/jobs/${item.id}`} className="job-link">
                             <Button isIconOnly aria-label="View" color="default" variant="flat">
                                 <Eye/>
                             </Button>
-                        </Tooltip>
+                        </Link>
 
-                        <Tooltip color="warning" content="This is still in development" showArrow={true}>
+                        {/*<Tooltip color="warning" content="This is still in development" showArrow={true}>
                             <Button isIconOnly aria-label="Edit" color="default" variant="flat">
                                 <Edit/>
                             </Button>
-                        </Tooltip>
+                        </Tooltip>*/}
 
                         <Button isIconOnly aria-label="Delete" color="danger" variant="flat"
                                 onPress={() => handleTrashClick(item.id)}>

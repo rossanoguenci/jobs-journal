@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "boxicons/css/boxicons.min.css";
+
+
 .wrapper{
   @apply max-w-5xl mx-auto p-5;
+}
+
+.container {
+  @apply p-10 w-full max-w-[1000px] mb-7;
+  @apply rounded-2xl;
+
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--heroui-content1) / var(--heroui-content1-opacity, var(--tw-bg-opacity)));
+
 }

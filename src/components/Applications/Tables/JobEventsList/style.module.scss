@@ -1,0 +1,10 @@
+.container{
+  //@apply w-full;
+
+  @apply mt-10 p-5 rounded-lg;
+
+  table{
+    @apply mt-5 min-w-1 max-w-sm;
+  }
+
+}
