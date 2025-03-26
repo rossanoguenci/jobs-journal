@@ -2,7 +2,7 @@ use super::Database;
 use tauri::State;
 
 #[tauri::command]
-pub async fn trash_job_entry(db: State<'_, Database>, id: i32) -> Result<String, String> {
+pub async fn trash_job_entry(db: State<'_, Database>, id: i64) -> Result<String, String> {
     let pool = db.pool.lock().await;
 
     let query_str = "UPDATE jobs SET insert_status = 'trashed' WHERE id = ?";
@@ -16,7 +16,7 @@ pub async fn trash_job_entry(db: State<'_, Database>, id: i32) -> Result<String,
 }
 
 #[tauri::command]
-pub async fn restore_job_entry(db: State<'_, Database>, id: i32) -> Result<String, String> {
+pub async fn restore_job_entry(db: State<'_, Database>, id: i64) -> Result<String, String> {
     let pool = db.pool.lock().await;
 
     let query_str = "UPDATE jobs SET insert_status = 'restored' WHERE id = ?";
