@@ -1,0 +1,8 @@
+.container {
+  @apply p-10 flex w-full max-w-[1000px] flex-wrap md:flex-nowrap mb-7 gap-4;
+  @apply rounded-2xl;
+
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--heroui-content1) / var(--heroui-content1-opacity, var(--tw-bg-opacity)));
+
+}

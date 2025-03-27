@@ -1,18 +1,29 @@
 "use client"
 
-import React from "react";
+import React, {useState} from "react";
 import {useParams, useRouter} from "next/navigation";
-import {Avatar, Button, Chip, ChipProps, Link, Skeleton} from "@heroui/react";
-import {Delete, Eye, Edit, Company} from "@components/Icons";
+import {
+    Avatar,
+    Button,
+    Chip,
+    ChipProps,
+    Link,
+    Skeleton,
+} from "@heroui/react";
 import JobEventsList from "@components/Applications/Tables/JobEventsList";
+import InsertEvent from "@components/Applications/Forms/InsertEvent";
 import useJobDetails from "@/queries/useJobDetails";
+import {Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger} from "@heroui/dropdown";
+import Modal from "@components/Modal";
 
-export default function JobDetails() {
+export default function JobDetailsPage() {
     const router = useRouter();
     const params = useParams();
     const jobId = Number(params.id);
 
     const {data, loading, error, refresh} = useJobDetails({jobId});
+
+    const [openModal, setOpenModal] = useState<boolean>(false);
 
     console.log(data);
 
@@ -47,6 +58,21 @@ export default function JobDetails() {
         return (<>{`${day}-${month}-${year}`}</>);
     }
 
+    const daysFromDate = (date: string) => {
+        if (date.length < 10) {
+            return null
+        }
+        const givenDate = new Date(date);
+        if (isNaN(givenDate.getTime())) {
+            return null;
+        }
+        const today = new Date();
+        const diff = today.getTime() - givenDate.getTime();
+
+        return Math.floor(diff / (1000 * 60 * 60 * 24));
+    }
+
+
     return (
         <main className="wrapper">
             {/* Back Button */}
@@ -55,61 +81,80 @@ export default function JobDetails() {
             </Button>
 
             <div className="container">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+
                     {/* Job Title */}
-                    <div className="sm:col-span-2">
+                    <div className="col-span-1 sm:col-span-2 flex items-center">
                         <Skeleton className="rounded-lg" isLoaded={!loading}>
                             <h1 className="text-xl">{data?.title ?? "N/A"}</h1>
                         </Skeleton>
                     </div>
 
-                    {/* Buttons */}
-                    <div className="sm:col-span-1 flex sm:justify-end justify-center flex-wrap gap-2">
-                        <Button aria-label="View" color="primary" variant="flat" size="sm">
-                            <i className="bx bx-calendar-plus"/> Add event
-                        </Button>
+                    {/* Actions */}
+                    <div className="col-span-1 flex justify-end">
+                        <Dropdown backdrop="blur">
+                            <DropdownTrigger>
+                                <Button aria-label="Open actions" color="default" variant="light" size="lg" isIconOnly
+                                        className="text-xl"><i className='bx bxs-cog'/></Button>
+                            </DropdownTrigger>
+                            <DropdownMenu aria-label="Actions dropdown menu" variant="faded">
+                                <DropdownSection aria-label="Actions" showDivider>
+                                    <DropdownItem
+                                        key="add_event"
+                                        startContent={<i className="bx bxs-calendar-plus"/>}
+                                        onPress={() => setOpenModal(true)}
+                                    >Add event</DropdownItem>
+                                    <DropdownItem
+                                        key="edit_job"
+                                        startContent={<i className="bx bxs-edit-alt"/>}
+                                        //todo: onPress={}
+                                    >Edit job</DropdownItem>
+                                </DropdownSection>
+                                <DropdownSection aria-label="Danger zone">
+                                    <DropdownItem
+                                        key="archive"
+                                        startContent={<i className="bx bxs-archive-in"/>}
+                                        className="text-danger"
+                                        color="danger"
+                                        //todo: onPress={}
+                                    >Archive job</DropdownItem>
+                                </DropdownSection>
+                            </DropdownMenu>
+                        </Dropdown>
 
-                        <Button aria-label="View" color="primary" variant="flat" size="sm">
-                            <Edit/> Edit Job
-                        </Button>
-
-                        <Button aria-label="Delete" color="danger" variant="flat" size="sm">
-                            <Delete/> Hide Job
-                        </Button>
                     </div>
 
                     {/* Company Info */}
-                    <div>
+                    <div className="flex items-center">
                         <Skeleton className="rounded-lg" isLoaded={!loading}>
-                            <div className="flex items-center gap-2">
-                                <Avatar size="sm" showFallback fallback={<Company/>}
+                            <div className="flex items-center gap-2 align-middle">
+                                <Avatar size="sm" showFallback fallback={<i className="bx bx-buildings"/>}
                                         src="https://images.unsplash.com/broken"/>
-                                <div>{data?.company ?? "N/A"}</div>
+                                <span>{data?.company ?? "N/A"}</span>
                             </div>
                         </Skeleton>
                     </div>
 
                     {/* Applied Date */}
-                    <div className="text-xs flex items-center justify-center">
+                    <div className="col-span-2 sm:col-span-1 text-xs flex items-center justify-center">
                         <Skeleton className="rounded-lg" isLoaded={!loading}>
-                            <div className="flex items-center justify-center gap-2">
-                                <i className="bx bx-calendar"></i>
-                                <span>Applied on: {application_date(data?.application_date ?? '')}</span>
+                            <div className="flex flex-col items-center justify-center gap-2">
+                                <span><i className="bx bx-calendar"></i> {application_date(data?.application_date ?? '')}</span>
+                                <span>({daysFromDate(data?.application_date ?? '')} days ago)</span>
                             </div>
                         </Skeleton>
                     </div>
 
                     {/* Status */}
-                    <div className="text-xs flex items-center justify-center">
+                    <div className="col-span-2 sm:col-span-1 text-xs flex items-center justify-center">
                         <Skeleton className="rounded-lg" isLoaded={!loading}>
-                            <div className="flex items-center justify-center gap-2">
-                                <span>Status:
-                                    <Chip className="capitalize"
-                                          color={statusColorMap[data?.status ?? "default"] || "default"} size="sm"
-                                          variant="solid">
-                                        {statusLabelMap[data?.status ?? "default"] || "Unknown"}
-                                    </Chip>
-                                </span>
+                            <div className="flex flex-col items-center justify-center gap-2">
+                                <span>Current status</span>
+                                <Chip className="capitalize"
+                                      color={statusColorMap[data?.status ?? "default"] || "default"} size="sm"
+                                      variant="solid">
+                                    {statusLabelMap[data?.status ?? "default"] || "Unknown"}
+                                </Chip>
                             </div>
                         </Skeleton>
                     </div>
@@ -136,8 +181,14 @@ export default function JobDetails() {
                     </div>
                 </div>
 
-                <JobEventsList jobId={jobId} />
+                <JobEventsList jobId={jobId}/>
             </div>
+
+            {/*Modal*/}
+            <Modal isOpen={openModal} onClose={() => setOpenModal(false)}>
+                <InsertEvent jobId={jobId}/>
+            </Modal>
+
         </main>
     );
 }

@@ -1,0 +1,18 @@
+.container {
+  @apply absolute size-full top-0 left-0 flex justify-center sm:items-center z-10;
+
+  @apply bg-overlay/30 backdrop-saturate-150 backdrop-blur-sm;
+
+
+}
+
+.children {
+  @apply border border-gray-800 rounded-xl w-full sm:max-w-sm;
+
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--heroui-content1) / var(--heroui-content1-opacity, var(--tw-bg-opacity)));
+}
+
+.close{
+  @apply mt-2 ml-2;
+}
