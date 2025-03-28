@@ -39,8 +39,8 @@ export default function Component({jobId}: { jobId: number }) {
     }, []);
 
     return (
-        <div className={`${style.container} shadow-small`}>
-            <h2>List of event</h2>
+        <div className={`${style.container}`}>
+            <h2 className="text-sm">List of event</h2>
             <Table fullWidth={false} hideHeader removeWrapper aria-label="Table of events">
                 <TableHeader columns={data?.columns ?? []}>
                     {/*todo: there's an issue with props, they are truing to fix*/}

@@ -29,12 +29,12 @@ export default function useJobEvents({jobId}: { jobId: number }) {
             const rows = await invoke<JobEventType[]>("job_events_get", {jobId});
             setData({
                 columns: [
-                    { key: "id", label: "ID" },
-                    { key: "job_id", label: "Job ID" },
+                    // {key: "id", label: "ID"},
+                    // {key: "job_id", label: "Job ID"},
                     {key: "date_of_event", label: "Date of event"},
                     {key: "description", label: "Description"},
-                    { key: "insert_type", label: "Insert Type" },
-                    { key: "insert_date", label: "Insert Date" },
+                    // {key: "insert_type", label: "Insert Type"},
+                    // {key: "insert_date", label: "Insert Date"},
                 ],
                 rows: rows ?? []
             });
