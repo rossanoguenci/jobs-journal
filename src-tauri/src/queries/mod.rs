@@ -26,4 +26,5 @@ pub use jobs_get::{get_jobs, jobs_get_details};
 pub use jobs_trash_restore::{trash_job_entry, restore_job_entry};
 pub use job_events_insert::{job_events_insert};
 // pub use job_events_update::{job_events_update}; //todo: to be developed
+// pub use job_events_delete::{job_events_delete}; //todo: to be developed
 pub use job_events_get::{job_events_get};

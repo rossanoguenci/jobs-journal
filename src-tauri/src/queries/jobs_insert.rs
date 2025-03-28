@@ -1,3 +1,6 @@
+#[path = "./job_events_insert_trigger.rs"]
+mod job_events_insert_trigger;
+
 use tauri::State;
 use super::Database;
 
@@ -31,7 +34,16 @@ pub async fn insert_job_entry(db: State<'_, Database>, data: JobEntry) -> Result
     }
 
     match query.execute(&*pool).await {
-        Ok(_) => Ok("Entry saved!".to_string()),
+        Ok(result) => {
+            let job_id = result.last_insert_rowid(); // Get the inserted job's ID
+
+            // Call `job_events_insert_trigger`
+            if let Err(err) = job_events_insert_trigger::job_events_insert_trigger(&pool, job_id).await {
+                eprintln!("Failed to insert job event: {}", err);
+            }
+
+            Ok("Entry saved!".to_string())
+        }
         Err(e) => Err(format!("Database error: {}", e)),
     }
 }
