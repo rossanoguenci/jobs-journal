@@ -1,14 +1,15 @@
 import {useEffect, useState, useCallback} from "react";
 import {invoke} from "@tauri-apps/api/core";
+import {JobEvent as JobEventType} from "../types/JobEvent";
 
-export interface JobEventType {
+/*export interface JobEventType {
     id: number,
     job_id: number,
     date_of_event: string,
     description: string,
     insert_type: string,
     insert_date: string,
-}
+}*/
 
 export interface JobEventsType {
     columns: Array<{ key: string; label: string }>;

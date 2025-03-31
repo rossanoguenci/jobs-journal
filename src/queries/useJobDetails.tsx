@@ -1,14 +1,6 @@
 import {useEffect, useState, useCallback} from "react";
 import {invoke} from "@tauri-apps/api/core";
-
-export interface JobDetailsType {
-    id: number;
-    company: string;
-    title: string;
-    application_date: string;
-    status: string;
-    link: string;
-}
+import {JobEntry as JobDetailsType} from "../types/JobEntry";
 
 export default function useJobDetails({jobId}: { jobId: number }) {
     const [data, setData] = useState<JobDetailsType | null>(null);

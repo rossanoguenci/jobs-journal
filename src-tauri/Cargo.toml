@@ -15,6 +15,7 @@ path = "src/main.rs"
 
 [features]
 dev = []
+cli = []
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -26,8 +27,9 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2.1.0", features = [] }
 
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
-log = "0.4"
+ts-rs = "10.1.0"
+serde = { version = "1.0.219", features = ["derive"] }
+log = "0.4.27"
 tauri = { version = "2.4.0", features = [] }
 tauri-plugin-log = "2.3.1"
 tokio = { version = "1.44.1", features = ["full"] }

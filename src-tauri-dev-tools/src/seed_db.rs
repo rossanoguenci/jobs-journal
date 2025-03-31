@@ -70,7 +70,7 @@ async fn seed_database(pool: &SqlitePool, num_entries: usize) -> Result<String, 
         "UI/UX Designer",
     ];
     let statuses = vec!["sent", "in_progress", "got_offer", "rejected"];
-    let insert_statuses = vec!["inserted", "trashed"];
+    let insert_statuses = vec!["inserted", "archived"];
 
     let mut rng = rand::rng();
 

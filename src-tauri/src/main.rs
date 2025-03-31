@@ -1,3 +1,4 @@
+mod models;
 mod queries;
 mod db;
 
@@ -27,11 +28,11 @@ async fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            insert_job_entry,
-            get_jobs,
+            jobs_insert,
+            jobs_get_list,
             jobs_get_details,
             delete_job_entry,
-            trash_job_entry,
+            archive_job_entry,
             restore_job_entry,
             job_events_insert,
             job_events_get,

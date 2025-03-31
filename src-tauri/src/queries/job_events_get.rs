@@ -1,16 +1,6 @@
 use super::Database;
-use serde::Serialize;
 use tauri::State;
-
-#[derive(Debug, Serialize, sqlx::FromRow)]
-pub struct JobEvent {
-    id: i64,
-    job_id: i64,
-    date_of_event: String,
-    description: String,
-    insert_type: String,
-    insert_date: String,
-}
+use crate::models::job_event::JobEvent;
 
 #[tauri::command]
 pub async fn job_events_get(db: State<'_, Database>, job_id: i64) -> Result<Vec<JobEvent>, String> {

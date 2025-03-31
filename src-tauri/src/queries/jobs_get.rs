@@ -1,24 +1,11 @@
 use super::Database;
-use serde::Serialize;
 use tauri::State;
-
-#[derive(Debug, Serialize, sqlx::FromRow)]
-pub struct Job {
-    id: i64,
-    insert_date: String,
-    company: String,
-    title: String,
-    link: String,
-    application_date: String,
-    status: String,
-}
-
+use crate::models::job_entry::JobEntry;
 #[tauri::command]
-pub async fn get_jobs(db: State<'_, Database>) -> Result<Vec<Job>, String> {
+pub async fn jobs_get_list(db: State<'_, Database>) -> Result<Vec<JobEntry>, String> {
     let pool = db.pool.lock().await; // Lock the database pool for safe async access
-
-    let jobs = sqlx::query_as::<_, Job>(
-        "SELECT * FROM jobs WHERE insert_status!='trashed' ORDER BY id DESC",
+    let jobs = sqlx::query_as::<_, JobEntry>(
+        "SELECT * FROM jobs WHERE insert_status!='archived' ORDER BY id DESC",
     )
     .fetch_all(&*pool) // Fetch all rows
     .await
@@ -28,14 +15,13 @@ pub async fn get_jobs(db: State<'_, Database>) -> Result<Vec<Job>, String> {
 }
 
 #[tauri::command]
-pub async fn jobs_get_details(db: State<'_, Database>, job_id: i64) -> Result<Option<Job>, String> {
+pub async fn jobs_get_details(db: State<'_, Database>, job_id: i64) -> Result<Option<JobEntry>, String> {
     if job_id <= 0 {
         return Ok(None);
     }
     let pool = db.pool.lock().await;
-
     let job_detail =
-        sqlx::query_as::<_, Job>("SELECT * FROM jobs WHERE id=? AND insert_status!='trashed'")
+        sqlx::query_as::<_, JobEntry>("SELECT * FROM jobs WHERE id=? AND insert_status!='archived'")
             .bind(job_id)
             .fetch_optional(&*pool)
             .await
