@@ -15,6 +15,7 @@ import InsertEvent from "@components/Applications/Forms/InsertEvent";
 import useJobDetails from "@/queries/useJobDetails";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger} from "@heroui/dropdown";
 import Modal from "@components/Modal";
+import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
 
 export default function JobDetailsPage() {
     const router = useRouter();
@@ -23,9 +24,22 @@ export default function JobDetailsPage() {
 
     const {data, loading, error, refresh} = useJobDetails({jobId});
 
-    const [openModal, setOpenModal] = useState<boolean>(false);
+    // const [openModal, setOpenModal] = useState<boolean>(false);
+    const [modalType, setModalType] = useState<string | null>(null);
+    const openModal = (type: string) => setModalType(type);
+    const closeModal = () => setModalType(null);
 
-    console.log(data);
+    const archiveJob = async () => {
+        try {
+            const response = await fetch(`/api/jobs/${jobId}/archive`, {
+                method: "POST",
+            });
+            if (!response.ok) throw new Error("Failed to archive job");
+
+        } catch (error) {
+            console.error("Error archiving job:", error);
+        }
+    }; // todo: to be developed
 
     const statusColorMap: Record<string, ChipProps["color"]> = {
         sent: "primary",
@@ -102,12 +116,12 @@ export default function JobDetailsPage() {
                                     <DropdownItem
                                         key="add_event"
                                         startContent={<i className="bx bxs-calendar-plus"/>}
-                                        onPress={() => setOpenModal(true)}
+                                        onPress={() => openModal("add_event")}
                                     >Add event</DropdownItem>
                                     <DropdownItem
                                         key="edit_job"
                                         startContent={<i className="bx bxs-edit-alt"/>}
-                                        //todo: onPress={}
+                                        onPress={() => openModal("edit_job")}
                                     >Edit job</DropdownItem>
                                 </DropdownSection>
                                 <DropdownSection aria-label="Danger zone">
@@ -116,7 +130,7 @@ export default function JobDetailsPage() {
                                         startContent={<i className="bx bxs-archive-in"/>}
                                         className="text-danger"
                                         color="danger"
-                                        //todo: onPress={}
+                                        // onPress={archiveJob}
                                     >Archive job</DropdownItem>
                                 </DropdownSection>
                             </DropdownMenu>
@@ -139,7 +153,8 @@ export default function JobDetailsPage() {
                     <div className="col-span-2 sm:col-span-1 text-xs flex items-center justify-center">
                         <Skeleton className="rounded-lg" isLoaded={!loading}>
                             <div className="flex flex-col items-center justify-center gap-2">
-                                <span><i className="bx bx-calendar"></i> {application_date(data?.application_date ?? '')}</span>
+                                <span><i
+                                    className="bx bx-calendar"></i> {application_date(data?.application_date ?? '')}</span>
                                 <span>({daysFromDate(data?.application_date ?? '')} days ago)</span>
                             </div>
                         </Skeleton>
@@ -185,9 +200,11 @@ export default function JobDetailsPage() {
             </div>
 
             {/*Modal*/}
-            <Modal isOpen={openModal} onClose={() => setOpenModal(false)}>
-                <InsertEvent jobId={jobId}/>
+            <Modal isOpen={modalType !== null} onClose={closeModal}>
+                {modalType === "add_event" && <InsertEvent jobId={jobId}/>}
+                {modalType === "edit_job" && <InsertEditJob data={data}/>}
             </Modal>
+
 
         </main>
     );

@@ -8,6 +8,7 @@ name: Build & Release - macOS universal binaries
 
 jobs:
   build:
+    if: false
     runs-on: macos-latest
 
     permissions:

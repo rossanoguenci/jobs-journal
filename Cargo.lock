@@ -1870,6 +1870,7 @@ version = "0.1.1-alpha"
 dependencies = [
  "log",
  "serde",
+ "serde_json",
  "sqlx",
  "tauri",
  "tauri-build",

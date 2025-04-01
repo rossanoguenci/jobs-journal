@@ -5,7 +5,6 @@ import {JobEntry} from "../types/JobEntry";
 export interface JobsListType {
     columns: Array<{ key: string; label: string }>;
     rows: Array<JobEntry>;
-    // rows: Array<{ id: number; company: string; title: string; application_date: string; status: string }>;
 }
 
 export default function useJobsList() {

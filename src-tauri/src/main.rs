@@ -29,11 +29,12 @@ async fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             jobs_insert,
+            jobs_update,
             jobs_get_list,
             jobs_get_details,
             delete_job_entry,
-            archive_job_entry,
-            restore_job_entry,
+            jobs_archive_entry,
+            jobs_restore_entry,
             job_events_insert,
             job_events_get,
         ])

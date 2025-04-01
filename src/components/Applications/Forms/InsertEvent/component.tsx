@@ -3,10 +3,9 @@
 import React, {useState} from "react";
 // import Props from './props.types';
 import style from "./style.module.scss";
-
 import {Button, DatePicker, Input, Form,} from "@heroui/react"
-
 import {invoke} from "@tauri-apps/api/core"
+import {getLocalTimeZone, today} from "@internationalized/date";
 
 
 type insertProps = {
@@ -14,7 +13,6 @@ type insertProps = {
     message: string;
 }
 
-//todo: change
 async function insertEvent(data: { [k: string]: FormDataEntryValue; }): Promise<insertProps> {
     try {
         const message = await invoke<string>("job_events_insert", {data: data});
@@ -63,7 +61,7 @@ export default function Component({jobId}: { jobId: number }) {
     }
 
 
-    const default_size = "sm";
+    const default_size = "md";
 
 
     return (
@@ -81,18 +79,15 @@ export default function Component({jobId}: { jobId: number }) {
                 size={default_size}
             />
 
-            <div className="flex gap-3">
+            <DatePicker
+                isRequired
+                label="Date of the event"
+                aria-label="Date of the event"
+                name="date_of_event"
+                size={default_size}
+                defaultValue={today(getLocalTimeZone())}
+            />
 
-                <DatePicker
-                    label="Date of the event"
-                    aria-label="Date of the event"
-                    name="date_of_event"
-                    size={default_size}
-                    // hideTimeZone //todo: generate error
-                    // showMonthAndYearPickers //todo: generate error
-                    // defaultValue={today} //todo: generate error IDE
-                />
-            </div>
             <div className="flex gap-2">
                 <Button
                     aria-label="Insert"

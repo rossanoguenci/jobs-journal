@@ -1,3 +1,3 @@
 export default interface Props {
-    isVisible?: boolean;
+    data?: null | "";
 }

@@ -2,6 +2,7 @@ import React from "react";
 import Props from "./props.types";
 import styles from "./styles.module.scss";
 import {Button} from "@heroui/react";
+import {ModalProvider} from "@components/Modal/provider";
 
 export default function Component({children, isOpen = true, onClose}: Props) {
     return isOpen ? (
@@ -19,7 +20,7 @@ export default function Component({children, isOpen = true, onClose}: Props) {
                         size="sm"
                         onPress={onClose}
                     ><i className="bx bx-x"/></Button></div>
-                {children}
+                <ModalProvider onClose={onClose}>{children}</ModalProvider>
             </div>
         </div>
     ) : null;

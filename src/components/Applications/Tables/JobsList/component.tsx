@@ -10,13 +10,12 @@ import {
     TableRow,
     TableCell,
     ChipProps,
-    Tooltip,
+    // Tooltip,
     Chip,
     Button,
 } from "@heroui/react";
 
 import useJobsList, {JobsListType} from "@/queries/useJobsList";
-import {Eye, Edit, Delete} from "@components/Icons";
 import {invoke} from "@tauri-apps/api/core";
 import Link from "next/link";
 
@@ -38,10 +37,10 @@ type JobsListRow = JobsListType["rows"][number];
 export default function Component() {
     const {data, loading, error, refresh} = useJobsList();
 
-    const handleTrashClick = React.useCallback(async (id: number) => {
-        console.log('handleTrashClick() clicked -> ', id);
+    const handleArchiveClick = React.useCallback(async (id: bigint) => {
+        console.log('handleArchiveClick() clicked -> ', id);
         try {
-            const response: string = await invoke("trash_job_entry", {id});
+            const response: string = await invoke("jobs_archive_entry", {id});
             console.log(response);
             refresh();
         } catch (error) {
@@ -61,30 +60,31 @@ export default function Component() {
                 const [year, month, day] = cellValue.split("-");
                 return (<>{`${day}-${month}-${year}`}</>);
             case "status":
+                const statusColor = typeof cellValue === "string" ? statusColorMap[cellValue] : "default";
+                const statusLabel = typeof cellValue === "string" ? statusLabelMap[cellValue] : "Unknown";
+
                 return (
-                    <Chip className="capitalize" color={statusColorMap[cellValue] || "default"} size="sm"
+                    <Chip className="capitalize" color={statusColor} size="sm"
                           variant="solid">
-                        {statusLabelMap[cellValue]}
+                        {statusLabel}
                     </Chip>
                 );
             case "actions":
                 return (
                     <div className="relative flex items-center gap-2">
                         <Link href={`/jobs/${item.id}`} className="job-link">
-                            <Button isIconOnly aria-label="View" color="default" variant="flat">
-                                <Eye/>
+                            <Button isIconOnly aria-label="View" color="default" variant="solid">
+                                <i className="bx bx-show"/>
                             </Button>
                         </Link>
 
-                        {/*<Tooltip color="warning" content="This is still in development" showArrow={true}>
-                            <Button isIconOnly aria-label="Edit" color="default" variant="flat">
-                                <Edit/>
-                            </Button>
-                        </Tooltip>*/}
+                        <Button isIconOnly aria-label="Edit" color="default" variant="solid">
+                            <i className="bx bxs-edit-alt"/>
+                        </Button>
 
-                        <Button isIconOnly aria-label="Delete" color="danger" variant="flat"
-                                onPress={() => handleTrashClick(item.id)}>
-                            <Delete/>
+                        <Button isIconOnly aria-label="Archive (hide)" color="danger" variant="flat"
+                                onPress={() => handleArchiveClick(item.id)}>
+                            <i className="bx bxs-archive-in"/>
                         </Button>
 
                     </div>
@@ -92,7 +92,7 @@ export default function Component() {
             default:
                 return cellValue;
         }
-    }, [handleTrashClick]);
+    }, [handleArchiveClick]);
 
     return (
         <div className={style.container}>
