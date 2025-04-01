@@ -11,6 +11,7 @@ pub struct JobEntry {
     link: String,
     application_date: String,
     status: String,
+    insert_status: Option<String>
 }
 
 impl JobEntry {
@@ -41,5 +42,8 @@ impl JobEntry {
 
     pub fn status(&self) -> &str {
         &self.status
+    }
+    pub fn insert_status(&self) -> Option<&str> {
+        self.insert_status.as_deref()
     }
 }

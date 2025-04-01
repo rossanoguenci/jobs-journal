@@ -15,9 +15,9 @@ import {
     Button,
 } from "@heroui/react";
 
-import useJobsList, {JobsListType} from "@/queries/useJobsList";
-import {invoke} from "@tauri-apps/api/core";
+import useJobsList, {JobsListType} from "@/hooks/useJobsList";
 import Link from "next/link";
+import useArchiveRestoreJob from "@/hooks/useArchiveRestoreJob";
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
     sent: "primary",
@@ -37,16 +37,13 @@ type JobsListRow = JobsListType["rows"][number];
 export default function Component() {
     const {data, loading, error, refresh} = useJobsList();
 
+    const {message: messageArch, error: errorArch, insertStatusJob} = useArchiveRestoreJob();
+
     const handleArchiveClick = React.useCallback(async (id: bigint) => {
-        console.log('handleArchiveClick() clicked -> ', id);
-        try {
-            const response: string = await invoke("jobs_archive_entry", {id});
-            console.log(response);
-            refresh();
-        } catch (error) {
-            console.error("Failed to delete job:", error);
-        }
-    }, [refresh]);
+        console.log("handleArchiveClick() clicked -> ", id);
+        await insertStatusJob({id, statusTo: "archive"});
+        refresh();
+    }, [insertStatusJob, refresh]);
 
 
     const renderCell = React.useCallback((item: JobsListRow, columnKey: React.Key) => {

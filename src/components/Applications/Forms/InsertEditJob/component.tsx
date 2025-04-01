@@ -77,7 +77,12 @@ export default function Component({data = null}: { data: null | JobEntry }) {
         console.log("Updates", updates);
 
         const result = await invokeBackend(updates);
-        setQueryResult(result);
+
+        if (result.status && onClose) {
+            onClose();
+        } else {
+            setQueryResult(result);
+        }
     };
 
     const onReset = () => {

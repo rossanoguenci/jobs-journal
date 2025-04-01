@@ -3,6 +3,8 @@ use tauri::State;
 
 #[tauri::command]
 pub async fn jobs_archive_entry(db: State<'_, Database>, id: i64) -> Result<String, String> {
+    println!("jobs_archive_entry invoked {}",id);
+
     let pool = db.pool.lock().await;
 
     let query_str = "UPDATE jobs SET insert_status = 'archived' WHERE id = ?";

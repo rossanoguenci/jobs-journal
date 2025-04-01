@@ -12,14 +12,14 @@ export default function Component({children, isOpen = true, onClose}: Props) {
                 <div className={styles.close}>
                     <Button
                         aria-label="Close modal"
-                        className="text-2xl"
-                        isIconOnly
+                        className="opacity-75"
+                        // isIconOnly
                         color="default"
                         variant="light"
                         // radius="full"
                         size="sm"
                         onPress={onClose}
-                    ><i className="bx bx-x"/></Button></div>
+                    >Close</Button></div>
                 <ModalProvider onClose={onClose}>{children}</ModalProvider>
             </div>
         </div>

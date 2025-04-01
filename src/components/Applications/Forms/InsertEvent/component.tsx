@@ -6,6 +6,7 @@ import style from "./style.module.scss";
 import {Button, DatePicker, Input, Form,} from "@heroui/react"
 import {invoke} from "@tauri-apps/api/core"
 import {getLocalTimeZone, today} from "@internationalized/date";
+import {useModal} from "@components/Modal/provider";
 
 
 type insertProps = {
@@ -13,7 +14,7 @@ type insertProps = {
     message: string;
 }
 
-async function insertEvent(data: { [k: string]: FormDataEntryValue; }): Promise<insertProps> {
+async function insertEvent(data: Record<string, unknown>): Promise<insertProps> {
     try {
         const message = await invoke<string>("job_events_insert", {data: data});
         console.log(message);
@@ -38,22 +39,27 @@ async function insertEvent(data: { [k: string]: FormDataEntryValue; }): Promise<
 
 export default function Component({jobId}: { jobId: number }) {
     const [queryResult, setQueryResult] = useState<insertProps>();
+    const {onClose} = useModal();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        const data: { [k: string]: FormDataEntryValue } = {
+        const data: Record<string, unknown> = {
             ...Object.fromEntries(new FormData(e.currentTarget)),
-            job_id: String(jobId),
+            job_id: jobId,
         };
 
-        console.log(data);
+        console.log("Data: ", data);
 
         const result = await insertEvent(data);
 
-        console.log(result);
+        console.log("Result: ", result);
 
-        setQueryResult(result);
+        if (result.status && onClose) {
+            onClose();
+        } else {
+            setQueryResult(result);
+        }
     };
 
     const onReset = () => {

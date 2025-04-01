@@ -11,18 +11,14 @@ import {
     TableCell,
 } from "@heroui/react";
 
-import useJobEvents from "@/queries/useJobEvents";
+import useJobEvents from "@/hooks/useJobEvents";
+import {JobEvent} from "@types/JobEvent";
 
-type JobEventsRowProps = {
-    id: number,
-    date_of_event: string,
-    description: string,
-}
 export default function Component({jobId}: { jobId: number }) {
     const {data, loading, error, refresh} = useJobEvents({jobId});
 
-    const renderCell = React.useCallback((item: JobEventsRowProps, columnKey: React.Key) => {
-        const cellValue = item[columnKey as keyof JobEventsRowProps];
+    const renderCell = React.useCallback((item: JobEvent, columnKey: React.Key) => {
+        const cellValue = item[columnKey as keyof JobEvent];
 
         switch (columnKey) {
             case "date_of_event": {

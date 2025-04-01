@@ -12,10 +12,11 @@ import {
 } from "@heroui/react";
 import JobEventsList from "@components/Applications/Tables/JobEventsList";
 import InsertEvent from "@components/Applications/Forms/InsertEvent";
-import useJobDetails from "@/queries/useJobDetails";
+import useJobDetails from "@/hooks/useJobDetails";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger} from "@heroui/dropdown";
 import Modal from "@components/Modal";
 import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
+import useArchiveRestoreJob from "@/hooks/useArchiveRestoreJob";
 
 export default function JobDetailsPage() {
     const router = useRouter();
@@ -23,23 +24,36 @@ export default function JobDetailsPage() {
     const jobId = Number(params.id);
 
     const {data, loading, error, refresh} = useJobDetails({jobId});
+    const {error: errorInsertStatus, insertStatusJob} = useArchiveRestoreJob();
 
-    // const [openModal, setOpenModal] = useState<boolean>(false);
+    const [refreshKey, setRefreshKey] = useState(0);
+
     const [modalType, setModalType] = useState<string | null>(null);
     const openModal = (type: string) => setModalType(type);
-    const closeModal = () => setModalType(null);
-
-    const archiveJob = async () => {
+    const closeModal = async () => {
+        setModalType(null);
         try {
-            const response = await fetch(`/api/jobs/${jobId}/archive`, {
-                method: "POST",
-            });
-            if (!response.ok) throw new Error("Failed to archive job");
-
+            await refresh();
+            setRefreshKey(prev => prev + 1);
+            console.log("Job details refreshed");
         } catch (error) {
-            console.error("Error archiving job:", error);
+            console.error("Error refreshing job details:", error);
         }
-    }; // todo: to be developed
+    };
+
+    const handleInsertStatusJobChange = React.useCallback(async () => {
+        if (!data?.insert_status) return;  // Ensure data is available
+
+        const statusTo = data.insert_status === "archived" ? "restore" : "archive";
+
+        try {
+            await insertStatusJob({id : jobId, statusTo});
+            router.push(`/`);
+            console.log(`Job ${statusTo}d successfully`);
+        } catch (err) {
+            console.error(`Error ${statusTo}ing job:`, err);
+        }
+    }, [data?.insert_status, insertStatusJob, jobId, router]);
 
     const statusColorMap: Record<string, ChipProps["color"]> = {
         sent: "primary",
@@ -89,6 +103,7 @@ export default function JobDetailsPage() {
 
     return (
         <main className="wrapper">
+
             {/* Back Button */}
             <Button className="mb-5" onPress={() => router.push("/")} size="sm" variant="flat" color="default">
                 <i className='bx bx-arrow-back'></i> Back to the list
@@ -100,7 +115,7 @@ export default function JobDetailsPage() {
                     {/* Job Title */}
                     <div className="col-span-1 sm:col-span-2 flex items-center">
                         <Skeleton className="rounded-lg" isLoaded={!loading}>
-                            <h1 className="text-xl">{data?.title ?? "N/A"}</h1>
+                            <h1 className="text-xl">{data?.insert_status === "archived" ? `<i class="bx bxs-archive-in"/> Archived - ` : ''}{data?.title ?? "N/A"}</h1>
                         </Skeleton>
                     </div>
 
@@ -125,13 +140,20 @@ export default function JobDetailsPage() {
                                     >Edit job</DropdownItem>
                                 </DropdownSection>
                                 <DropdownSection aria-label="Danger zone">
+
                                     <DropdownItem
-                                        key="archive"
-                                        startContent={<i className="bx bxs-archive-in"/>}
-                                        className="text-danger"
-                                        color="danger"
-                                        // onPress={archiveJob}
-                                    >Archive job</DropdownItem>
+                                        key={data?.insert_status === "archived" ? "restore" : "archive"}
+                                        startContent={
+                                            <i className={data?.insert_status === "archived" ? "bx bxs-archive-out" : "bx bxs-archive-in"}/>
+                                        }
+                                        className={data?.insert_status === "archived" ? "text-secondary" : "text-danger"}
+                                        color={data?.insert_status === "archived" ? "secondary" : "danger"}
+                                        onPress={() => handleInsertStatusJobChange()}
+                                    >
+                                        {data?.insert_status === "archived" ? "Restore job" : "Archive job"}
+                                    </DropdownItem>
+
+
                                 </DropdownSection>
                             </DropdownMenu>
                         </Dropdown>
@@ -196,7 +218,7 @@ export default function JobDetailsPage() {
                     </div>
                 </div>
 
-                <JobEventsList jobId={jobId}/>
+                <JobEventsList key={refreshKey} jobId={jobId}/>
             </div>
 
             {/*Modal*/}
