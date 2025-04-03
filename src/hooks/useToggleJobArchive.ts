@@ -1,7 +1,7 @@
 import {useCallback, useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
 
-export default function useArchiveRestoreJob() {
+export default function useToggleJobArchive() {
     const [state, setState] = useState<{ message: string | null; loading: boolean; error: string | null }>({
         message: null,
         loading: false,

@@ -12,11 +12,13 @@ import {
 } from "@heroui/react";
 import JobEventsList from "@components/Applications/Tables/JobEventsList";
 import InsertEvent from "@components/Applications/Forms/InsertEvent";
-import useJobDetails from "@/hooks/useJobDetails";
+import useJobDetails from "@hooks/useJobDetails";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger} from "@heroui/dropdown";
 import Modal from "@components/Modal";
 import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
-import useArchiveRestoreJob from "@/hooks/useArchiveRestoreJob";
+import UpdateStatus from "@components/Applications/Forms/UpdateStatus";
+import useToggleJobArchive from "@hooks/useToggleJobArchive";
+import jobStatus from "@config/jobStatus";
 
 export default function JobDetailsPage() {
     const router = useRouter();
@@ -24,7 +26,7 @@ export default function JobDetailsPage() {
     const jobId = Number(params.id);
 
     const {data, loading, error, refresh} = useJobDetails({jobId});
-    const {error: errorInsertStatus, insertStatusJob} = useArchiveRestoreJob();
+    const {error: errorInsertStatus, insertStatusJob} = useToggleJobArchive();
 
     const [refreshKey, setRefreshKey] = useState(0);
 
@@ -55,21 +57,6 @@ export default function JobDetailsPage() {
         }
     }, [data?.insert_status, insertStatusJob, jobId, router]);
 
-    const statusColorMap: Record<string, ChipProps["color"]> = {
-        sent: "primary",
-        in_progress: "secondary",
-        got_offer: "success",
-        rejected: "danger",
-        withdrawn: "default",
-    };
-
-    const statusLabelMap: Record<string, string> = {
-        sent: "Sent",
-        in_progress: "In progress",
-        got_offer: "Successful",
-        rejected: "Unsuccessful",
-        withdrawn: "Withdrawn",
-    };
 
     //todo: manage links dynamically, company's and linkedin's from Companies table - To be developed
     const links: Array<{ label: string, url: string }> = [
@@ -100,6 +87,9 @@ export default function JobDetailsPage() {
         return Math.floor(diff / (1000 * 60 * 60 * 24));
     }
 
+    const statusColor = typeof data?.status === "string" ? jobStatus[data?.status].color : "default";
+    const statusLabel = typeof data?.status === "string" ? jobStatus[data?.status].label : "Unknown";
+
 
     return (
         <main className="wrapper">
@@ -122,12 +112,20 @@ export default function JobDetailsPage() {
                     {/* Actions */}
                     <div className="col-span-1 flex justify-end">
                         <Dropdown backdrop="blur">
+
                             <DropdownTrigger>
                                 <Button aria-label="Open actions" color="default" variant="light" size="lg" isIconOnly
                                         className="text-xl"><i className='bx bxs-cog'/></Button>
                             </DropdownTrigger>
+
                             <DropdownMenu aria-label="Actions dropdown menu" variant="faded">
+
                                 <DropdownSection aria-label="Actions" showDivider>
+                                    <DropdownItem
+                                        key="update_status"
+                                        startContent={<i className="bx bxs-info-circle"/>}
+                                        onPress={() => openModal("update_status")}
+                                    >Update status</DropdownItem>
                                     <DropdownItem
                                         key="add_event"
                                         startContent={<i className="bx bxs-calendar-plus"/>}
@@ -139,8 +137,8 @@ export default function JobDetailsPage() {
                                         onPress={() => openModal("edit_job")}
                                     >Edit job</DropdownItem>
                                 </DropdownSection>
-                                <DropdownSection aria-label="Danger zone">
 
+                                <DropdownSection aria-label="Danger zone">
                                     <DropdownItem
                                         key={data?.insert_status === "archived" ? "restore" : "archive"}
                                         startContent={
@@ -155,7 +153,9 @@ export default function JobDetailsPage() {
 
 
                                 </DropdownSection>
+
                             </DropdownMenu>
+
                         </Dropdown>
 
                     </div>
@@ -188,9 +188,9 @@ export default function JobDetailsPage() {
                             <div className="flex flex-col items-center justify-center gap-2">
                                 <span>Current status</span>
                                 <Chip className="capitalize"
-                                      color={statusColorMap[data?.status ?? "default"] || "default"} size="sm"
+                                      color={statusColor} size="sm"
                                       variant="solid">
-                                    {statusLabelMap[data?.status ?? "default"] || "Unknown"}
+                                    {statusLabel}
                                 </Chip>
                             </div>
                         </Skeleton>
@@ -225,6 +225,7 @@ export default function JobDetailsPage() {
             <Modal isOpen={modalType !== null} onClose={closeModal}>
                 {modalType === "add_event" && <InsertEvent jobId={jobId}/>}
                 {modalType === "edit_job" && <InsertEditJob data={data}/>}
+                {modalType === "update_status" && <UpdateStatus data={data}/>}
             </Modal>
 
 

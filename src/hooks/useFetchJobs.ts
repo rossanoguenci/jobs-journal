@@ -1,13 +1,13 @@
-import { useEffect, useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import {JobEntry} from "../types/JobEntry";
+import {useEffect, useState, useCallback} from "react";
+import {invoke} from "@tauri-apps/api/core";
+import {JobEntry} from "@/types/JobEntry";
 
 export interface JobsListType {
     columns: Array<{ key: string; label: string }>;
     rows: Array<JobEntry>;
 }
 
-export default function useJobsList() {
+export default function useFetchJobs() {
     const [data, setData] = useState<JobsListType | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -19,12 +19,12 @@ export default function useJobsList() {
             const rows = await invoke<JobsListType["rows"]>("jobs_get_list");
             setData({
                 columns: [
-                    { key: "id", label: "#" },
-                    { key: "company", label: "Company" },
-                    { key: "title", label: "Title" },
-                    { key: "application_date", label: "Date of Application" },
-                    { key: "status", label: "Status" },
-                    { key: "actions", label: "Actions" },
+                    {key: "id", label: "#"},
+                    {key: "company", label: "Company"},
+                    {key: "title", label: "Title"},
+                    {key: "application_date", label: "Date of Application"},
+                    {key: "status", label: "Status"},
+                    {key: "actions", label: "Actions"},
                 ],
                 rows,
             });
@@ -38,8 +38,12 @@ export default function useJobsList() {
 
     // Fetch on mount
     useEffect(() => {
-        fetchJobs();
+        fetchJobs().then(() => {
+            console.log("Job list refreshed");
+        }).catch(error => {
+            console.error("Error refreshing job list:", error);
+        });
     }, [fetchJobs]);
 
-    return { data, loading, error, refresh: fetchJobs };
+    return {data, loading, error, refresh: fetchJobs};
 }

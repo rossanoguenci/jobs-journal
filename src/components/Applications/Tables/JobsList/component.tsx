@@ -15,29 +15,16 @@ import {
     Button,
 } from "@heroui/react";
 
-import useJobsList, {JobsListType} from "@/hooks/useJobsList";
+import useFetchJobs, {JobsListType} from "@hooks/useFetchJobs";
 import Link from "next/link";
-import useArchiveRestoreJob from "@/hooks/useArchiveRestoreJob";
-
-const statusColorMap: Record<string, ChipProps["color"]> = {
-    sent: "primary",
-    in_progress: "secondary",
-    got_offer: "success",
-    rejected: "danger",
-};
-
-const statusLabelMap: Record<string, string> = {
-    sent: "Sent",
-    in_progress: "In progress",
-    got_offer: "Successful",
-    rejected: "Unsuccessful",
-}
+import useToggleJobArchive from "@hooks/useToggleJobArchive";
+import jobStatus from "@config/jobStatus";
 
 type JobsListRow = JobsListType["rows"][number];
 export default function Component() {
-    const {data, loading, error, refresh} = useJobsList();
+    const {data, loading, error, refresh} = useFetchJobs();
 
-    const {message: messageArch, error: errorArch, insertStatusJob} = useArchiveRestoreJob();
+    const {message: messageArch, error: errorArch, insertStatusJob} = useToggleJobArchive();
 
     const handleArchiveClick = React.useCallback(async (id: bigint) => {
         console.log("handleArchiveClick() clicked -> ", id);
@@ -57,8 +44,8 @@ export default function Component() {
                 const [year, month, day] = cellValue.split("-");
                 return (<>{`${day}-${month}-${year}`}</>);
             case "status":
-                const statusColor = typeof cellValue === "string" ? statusColorMap[cellValue] : "default";
-                const statusLabel = typeof cellValue === "string" ? statusLabelMap[cellValue] : "Unknown";
+                const statusColor = typeof cellValue === "string" ? jobStatus[cellValue].color : "default";
+                const statusLabel = typeof cellValue === "string" ? jobStatus[cellValue].label : "Unknown";
 
                 return (
                     <Chip className="capitalize" color={statusColor} size="sm"

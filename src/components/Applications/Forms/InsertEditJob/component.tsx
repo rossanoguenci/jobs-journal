@@ -7,7 +7,7 @@ import style from "./style.module.scss";
 import {Button, DatePicker, Input, Form, Autocomplete, AutocompleteItem} from "@heroui/react"
 
 import {invoke} from "@tauri-apps/api/core"
-import {JobEntry} from "@types/JobEntry";
+import {JobEntry} from "@/types/JobEntry";
 import {parseDate, getLocalTimeZone, today} from "@internationalized/date";
 import {useModal} from "@components/Modal/provider";
 

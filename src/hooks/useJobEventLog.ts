@@ -1,22 +1,13 @@
 import {useEffect, useState, useCallback} from "react";
 import {invoke} from "@tauri-apps/api/core";
-import {JobEvent as JobEventType} from "../types/JobEvent";
-
-/*export interface JobEventType {
-    id: number,
-    job_id: number,
-    date_of_event: string,
-    description: string,
-    insert_type: string,
-    insert_date: string,
-}*/
+import {JobEvent as JobEventType} from "@/types/JobEvent";
 
 export interface JobEventsType {
     columns: Array<{ key: string; label: string }>;
     rows: Array<JobEventType>;
 }
 
-export default function useJobEvents({jobId}: { jobId: number }) {
+export default function useJobEventLog({jobId}: { jobId: number }) {
     const [data, setData] = useState<JobEventsType | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -49,7 +40,11 @@ export default function useJobEvents({jobId}: { jobId: number }) {
 
     // Fetch on mount
     useEffect(() => {
-        fetchJobEvents();
+        fetchJobEvents().then(() => {
+            console.log("Job events refreshed");
+        }).catch(error => {
+            console.error("Error refreshing job events:", error);
+        });
     }, [fetchJobEvents]);
 
     return {data, loading, error, refresh: fetchJobEvents};

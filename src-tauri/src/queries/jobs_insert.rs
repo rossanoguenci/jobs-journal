@@ -2,14 +2,14 @@
 mod job_events_insert_trigger;
 
 use super::Database;
-use crate::models::job_entry::JobEntry;
+use crate::models::job_insert::JobInsert;
 use tauri::State;
 
 #[tauri::command]
-pub async fn jobs_insert(db: State<'_, Database>, data: JobEntry) -> Result<String, String> {
+pub async fn jobs_insert(db: State<'_, Database>, data: JobInsert) -> Result<String, String> {
     let pool = db.pool.lock().await;
 
-    let application_date = data.application_date();
+    let application_date = data.application_date;
 
     let query_str = if !application_date.is_empty() {
         "INSERT INTO jobs (company, title, link, application_date) VALUES (?, ?, ?, ?)"
@@ -18,9 +18,9 @@ pub async fn jobs_insert(db: State<'_, Database>, data: JobEntry) -> Result<Stri
     };
 
     let mut query = sqlx::query(query_str)
-        .bind(data.company())
-        .bind(data.title())
-        .bind(data.link());
+        .bind(data.company)
+        .bind(data.title)
+        .bind(data.link);
 
     if !application_date.is_empty() {
         query = query.bind(application_date);

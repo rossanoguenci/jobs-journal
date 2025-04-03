@@ -8,7 +8,7 @@ use serde_json::Value;
 #[tauri::command]
 pub async fn jobs_update(db: State<'_, Database>, data: JobUpdate) -> Result<String, String> {
     let pool = db.pool.lock().await;
-    let job_id = data.id();
+    let job_id = data.id;
 
     // Convert the update object into JSON to iterate dynamically.
     let serialized = serde_json::to_value(&data).map_err(|e| e.to_string())?;

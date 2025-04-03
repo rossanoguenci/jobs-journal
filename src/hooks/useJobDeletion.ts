@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {invoke} from "@tauri-apps/api/core";
 
-export default function useDeleteJob() {
+export default function useJobDeletion() {
     const [state, setState] = useState<{ data: string | null; loading: boolean; error: string | null }>({
         data: null,
         loading: false,
