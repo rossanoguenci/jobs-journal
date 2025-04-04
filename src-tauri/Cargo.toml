@@ -4,7 +4,7 @@ version = "0.1.1-alpha"
 description = "A simple open-source job tracking application"
 authors = ["Rossano Guenci"]
 edition = "2024"
-rust-version = "1.85.1"
+rust-version = "1.86.0"
 
 # Set the default binary to run
 default-run = "jobs_journal"
@@ -24,13 +24,13 @@ name = "jobs_journal"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.1.0", features = [] }
+tauri-build = { version = "2.1.1", features = [] }
 
 [dependencies]
 ts-rs = "10.1.0"
 serde = { version = "1.0.219", features = ["derive"] }
 log = "0.4.27"
-tauri = { version = "2.4.0", features = [] }
+tauri = { version = "2.4.1", features = [] }
 tauri-plugin-log = "2.3.1"
 tokio = { version = "1.44.1", features = ["full"] }
 sqlx = { version = "0.8.3", features = ["sqlite", "chrono", "runtime-tokio"] }

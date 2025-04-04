@@ -60,10 +60,14 @@ export default function JobDetailsPage() {
 
     //todo: manage links dynamically, company's and linkedin's from Companies table - To be developed
     const links: Array<{ label: string, url: string }> = [
-        {label: "Application", url: data?.link ?? ""},
+        // {label: "Job posting", url: data?.link ?? ""},
         // {label: "Company's website", url: "#"},
         // {label: "LinkedIn profile", url: "#"},
     ];
+
+    if(data?.link){
+        links.push({label: "Job posting", url: data?.link ?? ""});
+    }
 
     const application_date = (date: string) => {
         if (date.length < 10) {

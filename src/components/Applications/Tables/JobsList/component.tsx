@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, {useState} from "react";
 import style from "./style.module.scss"
 import {
     Table,
@@ -19,6 +19,8 @@ import useFetchJobs, {JobsListType} from "@hooks/useFetchJobs";
 import Link from "next/link";
 import useToggleJobArchive from "@hooks/useToggleJobArchive";
 import jobStatus from "@config/jobStatus";
+import Modal from "@components/Modal/component";
+import UpdateStatus from "@components/Applications/Forms/UpdateStatus/component";
 
 type JobsListRow = JobsListType["rows"][number];
 export default function Component() {
@@ -29,8 +31,24 @@ export default function Component() {
     const handleArchiveClick = React.useCallback(async (id: bigint) => {
         console.log("handleArchiveClick() clicked -> ", id);
         await insertStatusJob({id, statusTo: "archive"});
-        refresh();
+        await refresh();
     }, [insertStatusJob, refresh]);
+
+    const [selectedJob, setSelectedJob] = useState<JobsListRow | null>(null);
+    const [modalType, setModalType] = useState<string | null>(null);
+    const openModal = (type: string, job?: JobsListRow) => {
+        setModalType(type);
+        if (job) setSelectedJob(job);
+    };
+
+    const closeModal = async () => {
+        setModalType(null);
+        try {
+            await refresh();
+        } catch (error) {
+            console.error("Error refreshing JobsList:", error);
+        }
+    };
 
 
     const renderCell = React.useCallback((item: JobsListRow, columnKey: React.Key) => {
@@ -56,15 +74,16 @@ export default function Component() {
             case "actions":
                 return (
                     <div className="relative flex items-center gap-2">
+                        <Button isIconOnly aria-label="Update status" color="default" variant="solid"
+                                onPress={() => openModal("update_status", item)}>
+                            <i className="bx bxs-info-circle"/>
+                        </Button>
+
                         <Link href={`/jobs/${item.id}`} className="job-link">
                             <Button isIconOnly aria-label="View" color="default" variant="solid">
                                 <i className="bx bx-show"/>
                             </Button>
                         </Link>
-
-                        <Button isIconOnly aria-label="Edit" color="default" variant="solid">
-                            <i className="bx bxs-edit-alt"/>
-                        </Button>
 
                         <Button isIconOnly aria-label="Archive (hide)" color="danger" variant="flat"
                                 onPress={() => handleArchiveClick(item.id)}>
@@ -104,6 +123,12 @@ export default function Component() {
                     )}
                 </TableBody>
             </Table>
+
+            {/*Modal*/}
+            <Modal isOpen={modalType !== null} onClose={closeModal}>
+                {modalType === "update_status" && selectedJob && <UpdateStatus data={selectedJob} />}
+            </Modal>
+
         </div>
     );
 }
