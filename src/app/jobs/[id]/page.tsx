@@ -6,7 +6,6 @@ import {
     Avatar,
     Button,
     Chip,
-    ChipProps,
     Link,
     Skeleton,
 } from "@heroui/react";
@@ -25,8 +24,8 @@ export default function JobDetailsPage() {
     const params = useParams();
     const jobId = Number(params.id);
 
-    const {data, loading, error, refresh} = useJobDetails({jobId});
-    const {error: errorInsertStatus, insertStatusJob} = useToggleJobArchive();
+    const {data, loading, /*error ,*/ refresh} = useJobDetails({jobId});
+    const {/*error: errorInsertStatus,*/ insertStatusJob} = useToggleJobArchive();
 
     const [refreshKey, setRefreshKey] = useState(0);
 

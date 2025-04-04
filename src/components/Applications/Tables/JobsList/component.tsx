@@ -9,7 +9,7 @@ import {
     TableBody,
     TableRow,
     TableCell,
-    ChipProps,
+    // ChipProps,
     // Tooltip,
     Chip,
     Button,
@@ -26,7 +26,7 @@ type JobsListRow = JobsListType["rows"][number];
 export default function Component() {
     const {data, loading, error, refresh} = useFetchJobs();
 
-    const {message: messageArch, error: errorArch, insertStatusJob} = useToggleJobArchive();
+    const {/*message: messageArch,*/ /*error: errorArch,*/ insertStatusJob} = useToggleJobArchive();
 
     const handleArchiveClick = React.useCallback(async (id: bigint) => {
         console.log("handleArchiveClick() clicked -> ", id);
