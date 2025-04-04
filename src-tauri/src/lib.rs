@@ -1,8 +1,12 @@
 #[cfg(feature = "cli")]
 pub mod db;
 
-#[cfg(feature = "cli")]
+/*#[cfg(feature = "cli")]
+pub mod queries;*/
+
+pub mod models;
 pub mod queries;
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

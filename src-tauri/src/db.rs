@@ -44,8 +44,30 @@ pub async fn setup_database(db_path: String, app_handle: AppHandle) -> Result<()
 
     let pool = SqlitePool::connect(&database_url).await?;
 
+    // Get the number of applied migrations before running new ones
+    let applied_migrations_before: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sqlx_migrations")
+        .fetch_one(&pool)
+        .await
+        .unwrap_or(0);
+
     sqlx::migrate!().run(&pool).await.expect("Migration failed");
-    
+
+    // Get the number of applied migrations after running
+    let applied_migrations_after: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sqlx_migrations")
+        .fetch_one(&pool)
+        .await
+        .unwrap_or(0);
+
+    if applied_migrations_after > applied_migrations_before {
+        println!(
+            "Migrations applied: {} new migrations performed.",
+            applied_migrations_after - applied_migrations_before
+        );
+    } else {
+        println!("No new migrations were performed.");
+    }
+
+
     app_handle.manage(Database {
         pool: Arc::new(Mutex::new(pool)),
     });

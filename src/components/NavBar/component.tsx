@@ -6,14 +6,14 @@ import {
     Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, Button, Avatar
 } from "@heroui/react";
 
-import {useActionContext} from "@components/ActionProvider";
+// import {useActionContext} from "@components/ActionProvider";
 // import {Avatar} from "@heroui/avatar";
 
 
 export default function Component() {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
-    const {setActiveAction} = useActionContext();
+    // const {setActiveAction} = useActionContext();
 
     /*const menuItems = [
         "Insert Application",
@@ -38,8 +38,7 @@ export default function Component() {
 
             <NavbarContent justify="end">
                 <NavbarItem>
-                    <Button size="sm" color="default" onPress={() => setActiveAction("add_application")}>Add
-                        application</Button>
+                    {/*<Button size="sm" color="default" onPress={() => setActiveAction("add_application")}>Add application</Button>*/}
                 </NavbarItem>
                 <NavbarItem>
                     <Avatar

@@ -1,27 +1,22 @@
+mod models;
 mod queries;
 mod db;
 
-use tauri::{Builder};
+use tauri::Builder;
 use db::{get_db_path, setup_database};
-
-use queries::insert_job_entry::insert_job_entry;
-use queries::delete_job_entry::delete_job_entry;
-use queries::get_jobs::get_jobs;
-use queries::trash_job_entry::{trash_job_entry, restore_job_entry};
-
+use queries::*;
 
 #[tokio::main]
 async fn main() {
     Builder::default()
         .setup(|app| {
             let app_handle = app.handle();
-            
+
             #[cfg(feature = "dev")]
             let db_path = get_db_path();
 
             #[cfg(not(feature = "dev"))]
             let db_path = get_db_path(app_handle);
-
 
             let app_handle_clone = app_handle.clone();
             tokio::spawn(async move {
@@ -33,11 +28,15 @@ async fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            insert_job_entry,
-            get_jobs,
+            jobs_insert,
+            jobs_update,
+            jobs_get_list,
+            jobs_get_details,
             delete_job_entry,
-            trash_job_entry,
-            restore_job_entry,
+            jobs_archive_entry,
+            jobs_restore_entry,
+            job_events_insert,
+            job_events_get,
         ])
         .run(tauri::generate_context!())
         .expect("Error running Tauri application");

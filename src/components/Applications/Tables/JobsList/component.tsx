@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, {useState} from "react";
 import style from "./style.module.scss"
 import {
     Table,
@@ -9,44 +9,46 @@ import {
     TableBody,
     TableRow,
     TableCell,
-    ChipProps,
-    Tooltip,
+    // ChipProps,
+    // Tooltip,
     Chip,
     Button,
 } from "@heroui/react";
 
-import useJobsList, {JobsListType} from "@/queries/useJobsList";
-import {Eye, Edit, Delete} from "@components/Icons";
-import {invoke} from "@tauri-apps/api/core";
-
-const statusColorMap: Record<string, ChipProps["color"]> = {
-    sent: "primary",
-    in_progress: "secondary",
-    got_offer: "success",
-    rejected: "danger",
-};
-
-const statusLabelMap: Record<string, string> = {
-    sent: "Sent",
-    in_progress: "In progress",
-    got_offer: "Successful",
-    rejected: "Unsuccessful",
-}
+import useFetchJobs, {JobsListType} from "@hooks/useFetchJobs";
+import Link from "next/link";
+import useToggleJobArchive from "@hooks/useToggleJobArchive";
+import jobStatus from "@config/jobStatus";
+import Modal from "@components/Modal/component";
+import UpdateStatus from "@components/Applications/Forms/UpdateStatus/component";
 
 type JobsListRow = JobsListType["rows"][number];
 export default function Component() {
-    const {data, loading, error, refresh} = useJobsList();
+    const {data, loading, error, refresh} = useFetchJobs();
 
-    const handleTrashClick = React.useCallback(async (id: number) => {
-        console.log('handleTrashClick() clicked -> ', id);
+    const {/*message: messageArch,*/ /*error: errorArch,*/ insertStatusJob} = useToggleJobArchive();
+
+    const handleArchiveClick = React.useCallback(async (id: bigint) => {
+        console.log("handleArchiveClick() clicked -> ", id);
+        await insertStatusJob({id, statusTo: "archive"});
+        await refresh();
+    }, [insertStatusJob, refresh]);
+
+    const [selectedJob, setSelectedJob] = useState<JobsListRow | null>(null);
+    const [modalType, setModalType] = useState<string | null>(null);
+    const openModal = (type: string, job?: JobsListRow) => {
+        setModalType(type);
+        if (job) setSelectedJob(job);
+    };
+
+    const closeModal = async () => {
+        setModalType(null);
         try {
-            const response: string = await invoke("trash_job_entry", {id});
-            console.log(response);
-            refresh();
+            await refresh();
         } catch (error) {
-            console.error("Failed to delete job:", error);
+            console.error("Error refreshing JobsList:", error);
         }
-    }, [refresh]);
+    };
 
 
     const renderCell = React.useCallback((item: JobsListRow, columnKey: React.Key) => {
@@ -60,30 +62,32 @@ export default function Component() {
                 const [year, month, day] = cellValue.split("-");
                 return (<>{`${day}-${month}-${year}`}</>);
             case "status":
+                const statusColor = typeof cellValue === "string" ? jobStatus[cellValue].color : "default";
+                const statusLabel = typeof cellValue === "string" ? jobStatus[cellValue].label : "Unknown";
+
                 return (
-                    <Chip className="capitalize" color={statusColorMap[cellValue] || "default"} size="sm"
+                    <Chip className="capitalize" color={statusColor} size="sm"
                           variant="solid">
-                        {statusLabelMap[cellValue]}
+                        {statusLabel}
                     </Chip>
                 );
             case "actions":
                 return (
                     <div className="relative flex items-center gap-2">
-                        <Tooltip color="warning" content="This is still in development" showArrow={true}>
-                            <Button isIconOnly aria-label="View" color="default" variant="flat">
-                                <Eye/>
-                            </Button>
-                        </Tooltip>
+                        <Button isIconOnly aria-label="Update status" color="default" variant="solid"
+                                onPress={() => openModal("update_status", item)}>
+                            <i className="bx bxs-info-circle"/>
+                        </Button>
 
-                        <Tooltip color="warning" content="This is still in development" showArrow={true}>
-                            <Button isIconOnly aria-label="Edit" color="default" variant="flat">
-                                <Edit/>
+                        <Link href={`/jobs/${item.id}`} className="job-link">
+                            <Button isIconOnly aria-label="View" color="default" variant="solid">
+                                <i className="bx bx-show"/>
                             </Button>
-                        </Tooltip>
+                        </Link>
 
-                        <Button isIconOnly aria-label="Delete" color="danger" variant="flat"
-                                onPress={() => handleTrashClick(item.id)}>
-                            <Delete/>
+                        <Button isIconOnly aria-label="Archive (hide)" color="danger" variant="flat"
+                                onPress={() => handleArchiveClick(item.id)}>
+                            <i className="bx bxs-archive-in"/>
                         </Button>
 
                     </div>
@@ -91,7 +95,7 @@ export default function Component() {
             default:
                 return cellValue;
         }
-    }, [handleTrashClick]);
+    }, [handleArchiveClick]);
 
     return (
         <div className={style.container}>
@@ -119,6 +123,12 @@ export default function Component() {
                     )}
                 </TableBody>
             </Table>
+
+            {/*Modal*/}
+            <Modal isOpen={modalType !== null} onClose={closeModal}>
+                {modalType === "update_status" && selectedJob && <UpdateStatus data={selectedJob} />}
+            </Modal>
+
         </div>
     );
 }
