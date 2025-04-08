@@ -9,7 +9,8 @@ import NavBar from "@components/NavBar/component";
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
     return (
-        <html lang="en" className="dark">
+        // suppressHydrationWarning by next-themes
+        <html lang="en" suppressHydrationWarning>
         <body className={`${GeistSans.className} ${GeistMono.className}`}>
             <Providers>
                 <NavBar/>
