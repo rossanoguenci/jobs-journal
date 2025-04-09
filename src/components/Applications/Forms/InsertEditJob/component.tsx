@@ -4,7 +4,7 @@ import React, {useState} from "react";
 import Props from './props.types';
 import style from "./style.module.scss";
 
-import {Button, DatePicker, Input, Form/*, Autocomplete*//*, AutocompleteItem*/} from "@heroui/react"
+import {Button, DatePicker, Input, Form, Autocomplete, AutocompleteItem} from "@heroui/react"
 
 import {invoke} from "@tauri-apps/api/core"
 import {JobEntry} from "@/types/JobEntry";
@@ -43,15 +43,13 @@ async function invokeBackend(data: Record<string, unknown>): Promise<insertProps
     }
 }
 
-export default function Component({data = null}: Props) {
+export default function Component({data = null}: { data?: null | JobEntry }) {
     const [queryResult, setQueryResult] = useState<insertProps>();
     const {closeModal} = useModal();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = Object.fromEntries(new FormData(e.currentTarget));
-
-        console.log('formData', formData);
 
         if (!data) {
             // Insert new entry
