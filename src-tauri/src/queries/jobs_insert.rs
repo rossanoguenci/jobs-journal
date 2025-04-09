@@ -11,7 +11,7 @@ pub async fn jobs_insert(db: State<'_, Database>, data: JobInsert) -> Result<Str
 
     let application_date = data.application_date;
 
-    let query_str = if application_date.is_some() {
+    let query_str = if !application_date.is_some() {
         "INSERT INTO jobs (company, title, link, application_date) VALUES (?, ?, ?, ?)"
     } else {
         "INSERT INTO jobs (company, title, link) VALUES (?, ?, ?)"
@@ -22,7 +22,7 @@ pub async fn jobs_insert(db: State<'_, Database>, data: JobInsert) -> Result<Str
         .bind(data.title)
         .bind(data.link);
 
-    if application_date.is_some() {
+    if !application_date.is_some() {
         query = query.bind(application_date);
     }
 
