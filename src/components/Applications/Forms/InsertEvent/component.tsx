@@ -6,7 +6,7 @@ import style from "./style.module.scss";
 import {Button, DatePicker, Input, Form,} from "@heroui/react"
 import {invoke} from "@tauri-apps/api/core"
 import {getLocalTimeZone, today} from "@internationalized/date";
-import {useModal} from "@components/Modal/provider";
+import {useModal} from "@components/GlobalModal/ModalContext";
 
 
 type insertProps = {
@@ -39,7 +39,7 @@ async function insertEvent(data: Record<string, unknown>): Promise<insertProps> 
 
 export default function Component({jobId}: { jobId: number }) {
     const [queryResult, setQueryResult] = useState<insertProps>();
-    const {onClose} = useModal();
+    const {closeModal} = useModal();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -55,8 +55,8 @@ export default function Component({jobId}: { jobId: number }) {
 
         console.log("Result: ", result);
 
-        if (result.status && onClose) {
-            onClose();
+        if (result.status && closeModal) {
+            closeModal();
         } else {
             setQueryResult(result);
         }

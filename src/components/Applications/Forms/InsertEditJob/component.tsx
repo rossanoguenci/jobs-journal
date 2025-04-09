@@ -9,7 +9,7 @@ import {Button, DatePicker, Input, Form, Autocomplete, AutocompleteItem} from "@
 import {invoke} from "@tauri-apps/api/core"
 import {JobEntry} from "@/types/JobEntry";
 import {parseDate, getLocalTimeZone, today} from "@internationalized/date";
-import {useModal} from "@components/Modal/provider";
+import {useModal} from "@components/GlobalModal/ModalContext";
 
 
 type insertProps = {
@@ -43,9 +43,9 @@ async function invokeBackend(data: Record<string, unknown>): Promise<insertProps
     }
 }
 
-export default function Component({data = null}: { data: null | JobEntry }) {
+export default function Component({data = null}: { data?: null | JobEntry }) {
     const [queryResult, setQueryResult] = useState<insertProps>();
-    const {onClose} = useModal();
+    const {closeModal} = useModal();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -78,8 +78,8 @@ export default function Component({data = null}: { data: null | JobEntry }) {
 
         const result = await invokeBackend(updates);
 
-        if (result.status && onClose) {
-            onClose();
+        if (result.status && closeModal) {
+            closeModal();
         } else {
             setQueryResult(result);
         }
@@ -161,7 +161,7 @@ export default function Component({data = null}: { data: null | JobEntry }) {
             </Autocomplete>*/}
 
             {/*Actions*/}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2 w-full">
                 {data ?
                     <>
                         <Button
@@ -177,22 +177,24 @@ export default function Component({data = null}: { data: null | JobEntry }) {
                             aria-label="Cancel"
                             size={default_size}
                             radius={default_size}
-                            onPress={onClose}
+                            onPress={closeModal}
                         >Cancel
                         </Button>
                     </>
                     :
                     <>
-                        <Button
+                        {/*<Button
+                            className="w-full"
                             aria-label="Insert and add a new one"
                             color="primary"
                             size={default_size}
                             radius={default_size}
                             type="submit"
                         >Insert & Add a new one
-                        </Button>
+                        </Button>*/}
 
                         <Button
+                            className="w-full"
                             aria-label="Insert"
                             color="primary"
                             size={default_size}
@@ -202,11 +204,12 @@ export default function Component({data = null}: { data: null | JobEntry }) {
                         </Button>
 
                         <Button
+                            className="w-full"
                             aria-label="Reset"
                             size={default_size}
                             radius={default_size}
                             type="reset"
-                        >Reset
+                        >Reset fields
                         </Button>
                     </>
                 }

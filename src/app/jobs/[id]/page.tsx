@@ -13,7 +13,7 @@ import JobEventsList from "@components/Applications/Tables/JobEventsList";
 import InsertEvent from "@components/Applications/Forms/InsertEvent";
 import useJobDetails from "@hooks/useJobDetails";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger} from "@heroui/dropdown";
-import Modal from "@components/Modal";
+import {useModal} from "@components/GlobalModal/ModalContext";
 import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
 import UpdateStatus from "@components/Applications/Forms/UpdateStatus";
 import useToggleJobArchive from "@hooks/useToggleJobArchive";
@@ -22,6 +22,8 @@ import jobStatus from "@config/jobStatus";
 export default function JobDetailsPage() {
     const router = useRouter();
     const params = useParams();
+    const {openModal} = useModal();
+
     const jobId = Number(params.id);
 
     const {data, loading, /*error ,*/ refresh} = useJobDetails({jobId});
@@ -29,26 +31,13 @@ export default function JobDetailsPage() {
 
     const [refreshKey, setRefreshKey] = useState(0);
 
-    const [modalType, setModalType] = useState<string | null>(null);
-    const openModal = (type: string) => setModalType(type);
-    const closeModal = async () => {
-        setModalType(null);
-        try {
-            await refresh();
-            setRefreshKey(prev => prev + 1);
-            console.log("Job details refreshed");
-        } catch (error) {
-            console.error("Error refreshing job details:", error);
-        }
-    };
-
     const handleInsertStatusJobChange = React.useCallback(async () => {
         if (!data?.insert_status) return;  // Ensure data is available
 
         const statusTo = data.insert_status === "archived" ? "restore" : "archive";
 
         try {
-            await insertStatusJob({id : jobId, statusTo});
+            await insertStatusJob({id: jobId, statusTo});
             router.push(`/`);
             console.log(`Job ${statusTo}d successfully`);
         } catch (err) {
@@ -64,7 +53,7 @@ export default function JobDetailsPage() {
         // {label: "LinkedIn profile", url: "#"},
     ];
 
-    if(data?.link){
+    if (data?.link) {
         links.push({label: "Job posting", url: data?.link ?? ""});
     }
 
@@ -127,17 +116,19 @@ export default function JobDetailsPage() {
                                     <DropdownItem
                                         key="update_status"
                                         startContent={<i className="bx bxs-info-circle"/>}
-                                        onPress={() => openModal("update_status")}
+                                        onPress={() => openModal(<UpdateStatus data={data}/>, refresh)}
                                     >Update status</DropdownItem>
                                     <DropdownItem
                                         key="add_event"
                                         startContent={<i className="bx bxs-calendar-plus"/>}
-                                        onPress={() => openModal("add_event")}
+                                        onPress={() => openModal(<InsertEvent jobId={jobId}/>, () => {
+                                            setRefreshKey(prev => prev + 1);
+                                        })}
                                     >Add event</DropdownItem>
                                     <DropdownItem
                                         key="edit_job"
                                         startContent={<i className="bx bxs-edit-alt"/>}
-                                        onPress={() => openModal("edit_job")}
+                                        onPress={() => openModal(<InsertEditJob data={data}/>, refresh)}
                                     >Edit job</DropdownItem>
                                 </DropdownSection>
 
@@ -223,15 +214,6 @@ export default function JobDetailsPage() {
 
                 <JobEventsList key={refreshKey} jobId={jobId}/>
             </div>
-
-            {/*Modal*/}
-            <Modal isOpen={modalType !== null} onClose={closeModal}>
-                {modalType === "add_event" && <InsertEvent jobId={jobId}/>}
-                {modalType === "edit_job" && <InsertEditJob data={data}/>}
-                {modalType === "update_status" && <UpdateStatus data={data}/>}
-            </Modal>
-
-
         </main>
     );
 }
