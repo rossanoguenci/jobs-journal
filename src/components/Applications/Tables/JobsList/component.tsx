@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState} from "react";
+import React from "react";
 import style from "./style.module.scss"
 import {
     Table,
@@ -67,7 +67,7 @@ export default function Component() {
                             <i className="bx bxs-info-circle"/>
                         </Button>
 
-                        <Link href={`/jobs/${item.id}`} className="job-link">
+                        <Link href={`/job#${item.id}`} className="job-link">
                             <Button isIconOnly aria-label="View" color="default" variant="solid">
                                 <i className="bx bx-show"/>
                             </Button>

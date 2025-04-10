@@ -15,7 +15,7 @@ import useJobEventLog from "@hooks/useJobEventLog";
 import {JobEvent} from "@/types/JobEvent";
 
 export default function Component({jobId}: { jobId: number }) {
-    const {data, loading, error, refresh} = useJobEventLog({jobId});
+    const {data, loading/*, error, refresh*/} = useJobEventLog({jobId});
 
     const renderCell = React.useCallback((item: JobEvent, columnKey: React.Key) => {
         const cellValue = item[columnKey as keyof JobEvent];
