@@ -3,18 +3,18 @@
 import React from "react";
 
 import {
-    Navbar, NavbarBrand, NavbarContent, NavbarItem, NavbarMenuToggle, Button, Avatar
+    Navbar, NavbarBrand, NavbarContent, /*NavbarItem, NavbarMenuToggle, Button,*/ Avatar
 } from "@heroui/react";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownTrigger} from "@heroui/dropdown";
-import {useRouter} from "next/navigation";
+// import {useRouter} from "next/navigation";
 
 // import {useActionContext} from "@components/ActionProvider";
 // import {Avatar} from "@heroui/avatar";
 
 
 export default function Component() {
-    const router = useRouter();
-    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    // const router = useRouter();
+    // const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
     // const {setActiveAction} = useActionContext();
 
@@ -24,7 +24,7 @@ export default function Component() {
 
 
     return (
-        <Navbar isBordered onMenuOpenChange={setIsMenuOpen}>
+        <Navbar isBordered /*onMenuOpenChange={setIsMenuOpen}*/>
             <NavbarContent>
 
                 {/*<NavbarMenuToggle
