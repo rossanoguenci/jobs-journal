@@ -4,15 +4,18 @@ A simple and efficient job journal app to help you track and manage your job sea
 
 ## Current Status
 
-This is an **alpha version** of the app. At the moment, it provides basic functionality to **insert** and **delete** (hide) job journal entries. More features will be added in due course, including tagging, filtering, and more robust tracking options.
+This is an **alpha version** of the app. It currently offers basic functionality for managing job journal entries — see the [Features](#features) section for more details. Additional features such as tagging, filtering, and enhanced tracking options will be added in due course.
 
-We are committed to publishing this project as open-source and welcome any contributions. If you would like to contribute or suggest improvements, please feel free to open an issue or create a pull request.
+We’re committed to releasing this project as open source and welcome contributions. If you’d like to help or suggest improvements, feel free to [open an issue](https://github.com/rossanoguenci/jobs-journal/issues) or submit a [pull request](https://github.com/rossanoguenci/jobs-journal/pulls).
 
 ## Features
 
-- Track job applications and interviews (basic insert and delete functionality).
-- Simple and reusable components for easy future extensions.
-- Backend powered by Rust and SQLite for performance and simplicity.
+- Track job applications and interviews
+- Add, edit, and delete (or hide) job entries
+- Update job status
+- Each job entry has its own event list
+- Support for dark and light mode
+
 
 ## Tech Stack
 
@@ -23,6 +26,8 @@ We are committed to publishing this project as open-source and welcome any contr
 ## Preview
 
 ![Preview of Jobs Journal](preview/preview_1.png)
+![Preview of Jobs Journal](preview/preview_2.png)
+![Preview of Jobs Journal](preview/preview_3.png)
 
 
 ## Installation
@@ -69,10 +74,16 @@ We are committed to publishing this project as open-source and welcome any contr
 
 ## Project Structure
 
-- `src/`: Frontend code using Next.js (app routing)
-- `src-tauri/`: Backend code for the Tauri app written in Rust
-- `components/`: Reusable UI components
-- `public/`: Static assets like images and icons
+- `src/`: Frontend code using Next.js (App Router)
+- `src/components/`: Reusable UI components
+- `src/config/`: Shared configuration data
+- `src/hooks/`: Custom React hooks for handling backend data
+- `src/styles/`: Global stylesheets
+- `src/types/`: Types automatically generated from Rust structs in Tauri
+- `src-tauri/`: Backend code for the Tauri app (Rust)
+- `src-tauri-dev-tools/`: Backend tools and DB storage for development
+- `scripts/`: Command-line scripts
+- `public/`: Static assets such as images and icons
 
 ## Contributing
 
