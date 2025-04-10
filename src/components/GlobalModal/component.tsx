@@ -1,11 +1,21 @@
+"use client"
+
 import React from "react";
-import Props from "./props.types";
+// import Props from "./props.types";
 import styles from "./styles.module.scss";
 import {Button} from "@heroui/react";
-import {ModalProvider} from "@components/Modal/provider";
 
-export default function Component({children, isOpen = true, onClose}: Props) {
-    return isOpen ? (
+import { useModal } from './ModalContext';
+
+
+
+export default function Component() {
+
+    const { isOpen, content, closeModal } = useModal();
+
+    if (!isOpen) return null;
+
+    return (
         <div className={styles.container}>
 
             <div className={styles.children}>
@@ -18,10 +28,10 @@ export default function Component({children, isOpen = true, onClose}: Props) {
                         variant="light"
                         // radius="full"
                         size="sm"
-                        onPress={onClose}
+                        onPress={closeModal}
                     >Close</Button></div>
-                <ModalProvider onClose={onClose}>{children}</ModalProvider>
+                {content}
             </div>
         </div>
-    ) : null;
+    );
 }

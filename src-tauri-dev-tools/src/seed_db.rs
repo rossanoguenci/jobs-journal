@@ -11,11 +11,13 @@ fn get_db_path() -> String {
     let current_dir = env::current_dir().expect("Failed to get current directory");
 
     // Move up one level from `src/` to `src-tauri-dev-tools/`
-    let project_root = current_dir.parent().expect("Failed to find project root");
+    // let project_root = current_dir.parent().expect("Failed to find project root");
 
-    let db_path = project_root
+    let db_path = current_dir
         .join("src-tauri-dev-tools")
         .join("dev_jobs_journal.db");
+
+    println!("db path: {:?}", db_path);
 
     db_path.to_str().unwrap().to_string()
 }

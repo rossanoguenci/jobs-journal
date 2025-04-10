@@ -4,12 +4,16 @@ use ts_rs::TS;
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow, TS)]
 #[ts(export)]
 pub struct JobInsert {
-    pub insert_date: String,  
-    pub company: String,  
-    pub title: String,  
+    #[ts(optional)]
+    pub insert_date: Option<String>,
+    pub company: String,
+    pub title: String,
     #[ts(optional)]
     pub link: Option<String>,
-    pub application_date: String,  
-    pub status: String,  
-    pub insert_status: String,  
+    #[ts(optional)]
+    pub application_date: Option<String>,
+    #[ts(optional)]
+    pub status: Option<String>,
+    #[ts(optional)]
+    pub insert_status: Option<String>,
 }

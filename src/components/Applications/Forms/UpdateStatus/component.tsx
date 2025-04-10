@@ -4,7 +4,7 @@ import React, {useState} from "react";
 // import Props from './props.types';
 import style from "./style.module.scss";
 import {Button, Form, Selection} from "@heroui/react"
-import {useModal} from "@components/Modal/provider";
+import {useModal} from "@components/GlobalModal/ModalContext";
 import {Select, SelectItem} from "@heroui/select";
 import jobStatus from "@config/jobStatus";
 import {JobUpdate} from "@/types/JobUpdate";
@@ -20,7 +20,7 @@ type insertProps = {
 export default function Component({data}: { data: null | JobUpdate }) {
     const [selectedStatus, setSelectedStatus] = useState<Selection>(new Set([data?.status || ""]));
     const [queryResult, setQueryResult] = useState<insertProps>();
-    const {onClose} = useModal();
+    const {closeModal} = useModal();
     const {upsertJob, loading} = useUpsertJob();
 
 
@@ -41,8 +41,8 @@ export default function Component({data}: { data: null | JobUpdate }) {
 
         console.log("Result: ", result);
 
-        if (result.status && onClose) {
-            onClose();
+        if (result.status && closeModal) {
+            closeModal();
         } else {
             setQueryResult(result);
         }
@@ -83,7 +83,7 @@ export default function Component({data}: { data: null | JobUpdate }) {
                     aria-label="Cancel"
                     size={default_size}
                     radius={default_size}
-                    onPress={onClose}
+                    onPress={closeModal}
                     disabled={loading}
                 >Cancel
                 </Button>

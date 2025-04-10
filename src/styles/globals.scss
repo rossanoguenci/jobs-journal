@@ -10,10 +10,14 @@
 }
 
 .container {
-  @apply p-10 w-full max-w-[1000px] mb-7;
+  @apply p-3 md:p-10 w-full max-w-[1000px] mb-7;
   @apply rounded-2xl;
 
   --tw-bg-opacity: 1;
   background-color: hsl(var(--heroui-content1) / var(--heroui-content1-opacity, var(--tw-bg-opacity)));
 
+}
+
+p:not(:first-of-type){
+  @apply mt-3;
 }

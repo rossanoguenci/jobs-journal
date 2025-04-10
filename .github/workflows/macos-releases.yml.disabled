@@ -1,14 +1,14 @@
+#Not running until enrolled to the Apple Developer Program
+
 name: Build & Release - macOS universal binaries
 
-#Not running until enrolled to the Apple Developer Program
-#on:
-#  push:
-#    tags:
-#      - "v0.*-macos"
+on:
+  push:
+    tags:
+      - "v0.*-macos"
 
 jobs:
   build:
-    if: false
     runs-on: macos-latest
 
     permissions:

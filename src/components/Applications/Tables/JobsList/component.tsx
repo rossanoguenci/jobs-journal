@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState} from "react";
+import React from "react";
 import style from "./style.module.scss"
 import {
     Table,
@@ -19,12 +19,14 @@ import useFetchJobs, {JobsListType} from "@hooks/useFetchJobs";
 import Link from "next/link";
 import useToggleJobArchive from "@hooks/useToggleJobArchive";
 import jobStatus from "@config/jobStatus";
-import Modal from "@components/Modal/component";
 import UpdateStatus from "@components/Applications/Forms/UpdateStatus/component";
+import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
+import {useModal} from "@components/GlobalModal/ModalContext";
 
 type JobsListRow = JobsListType["rows"][number];
 export default function Component() {
     const {data, loading, error, refresh} = useFetchJobs();
+    const {openModal} = useModal();
 
     const {/*message: messageArch,*/ /*error: errorArch,*/ insertStatusJob} = useToggleJobArchive();
 
@@ -33,23 +35,6 @@ export default function Component() {
         await insertStatusJob({id, statusTo: "archive"});
         await refresh();
     }, [insertStatusJob, refresh]);
-
-    const [selectedJob, setSelectedJob] = useState<JobsListRow | null>(null);
-    const [modalType, setModalType] = useState<string | null>(null);
-    const openModal = (type: string, job?: JobsListRow) => {
-        setModalType(type);
-        if (job) setSelectedJob(job);
-    };
-
-    const closeModal = async () => {
-        setModalType(null);
-        try {
-            await refresh();
-        } catch (error) {
-            console.error("Error refreshing JobsList:", error);
-        }
-    };
-
 
     const renderCell = React.useCallback((item: JobsListRow, columnKey: React.Key) => {
         const cellValue = item[columnKey as keyof JobsListRow];
@@ -66,20 +51,23 @@ export default function Component() {
                 const statusLabel = typeof cellValue === "string" ? jobStatus[cellValue].label : "Unknown";
 
                 return (
-                    <Chip className="capitalize" color={statusColor} size="sm"
-                          variant="solid">
-                        {statusLabel}
+                    <Chip
+                        className="capitalize"
+                        color={statusColor}
+                        size="sm"
+                        variant="solid"
+                    >{statusLabel}
                     </Chip>
                 );
             case "actions":
                 return (
                     <div className="relative flex items-center gap-2">
                         <Button isIconOnly aria-label="Update status" color="default" variant="solid"
-                                onPress={() => openModal("update_status", item)}>
+                                onPress={() => openModal(<UpdateStatus data={item}/>, refresh)}>
                             <i className="bx bxs-info-circle"/>
                         </Button>
 
-                        <Link href={`/jobs/${item.id}`} className="job-link">
+                        <Link href={`/job#${item.id}`} className="job-link">
                             <Button isIconOnly aria-label="View" color="default" variant="solid">
                                 <i className="bx bx-show"/>
                             </Button>
@@ -95,15 +83,23 @@ export default function Component() {
             default:
                 return cellValue;
         }
-    }, [handleArchiveClick]);
+    }, [handleArchiveClick, openModal, refresh]);
 
     return (
         <div className={style.container}>
 
-            <div className="flex justify-end mb-5">
+            <div className="flex justify-end mb-5 gap-3">
+
                 <Button size="sm" color="default" onPress={refresh} isLoading={loading}>
                     {loading ? "Refreshing..." : "Refresh list"}
                 </Button>
+
+                <Button size="sm" color="primary" onPress={() => {
+                    openModal(<InsertEditJob/>, refresh)
+                }}>
+                    Add new
+                </Button>
+
             </div>
 
             <Table isStriped isHeaderSticky aria-label="Table">
@@ -123,11 +119,6 @@ export default function Component() {
                     )}
                 </TableBody>
             </Table>
-
-            {/*Modal*/}
-            <Modal isOpen={modalType !== null} onClose={closeModal}>
-                {modalType === "update_status" && selectedJob && <UpdateStatus data={selectedJob} />}
-            </Modal>
 
         </div>
     );
