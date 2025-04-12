@@ -4,12 +4,13 @@ import React, {useState} from "react";
 import Props from './props.types';
 import style from "./style.module.scss";
 
-import {Button, DatePicker, Input, Form/*, Autocomplete*//*, AutocompleteItem*/} from "@heroui/react"
+import {Button, DatePicker, Input, Form, Autocomplete, AutocompleteItem} from "@heroui/react"
 
 import {invoke} from "@tauri-apps/api/core"
 import {JobEntry} from "@/types/JobEntry";
 import {parseDate, getLocalTimeZone, today} from "@internationalized/date";
 import {useModal} from "@components/GlobalModal/ModalContext";
+import locations from "@config/locations";
 
 
 type insertProps = {
@@ -93,12 +94,6 @@ export default function Component({data = null}: Props) {
 
     const default_size = "md";
 
-    /*const locations: Array<{ label: string, key: string, description?: string, startContent?: never }> = [
-        {label: "Remote", key: "remote", description: "Working from home"},
-        {label: "Hybrid", key: "hybrid", description: "Working from home&office"},
-        {label: "On site", key: "on_site", description: "Working from office only"},
-    ];*/
-
     return (
         <Form
             className={style.container}
@@ -145,22 +140,25 @@ export default function Component({data = null}: Props) {
                 defaultValue={data?.link || ""}
             />
 
-            {/*todo: to be added soon*/}
-            {/*<Autocomplete
+            <Autocomplete
+                isClearable={false} // (GitHub issue #1977)
                 allowsCustomValue
                 className="max-w-xs"
                 defaultItems={locations}
+                name="location"
                 label="Location"
+                aria-label="Location"
                 size={default_size}
-                // inputValue={data?.location || undefined}
+                inputValue={data?.location || undefined}
             >
                 {(item) =>
                     <AutocompleteItem
                         key={item.key}
                         description={item.description ?? ''}
                         startContent={item.startContent ?? ''}
-                    >{item.label}</AutocompleteItem>}
-            </Autocomplete>*/}
+                    >{item.label}</AutocompleteItem>
+                }
+            </Autocomplete>
 
             {/*Actions*/}
             <div className="flex flex-wrap gap-2 w-full">
