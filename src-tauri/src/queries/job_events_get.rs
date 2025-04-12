@@ -11,7 +11,7 @@ pub async fn job_events_get(db: State<'_, Database>, job_id: i64) -> Result<Vec<
     let pool = db.pool.lock().await;
 
     let events = sqlx::query_as::<_, JobEvent>(
-        "SELECT * FROM job_events WHERE job_id=? ORDER BY date_of_event DESC",
+        "SELECT * FROM job_events WHERE job_id=? ORDER BY id DESC",
     )
     .bind(job_id)
     .fetch_all(&*pool)

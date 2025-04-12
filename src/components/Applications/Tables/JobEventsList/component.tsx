@@ -13,6 +13,7 @@ import {
 
 import useJobEventLog from "@hooks/useJobEventLog";
 import {JobEvent} from "@/types/JobEvent";
+import jobStatus from "@config/jobStatus";
 
 export default function Component({jobId}: { jobId: number }) {
     const {data, loading/*, error, refresh*/} = useJobEventLog({jobId});
@@ -29,7 +30,17 @@ export default function Component({jobId}: { jobId: number }) {
                 return (<>{`${day}-${month}-${year}`}</>);
             }
             case "description":{
-                return cellValue;
+                if (typeof cellValue !== "string") return cellValue;
+
+                let updatedValue = cellValue;
+
+                Object.keys(jobStatus).forEach((key) => {
+                    const label = jobStatus[key as keyof typeof jobStatus].label;
+                    const regex = new RegExp(`\\b${key}\\b`, "gi");
+                    updatedValue = updatedValue.replace(regex, label);
+                });
+
+                return updatedValue;
             }
         }
     }, []);
@@ -37,7 +48,7 @@ export default function Component({jobId}: { jobId: number }) {
     return (
         <div className={`${style.container}`}>
             <h2 className="text-sm">List of event</h2>
-            <Table fullWidth={false} hideHeader removeWrapper aria-label="Table of events">
+            <Table hideHeader removeWrapper aria-label="Table of events">
                 <TableHeader columns={data?.columns ?? []}>
                     {/*todo: there's an issue with props, they are truing to fix*/}
                     {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
