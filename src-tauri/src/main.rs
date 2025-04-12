@@ -1,6 +1,7 @@
 mod models;
 mod queries;
 mod db;
+mod utils;
 
 use tauri::Builder;
 use db::{get_db_path, setup_database};
