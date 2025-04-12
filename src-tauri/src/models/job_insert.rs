@@ -16,4 +16,6 @@ pub struct JobInsert {
     pub status: Option<String>,
     #[ts(optional)]
     pub insert_status: Option<String>,
+    #[ts(optional)]
+    pub location: Option<String>,
 }
