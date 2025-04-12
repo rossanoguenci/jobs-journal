@@ -1,5 +1,5 @@
-#[path = "./job_events_insert_trigger.rs"]
-mod job_events_insert_trigger;
+#[path = "./job_events_triggers.rs"]
+mod job_events_triggers;
 
 use super::Database;
 use crate::models::job_insert::JobInsert;
@@ -21,7 +21,7 @@ pub async fn jobs_insert(db: State<'_, Database>, data: JobInsert) -> Result<Str
             let job_id = result.last_insert_rowid();
 
             if let Err(err) =
-                job_events_insert_trigger::job_events_insert_trigger(&pool, job_id).await
+                job_events_triggers::insert(&pool, job_id, "Job entry created").await
             {
                 eprintln!("Failed to insert job event: {}", err);
             }

@@ -1,3 +1,6 @@
+#[path = "./job_events_triggers.rs"]
+mod job_events_triggers;
+
 use super::Database;
 use crate::models::job_update::JobUpdate;
 use tauri::State;
@@ -19,7 +22,15 @@ pub async fn jobs_update(db: State<'_, Database>, data: JobUpdate) -> Result<Str
     let built_query = query_builder.build();
 
     match built_query.execute(&*pool).await {
-        Ok(_) => Ok(format!("Updated job entry {} successfully", job_id)),
+        Ok(_) => {
+            // If the update query is successful, check for the 'status' field
+            if let Some(status_value) = obj.get("status") {
+                // Trigger the job_events_triggers::insert function if status is found
+                let status_description = format!("Status changed to {}",status_value);
+                job_events_triggers::insert(&pool, job_id, &status_description).await.map_err(|e| e.to_string())?;
+            }
+            Ok(format!("Updated job entry {} successfully", job_id))
+        }
         Err(e) => Err(format!("Database error: {}", e)),
     }
 }
