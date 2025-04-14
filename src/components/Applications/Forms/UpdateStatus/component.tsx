@@ -62,7 +62,7 @@ export default function Component({data}: { data: null | JobUpdate }) {
                     selectedKeys={selectedStatus}
                     onSelectionChange={setSelectedStatus}
             >
-                {Object.entries(jobStatusOptions).map(([key, {label, color, icon}]) => (
+                {jobStatusOptions.map(({ key, label, color, icon }) => (
                     <SelectItem key={key} startContent={icon} className={`text-${color}`}>
                         {label}
                     </SelectItem>

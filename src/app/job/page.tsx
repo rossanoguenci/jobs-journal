@@ -17,7 +17,8 @@ import {useModal} from "@components/GlobalModal/ModalContext";
 import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
 import UpdateStatus from "@components/Applications/Forms/UpdateStatus";
 import useToggleJobArchive from "@hooks/useToggleJobArchive";
-import jobStatus from "@config/jobStatus";
+import jobStatusOptions from "@config/jobStatusOptions";
+import daysFromDate from "@lib/daysFromDate";
 
 export default function JobDetailsPage() {
     const router = useRouter();
@@ -73,22 +74,8 @@ export default function JobDetailsPage() {
         return (<>{`${day}-${month}-${year}`}</>);
     }
 
-    const daysFromDate = (date: string) => {
-        if (date.length < 10) {
-            return null
-        }
-        const givenDate = new Date(date);
-        if (isNaN(givenDate.getTime())) {
-            return null;
-        }
-        const today = new Date();
-        const diff = today.getTime() - givenDate.getTime();
-
-        return Math.floor(diff / (1000 * 60 * 60 * 24));
-    }
-
-    const statusColor = typeof data?.status === "string" ? jobStatus[data?.status].color : "default";
-    const statusLabel = typeof data?.status === "string" ? jobStatus[data?.status].label : "Unknown";
+    const statusColor = typeof data?.status === "string" ? jobStatusOptions.find(o => o.key === data.status)?.color : "default";
+    const statusLabel = typeof data?.status === "string" ? jobStatusOptions.find(o => o.key === data.status)?.label : "Unknown";
 
 
     return (
