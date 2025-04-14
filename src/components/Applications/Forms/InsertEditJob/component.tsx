@@ -46,6 +46,7 @@ async function invokeBackend(data: Record<string, unknown>): Promise<insertProps
 
 export default function Component({data = null}: Props) {
     const [queryResult, setQueryResult] = useState<insertProps>();
+    const formRef = React.useRef<HTMLFormElement>(null);
     const {closeModal} = useModal();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -58,6 +59,11 @@ export default function Component({data = null}: Props) {
             // Insert new entry
             const result = await invokeBackend(formData);
             setQueryResult(result);
+
+            if(result.status) {
+                formRef.current?.reset();
+            }
+
             return;
         }
 
@@ -96,6 +102,7 @@ export default function Component({data = null}: Props) {
 
     return (
         <Form
+            ref={formRef}
             className={style.container}
             onSubmit={onSubmit}
             onReset={onReset}
