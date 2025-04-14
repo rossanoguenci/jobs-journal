@@ -45,7 +45,7 @@ export default function Component() {
 
     /* Paging */
     const [page, setPage] = useState(1);
-    const rowsPerPage = 13;
+    const rowsPerPage = 9;
 
     const pages = Math.ceil(data.length / rowsPerPage);
 
