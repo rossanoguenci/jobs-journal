@@ -7,16 +7,6 @@ export interface JobStatusProps {
     icon?: ReactElement | string | null;
 }
 
-/*
-const jobStatusOptions: JobStatusProps = {
-    sent: { label: "Sent", color: "primary", icon: <i className="bx bxs-send" /> },
-    in_progress: { label: "In progress", color: "secondary", icon: <i className="bx bxs-analyse" /> },
-    got_offer: { label: "Successful", color: "success", icon: <i className="bx bxs-party" /> },
-    rejected: { label: "Unsuccessful", color: "danger", icon: <i className="bx bxs-sad" /> },
-    withdrawn: { label: "Withdrawn", color: "danger", icon: <i className="bx bx-x" /> },
-};
-*/
-
 const jobStatusOptions: Array<JobStatusProps> = [
     {key: "sent", label: "Sent", color: "primary", icon: <i className="bx bxs-send"/>},
     {key: "in_progress", label: "In progress", color: "secondary", icon: <i className="bx bxs-analyse"/>},
@@ -24,6 +14,5 @@ const jobStatusOptions: Array<JobStatusProps> = [
     {key: "rejected", label: "Unsuccessful", color: "danger", icon: <i className="bx bxs-sad"/>},
     {key: "withdrawn", label: "Withdrawn", color: "danger", icon: <i className="bx bx-x"/>},
 ];
-
 
 export default jobStatusOptions;

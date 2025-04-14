@@ -34,8 +34,7 @@ export default function Component({jobId}: { jobId: number }) {
 
                 let updatedValue = cellValue;
 
-                Object.keys(jobStatusOptions).forEach((key) => {
-                    const label = jobStatusOptions[key as keyof typeof jobStatusOptions].label;
+                jobStatusOptions.forEach(({ key, label }) => {
                     const regex = new RegExp(`\\b${key}\\b`, "gi");
                     updatedValue = updatedValue.replace(regex, label);
                 });
