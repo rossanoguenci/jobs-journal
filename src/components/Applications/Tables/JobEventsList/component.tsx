@@ -13,7 +13,7 @@ import {
 
 import useJobEventLog from "@hooks/useJobEventLog";
 import {JobEvent} from "@/types/JobEvent";
-import jobStatus from "@config/jobStatus";
+import jobStatusOptions from "@config/jobStatusOptions";
 
 export default function Component({jobId}: { jobId: number }) {
     const {data, loading/*, error, refresh*/} = useJobEventLog({jobId});
@@ -29,13 +29,13 @@ export default function Component({jobId}: { jobId: number }) {
                 const [year, month, day] = cellValue.split("-");
                 return (<>{`${day}-${month}-${year}`}</>);
             }
-            case "description":{
+            case "description": {
                 if (typeof cellValue !== "string") return cellValue;
 
                 let updatedValue = cellValue;
 
-                Object.keys(jobStatus).forEach((key) => {
-                    const label = jobStatus[key as keyof typeof jobStatus].label;
+                Object.keys(jobStatusOptions).forEach((key) => {
+                    const label = jobStatusOptions[key as keyof typeof jobStatusOptions].label;
                     const regex = new RegExp(`\\b${key}\\b`, "gi");
                     updatedValue = updatedValue.replace(regex, label);
                 });
@@ -61,7 +61,10 @@ export default function Component({jobId}: { jobId: number }) {
                 >
                     {(item) => (
                         <TableRow key={item.id}>
-                            {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                            {(columnKey) =>
+                                <TableCell>
+                                    {renderCell(item, columnKey)}
+                                </TableCell>}
                         </TableRow>
                     )}
                 </TableBody>
