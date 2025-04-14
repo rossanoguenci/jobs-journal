@@ -6,7 +6,7 @@ import style from "./style.module.scss";
 import {Button, Form, Selection} from "@heroui/react"
 import {useModal} from "@components/GlobalModal/ModalContext";
 import {Select, SelectItem} from "@heroui/select";
-import jobStatus from "@config/jobStatus";
+import jobStatusOptions from "@config/jobStatusOptions";
 import {JobUpdate} from "@/types/JobUpdate";
 import {useUpsertJob} from "@hooks/useUpsertJob";
 
@@ -62,7 +62,7 @@ export default function Component({data}: { data: null | JobUpdate }) {
                     selectedKeys={selectedStatus}
                     onSelectionChange={setSelectedStatus}
             >
-                {Object.entries(jobStatus).map(([key, {label, color, icon}]) => (
+                {Object.entries(jobStatusOptions).map(([key, {label, color, icon}]) => (
                     <SelectItem key={key} startContent={icon} className={`text-${color}`}>
                         {label}
                     </SelectItem>
