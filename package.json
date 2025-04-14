@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@heroui/react": "^2.7.6",
-    "@internationalized/date": "^3.8.0",
+    "@internationalized/date": "3.7.0",
     "@tauri-apps/api": "^2.4.1",
     "@tauri-apps/plugin-opener": "^2.2.6",
     "@tauri-apps/plugin-shell": "^2.2.1",
