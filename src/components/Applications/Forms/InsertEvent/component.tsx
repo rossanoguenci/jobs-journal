@@ -1,44 +1,18 @@
 "use client"
 
-import React, {useState} from "react";
+import React, {useEffect} from "react";
 // import Props from './props.types';
 import style from "./style.module.scss";
 import {Button, DatePicker, Input, Form,} from "@heroui/react"
-import {invoke} from "@tauri-apps/api/core"
 import {getLocalTimeZone, today} from "@internationalized/date";
 import {useModal} from "@components/GlobalModal/ModalContext";
+import useInsertJobEvent from "@hooks/useInsertJobEvent";
+import {addToast} from "@heroui/toast";
+import {JobEvent} from "@/types/JobEvent";
 
-
-type insertProps = {
-    status: boolean;
-    message: string;
-}
-
-async function insertEvent(data: Record<string, unknown>): Promise<insertProps> {
-    try {
-        const message = await invoke<string>("job_events_insert", {data: data});
-        console.log(message);
-        return {status: true, message};
-    } catch (error) {
-        console.error("Error invoking Rust function:", error);
-
-        // Ensure we extract the message properly
-        let errorMessage = "An error occurred";
-
-        if (typeof error === "string") {
-            errorMessage = error;
-        } else if (error instanceof Error) {
-            errorMessage = error.message;
-        } else if (typeof error === "object" && error !== null && "message" in error) {
-            errorMessage = String(error.message);
-        }
-
-        return {status: false, message: errorMessage};
-    }
-}
 
 export default function Component({jobId}: { jobId: number }) {
-    const [queryResult, setQueryResult] = useState<insertProps>();
+    const {success, error, loading, insertEvent} = useInsertJobEvent();
     const {closeModal} = useModal();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -49,22 +23,23 @@ export default function Component({jobId}: { jobId: number }) {
             job_id: jobId,
         };
 
-        console.log("Data: ", data);
-
-        const result = await insertEvent(data);
-
-        console.log("Result: ", result);
-
-        if (result.status && closeModal) {
-            closeModal();
-        } else {
-            setQueryResult(result);
-        }
+        await insertEvent(data as JobEvent);
     };
 
-    const onReset = () => {
-        setQueryResult(undefined);
-    }
+    useEffect(() => {
+        if (error || success) {
+            addToast({
+                title: error ? "Error" : "Success",
+                description: error || success || "",
+                color: error ? "danger" : "success",
+            });
+        }
+
+        if (success) {
+            closeModal();
+        }
+
+    }, [error, success, closeModal]);
 
 
     const default_size = "md";
@@ -74,7 +49,6 @@ export default function Component({jobId}: { jobId: number }) {
         <Form
             className={style.container}
             onSubmit={onSubmit}
-            onReset={onReset}
         >
             <Input
                 isRequired
@@ -101,7 +75,8 @@ export default function Component({jobId}: { jobId: number }) {
                     size={default_size}
                     radius={default_size}
                     type="submit"
-                >Insert
+                    isDisabled={loading}
+                >{loading ? "Inserting..." : "Insert"}
                 </Button>
                 <Button
                     aria-label="Reset"
@@ -111,12 +86,6 @@ export default function Component({jobId}: { jobId: number }) {
                     Reset
                 </Button>
             </div>
-
-            {queryResult && (
-                <div className={`text-small ${queryResult.status ? "text-success-500" : "text-danger-500"}`}>
-                    {queryResult.message}
-                </div>
-            )}
 
         </Form>
     );
