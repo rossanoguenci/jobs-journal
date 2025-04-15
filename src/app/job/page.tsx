@@ -6,7 +6,6 @@ import {
     Avatar,
     Button,
     Chip,
-    Link,
     Skeleton,
 } from "@heroui/react";
 import JobEventsList from "@components/Applications/Tables/JobEventsList";
@@ -18,7 +17,7 @@ import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
 import UpdateStatus from "@components/Applications/Forms/UpdateStatus";
 import useToggleJobArchive from "@hooks/useToggleJobArchive";
 import jobStatusOptions from "@config/jobStatusOptions";
-import daysFromDate from "@lib/daysFromDate";
+import daysFromDate from "@utilities/daysFromDate";
 import {addToast} from "@heroui/toast";
 import ExternalLink from "@components/ExternalLink";
 
@@ -122,7 +121,10 @@ export default function JobDetailsPage() {
                                         <DropdownItem
                                             key="update_status"
                                             startContent={<i className="bx bxs-info-circle"/>}
-                                            onPress={() => openModal(<UpdateStatus data={data}/>, refresh)}
+                                            onPress={() => openModal(<UpdateStatus data={data}/>, () => {
+                                                void refresh();
+                                                setRefreshKey(prev => prev + 1);
+                                            })}
                                         >Update status</DropdownItem>
                                         <DropdownItem
                                             key="add_event"

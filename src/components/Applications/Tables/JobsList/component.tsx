@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useCallback, useState} from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import type {Key} from "@react-types/shared";
 import style from "./style.module.scss"
 import {
@@ -28,7 +28,7 @@ import columns from "./columns";
 import UpdateStatus from "@components/Applications/Forms/UpdateStatus/component";
 import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
 import {useModal} from "@components/GlobalModal/ModalContext";
-import daysFromDate from "@lib/daysFromDate";
+import daysFromDate from "@utilities/daysFromDate";
 import {Pagination} from "@heroui/pagination";
 import {ChevronDownIcon} from "@heroui/shared-icons";
 
@@ -49,7 +49,7 @@ export default function Component() {
 
     const pages = Math.ceil(data.length / rowsPerPage);
 
-    /* Archive action */
+    /* Archive action - plan to be deleted */
     /*const {/!*message: messageArch,*!/ /!*error: errorArch,*!/ toggleJobArchive} = useToggleJobArchive();
 
     const handleArchiveClick = useCallback(async (id: bigint) => {
@@ -121,7 +121,7 @@ export default function Component() {
     /* Top content */
     const hasSearchFilter = Boolean(filterValue);
 
-    const filteredItems = React.useMemo(() => {
+    const filteredItems = useMemo(() => {
         let filteredJobEntries = [...data];
 
         if (hasSearchFilter) {
@@ -138,7 +138,7 @@ export default function Component() {
         return filteredJobEntries;
     }, [data, filterValue, statusFilter, hasSearchFilter]);
 
-    const onSearchChange = React.useCallback((value: string) => {
+    const onSearchChange = useCallback((value: string) => {
         if (value) {
             setFilterValue(value);
             setPage(1);
@@ -147,7 +147,7 @@ export default function Component() {
         }
     }, []);
 
-    const onSearchClear = React.useCallback(() => {
+    const onSearchClear = useCallback(() => {
         setFilterValue("");
         setPage(1);
     }, []);
@@ -156,7 +156,7 @@ export default function Component() {
         setStatusFilter(new Set(keys));
     };
 
-    const topContent = React.useMemo(() => {
+    const topContent = useMemo(() => {
         return (
             <div className="flex flex-col gap-4">
                 <div className="flex justify-between gap-3 items-end">
@@ -221,7 +221,7 @@ export default function Component() {
     ]);
 
     /* The items */
-    const items = React.useMemo(() => {
+    const items = useMemo(() => {
         const start = (page - 1) * rowsPerPage;
         const end = start + rowsPerPage;
 
