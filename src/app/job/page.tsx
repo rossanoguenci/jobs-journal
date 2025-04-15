@@ -20,6 +20,7 @@ import useToggleJobArchive from "@hooks/useToggleJobArchive";
 import jobStatusOptions from "@config/jobStatusOptions";
 import daysFromDate from "@lib/daysFromDate";
 import {addToast} from "@heroui/toast";
+import ExternalLink from "@components/ExternalLink";
 
 export default function JobDetailsPage() {
     const router = useRouter();
@@ -175,11 +176,11 @@ export default function JobDetailsPage() {
                                         <Button
                                             key={index}
                                             className="text-xs"
-                                            showAnchorIcon
-                                            as={Link}
+                                            as={ExternalLink}
                                             color="default"
                                             href={link.url}
                                             variant="flat"
+                                            endContent={<i className="bx bx-link-external"/>}
                                         >
                                             {link.label}
                                         </Button>
