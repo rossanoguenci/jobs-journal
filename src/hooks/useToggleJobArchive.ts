@@ -1,38 +1,29 @@
-import {useCallback, useState} from "react";
-import {invoke} from "@tauri-apps/api/core";
+import { useState } from "react";
+import { invoke } from "@tauri-apps/api/core";
 
 export default function useToggleJobArchive() {
-    const [state, setState] = useState<{ message: string | null; loading: boolean; error: string | null }>({
-        message: null,
-        loading: false,
-        error: null,
-    });
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    const insertStatusJob = useCallback(async ({id, statusTo}: {
+    const toggleJobArchive = async ({ id, statusTo }: {
         id: bigint | number,
         statusTo: "archive" | "restore"
     }) => {
-        console.log("insertStatusJob() -> ", id, statusTo);
-        setState({message: null, loading: true, error: null});
-
-        const invoke_function = `jobs_${statusTo}_entry`;
+        setLoading(true);
+        setSuccess(null);
+        setError(null);
 
         try {
-            console.log("trying: ", invoke_function);
-            const message: string = await invoke(invoke_function, {id});
-            console.log("message: ", message);
-            setState({message: message, loading: false, error: null});
-        } catch (error: unknown) {
-            let errorMessage = "An unknown error occurred";
-
-            if (error instanceof Error) {
-                errorMessage = error.message;
-            } else if (typeof error === "string") {
-                errorMessage = error;
-            }
-            setState({message: null, loading: false, error: errorMessage});
+            const message: string = await invoke(`jobs_${statusTo}_entry`, { id });
+            setSuccess(message);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : String(err);
+            setError(errorMessage);
+        } finally {
+            setLoading(false);
         }
-    }, []);
+    };
 
-    return {...state, insertStatusJob};
+    return { loading, error, success, toggleJobArchive };
 }

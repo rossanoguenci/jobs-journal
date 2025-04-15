@@ -22,7 +22,7 @@ import {
 
 import useFetchJobs, {JobsListRowsType} from "@hooks/useFetchJobs";
 import Link from "next/link";
-import useToggleJobArchive from "@hooks/useToggleJobArchive";
+// import useToggleJobArchive from "@hooks/useToggleJobArchive";
 import jobStatusOptions from "@config/jobStatusOptions";
 import columns from "./columns";
 import UpdateStatus from "@components/Applications/Forms/UpdateStatus/component";
@@ -50,14 +50,15 @@ export default function Component() {
     const pages = Math.ceil(data.length / rowsPerPage);
 
     /* Archive action */
-    const {/*message: messageArch,*/ /*error: errorArch,*/ insertStatusJob} = useToggleJobArchive();
+    /*const {/!*message: messageArch,*!/ /!*error: errorArch,*!/ toggleJobArchive} = useToggleJobArchive();
 
     const handleArchiveClick = useCallback(async (id: bigint) => {
         console.log("handleArchiveClick() clicked -> ", id);
-        await insertStatusJob({id, statusTo: "archive"});
+        await toggleJobArchive({id, statusTo: "archive"});
         await refresh();
-    }, [insertStatusJob, refresh]);
+    }, [toggleJobArchive, refresh]);*/
 
+    /* Render cell */
     const renderCell = useCallback((item: JobsListRowType, columnKey: React.Key) => {
         const cellValue = item[columnKey as keyof JobsListRowType];
 
@@ -94,30 +95,30 @@ export default function Component() {
             case "actions":
                 return (
                     <div className="relative flex items-center gap-2">
-                        <Button isIconOnly aria-label="Update status" color="default" variant="solid"
+                        <Button isIconOnly title="Update status" aria-label="Update status" color="default" variant="faded"
                                 onPress={() => openModal(<UpdateStatus data={item}/>, refresh)}>
-                            <i className="bx bxs-info-circle"/>
+                            <i className="bx bxs-info-circle text-lg"/>
                         </Button>
 
                         <Link href={`/job#${item.id}`} className="job-link">
-                            <Button isIconOnly aria-label="View" color="default" variant="solid">
-                                <i className="bx bx-show"/>
+                            <Button isIconOnly title="View job details" aria-label="View job details" color="default" variant="faded">
+                                <i className="bx bx-show text-lg"/>
                             </Button>
                         </Link>
 
-                        <Button isIconOnly aria-label="Archive (hide)" color="danger" variant="flat"
+                        {/*<Button isIconOnly aria-label="Archive (hide)" color="warning" variant="faded"
                                 onPress={() => handleArchiveClick(item.id)}>
-                            <i className="bx bxs-archive-in"/>
-                        </Button>
+                            <i className="bx bxs-archive-in text-lg"/>
+                        </Button>*/}
 
                     </div>
                 );
             default:
                 return cellValue;
         }
-    }, [handleArchiveClick, openModal, refresh]);
+    }, [/*handleArchiveClick,*/ openModal, refresh]);
 
-    /*Top content - dev*/
+    /* Top content */
     const hasSearchFilter = Boolean(filterValue);
 
     const filteredItems = React.useMemo(() => {
@@ -151,18 +152,9 @@ export default function Component() {
         setPage(1);
     }, []);
 
-    const items = React.useMemo(() => {
-        const start = (page - 1) * rowsPerPage;
-        const end = start + rowsPerPage;
-
-        return filteredItems.slice(start, end);
-    }, [page, filteredItems, rowsPerPage]);
-
     const handleSelectionChange = (keys: Iterable<Key>) => {
         setStatusFilter(new Set(keys));
     };
-
-
 
     const topContent = React.useMemo(() => {
         return (
@@ -227,6 +219,14 @@ export default function Component() {
         onSearchChange,
         onSearchClear
     ]);
+
+    /* The items */
+    const items = React.useMemo(() => {
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        return filteredItems.slice(start, end);
+    }, [page, filteredItems, rowsPerPage]);
 
     return (
         <div className={style.container}>
