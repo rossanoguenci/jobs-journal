@@ -106,6 +106,8 @@ We’re committed to releasing this project as open source and welcome contribut
 - `src-tauri-dev-tools/`: Backend tools and DB storage for development
 - `scripts/`: Command-line scripts
 - `public/`: Static assets such as images and icons
+- `utils/`: Reusable helper functions for common tasks
+
 
 ## Contributing
 
