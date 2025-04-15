@@ -25,9 +25,12 @@ pub async fn jobs_update(db: State<'_, Database>, data: JobUpdate) -> Result<Str
         Ok(_) => {
             // If the update query is successful, check for the 'status' field
             if let Some(status_value) = obj.get("status") {
-                // Trigger the job_events_triggers::insert function if status is found
-                let status_description = format!("Status changed to {}",status_value);
-                job_events_triggers::insert(&pool, job_id, &status_description).await.map_err(|e| e.to_string())?;
+                // Check if the status_value is not null or empty
+                if !status_value.is_null() && !status_value.as_str().unwrap_or("").is_empty() {
+                    // Trigger the job_events_triggers::insert function if status is found
+                    let status_description = format!("Status changed to {}", status_value);
+                    job_events_triggers::insert(&pool, job_id, &status_description).await.map_err(|e| e.to_string())?;
+                }
             }
             Ok(format!("Updated job entry {} successfully", job_id))
         }
