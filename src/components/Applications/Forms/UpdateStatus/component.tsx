@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 // import Props from './props.types';
 import style from "./style.module.scss";
 import {Button, Form, Selection} from "@heroui/react"
@@ -9,19 +9,13 @@ import {Select, SelectItem} from "@heroui/select";
 import jobStatusOptions from "@config/jobStatusOptions";
 import {JobUpdate} from "@/types/JobUpdate";
 import {useUpsertJob} from "@hooks/useUpsertJob";
-
-
-type insertProps = {
-    status: boolean;
-    message: string;
-}
-
+import {addToast} from "@heroui/toast";
 
 export default function Component({data}: { data: null | JobUpdate }) {
     const [selectedStatus, setSelectedStatus] = useState<Selection>(new Set([data?.status || ""]));
-    const [queryResult, setQueryResult] = useState<insertProps>();
+    const [warning, setWarning] = useState<string | null>(null);
     const {closeModal} = useModal();
-    const {upsertJob, loading} = useUpsertJob();
+    const {upsertJob, error, success, loading} = useUpsertJob();
 
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -31,22 +25,42 @@ export default function Component({data}: { data: null | JobUpdate }) {
         const selected_status: string = Array.from(selectedStatus)[0].toString() ?? null;
 
         if (!selected_status || selected_status === current_status) {
-            setQueryResult({status: false, message: "Nothing to change."});
+            setWarning("Nothing to change.");
             return;
         }
 
-        const prepare_data: JobUpdate = {id: data!.id, status: selected_status};
-
-        const result = await upsertJob(prepare_data);
-
-        console.log("Result: ", result);
-
-        if (result.status && closeModal) {
-            closeModal();
-        } else {
-            setQueryResult(result);
-        }
+        await upsertJob({id: data!.id, status: selected_status});
     };
+
+    useEffect(() => {
+        let toastConfig;
+
+        if (success && closeModal) {
+            toastConfig = {
+                title: "Success",
+                description: success,
+                color: "success" as const,
+            };
+            closeModal();
+        } else if (error) {
+            toastConfig = {
+                title: "Error",
+                description: error,
+                color: "danger" as const,
+            };
+        } else if (warning) {
+            toastConfig = {
+                title: "Warning",
+                description: warning,
+                color: "warning" as const,
+            };
+        }
+
+        if (toastConfig) {
+            addToast(toastConfig);
+        }
+    }, [warning, success, error, closeModal]);
+
 
     const default_size = "md";
 
@@ -62,7 +76,7 @@ export default function Component({data}: { data: null | JobUpdate }) {
                     selectedKeys={selectedStatus}
                     onSelectionChange={setSelectedStatus}
             >
-                {jobStatusOptions.map(({ key, label, color, icon }) => (
+                {jobStatusOptions.map(({key, label, color, icon}) => (
                     <SelectItem key={key} startContent={icon} className={`text-${color}`}>
                         {label}
                     </SelectItem>
@@ -88,12 +102,6 @@ export default function Component({data}: { data: null | JobUpdate }) {
                 >Cancel
                 </Button>
             </div>
-
-            {queryResult && (
-                <div className={`text-small ${queryResult.status ? "text-success-500" : "text-danger-500"}`}>
-                    {queryResult.message}
-                </div>
-            )}
 
         </Form>
     );
