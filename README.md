@@ -1,6 +1,28 @@
 # Jobs Journal
 
+![Build Status](https://img.shields.io/github/workflow/status/rossanoguenci/jobs-journal/ci?label=Build%20Status&logo=github&color=grey)
+![Pre-release](https://img.shields.io/github/v/release/rossanoguenci/jobs-journal?sort=semver)
+![License](https://img.shields.io/github/license/rossanoguenci/jobs-journal)
+![Last Commit](https://img.shields.io/github/last-commit/rossanoguenci/jobs-journal)
+![Issues](https://img.shields.io/github/issues/rossanoguenci/jobs-journal)
+![Pull Requests](https://img.shields.io/github/issues-pr/rossanoguenci/jobs-journal)
+![Made with Rust](https://img.shields.io/badge/made%20with-Rust-orange)
+![Made with Next.js](https://img.shields.io/badge/made%20with-Next.js-blue)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
+
 A simple and efficient job journal app to help you track and manage your job search process. Built with Next.js (app routing), Tauri v2, HeroUI, Rust, and SQLite.
+
+## 📊 Project Status
+
+| Badge            | Status |
+|:-----------------|:--------|
+| ![Build Status](https://img.shields.io/github/workflow/status/rossanoguenci/jobs-journal/ci?label=Build%20Status&logo=github&color=grey) | **Build status currently unavailable** (CI under investigation) |
+| ![Pre-release](https://img.shields.io/github/v/release/rossanoguenci/jobs-journal?sort=semver) | Latest pre-release tag |
+| ![Issues](https://img.shields.io/github/issues/rossanoguenci/jobs-journal) | Open issues count |
+| ![Pull Requests](https://img.shields.io/github/issues-pr/rossanoguenci/jobs-journal) | Open PRs count |
+| ![License](https://img.shields.io/github/license/rossanoguenci/jobs-journal) | MIT |
+| ![Made with Rust](https://img.shields.io/badge/made%20with-Rust-orange) | Backend |
+| ![Made with Next.js](https://img.shields.io/badge/made%20with-Next.js-blue) | Frontend |
 
 ## Current Status
 
