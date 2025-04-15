@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Props from './props.types';
 import style from "./style.module.scss";
 
@@ -14,13 +14,45 @@ import {addToast} from "@heroui/toast";
 import {useUpsertJob} from "@hooks/useUpsertJob";
 import {JobInsert} from "@/types/JobInsert";
 import {JobUpdate} from "@/types/JobUpdate";
+import {Key} from "@react-types/shared";
 
 export default function Component({data = null}: Props) {
     const [warning, setWarning] = useState<string | null>(null);
-    const formRef = React.useRef<HTMLFormElement>(null);
+    const formRef = useRef<HTMLFormElement>(null);
     const {closeModal} = useModal();
     const {upsertJob, loading, error, success} = useUpsertJob();
 
+    /* Autocomplete workaround
+    *
+    * issue #3186 -> https://github.com/heroui-inc/heroui/issues/3186
+    * issue #3436 -> https://github.com/heroui-inc/heroui/issues/3436
+    *
+    * */
+    const [locationValue, setLocationValue] = useState(data?.location || "");
+    const isSelectionChange = useRef(false);
+
+    const handleInputChange = (value: string) => {
+        if (!isSelectionChange.current) {
+            setLocationValue(value);
+            // If you need to update a form state or parent component
+            // updateFormData("location", value);
+        }
+        isSelectionChange.current = false;
+    };
+
+    const handleSelectionChange = (key: Key | null) => {
+        // Find the selected item to get its label
+        const selectedItem = locations.find(item => item.key === key);
+        if (selectedItem) {
+            setLocationValue(selectedItem.label);
+            // If you need to update a form state or parent component
+            // updateFormData("location", selectedItem.label);
+        }
+        isSelectionChange.current = true;
+    };
+
+
+    /*On Submit*/
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setWarning(null);
@@ -63,7 +95,7 @@ export default function Component({data = null}: Props) {
 
         if (data?.id && success) {
             closeModal();
-        }else{
+        } else {
             formRef.current?.reset();
         }
 
@@ -127,7 +159,9 @@ export default function Component({data = null}: Props) {
                 label="Location"
                 aria-label="Location"
                 size={default_size}
-                inputValue={data?.location || undefined}
+                inputValue={locationValue}
+                onInputChange={handleInputChange}
+                onSelectionChange={handleSelectionChange}
             >
                 {(item) =>
                     <AutocompleteItem
