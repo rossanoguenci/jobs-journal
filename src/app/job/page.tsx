@@ -235,7 +235,10 @@ export default function JobDetailsPage() {
 
                     </div>
 
-                    <JobEventsList key={refreshKey} jobId={jobId}/>
+                    <Skeleton className="rounded-lg" isLoaded={!loading}>
+                        <JobEventsList key={refreshKey} jobId={jobId}/>
+                    </Skeleton>
+
                 </div>
             )}
         </main>
