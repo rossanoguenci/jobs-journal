@@ -9,6 +9,7 @@
 ![Made with Rust](https://img.shields.io/badge/made%20with-Rust-orange)
 ![Made with Next.js](https://img.shields.io/badge/made%20with-Next.js-blue)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.me/rossanoguenciuk)
 
 A simple and efficient job journal app to help you track and manage your job search process. Built with Next.js (app routing), Tauri v2, HeroUI, Rust, and SQLite.
 
@@ -30,7 +31,7 @@ This is an **alpha version** of the app. It currently offers basic functionality
 
 We’re committed to releasing this project as open source and welcome contributions. If you’d like to help or suggest improvements, feel free to [open an issue](https://github.com/rossanoguenci/jobs-journal/issues) or submit a [pull request](https://github.com/rossanoguenci/jobs-journal/pulls).
 
-## Features
+## ✨ Features
 
 - Track job applications and interviews
 - Add, edit, and delete (or hide) job entries
@@ -38,21 +39,20 @@ We’re committed to releasing this project as open source and welcome contribut
 - Each job entry has its own event list
 - Support for dark and light mode
 
-
-## Tech Stack
+## 🛠️ Tech Stack
 
 - **Frontend**: Next.js (app routing), HeroUI (React UI library)
 - **Backend**: Rust, SQLite, Tauri v2
 - **Package Management**: pnpm
 
-## Preview
+## 📸 Preview
 
 ![Preview of Jobs Journal](preview/preview_1.png)
 ![Preview of Jobs Journal](preview/preview_2.png)
 ![Preview of Jobs Journal](preview/preview_3.png)
 
 
-## Installation
+## 📦 Installation
 
 ### Prerequisites
 
@@ -94,7 +94,7 @@ We’re committed to releasing this project as open source and welcome contribut
    pnpm build
    ```
 
-## Project Structure
+## 📁 Project Structure
 
 - `src/`: Frontend code using Next.js (App Router)
 - `src/components/`: Reusable UI components
@@ -109,10 +109,18 @@ We’re committed to releasing this project as open source and welcome contribut
 - `utils/`: Reusable helper functions for common tasks
 
 
-## Contributing
+## 🤝 Contributing
 
 We love to publish this project as open-source, and any contributions are most welcome! If you find any bugs, have suggestions, or want to improve the project, feel free to open an issue or create a pull request.
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
+
+## ❤️ Support the Project
+
+If you find Jobs Journal helpful and want to support its development, you can buy me a coffee or make a small donation via PayPal:
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-blue.svg)](https://www.paypal.me/rossanoguenciuk)
+
+---
