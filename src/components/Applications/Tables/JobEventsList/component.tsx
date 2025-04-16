@@ -63,7 +63,7 @@ export default function Component({jobId}: { jobId: number }) {
         <div className={`${style.container}`}>
             <h2 className="text-sm">List of event</h2>
             <Table hideHeader
-                   removeWrapper
+                   shadow="none"
                    aria-label="Table of events"
                    bottomContent={
                        <div className="flex w-full justify-center">
