@@ -1,109 +1,114 @@
 "use client"
 
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Props from './props.types';
 import style from "./style.module.scss";
 
-import {Button, DatePicker, Input, Form/*, Autocomplete*//*, AutocompleteItem*/} from "@heroui/react"
+import {Button, DatePicker, Input, Form, Autocomplete, AutocompleteItem} from "@heroui/react"
 
-import {invoke} from "@tauri-apps/api/core"
 import {JobEntry} from "@/types/JobEntry";
 import {parseDate, getLocalTimeZone, today} from "@internationalized/date";
 import {useModal} from "@components/GlobalModal/ModalContext";
-
-
-type insertProps = {
-    status: boolean;
-    message: string;
-}
-
-async function invokeBackend(data: Record<string, unknown>): Promise<insertProps> {
-
-    const functionToInvoke = data.id ? "jobs_update" : "jobs_insert";
-
-    try {
-        const message = await invoke<string>(functionToInvoke, {data: data});
-        console.log(message);
-        return {status: true, message};
-    } catch (error) {
-        console.error("Error invoking Rust function:", error);
-
-        // Ensure we extract the message properly
-        let errorMessage = "An error occurred";
-
-        if (typeof error === "string") {
-            errorMessage = error;
-        } else if (error instanceof Error) {
-            errorMessage = error.message;
-        } else if (typeof error === "object" && error !== null && "message" in error) {
-            errorMessage = String(error.message);
-        }
-
-        return {status: false, message: errorMessage};
-    }
-}
+import locations from "@config/locations";
+import {addToast} from "@heroui/toast";
+import {useUpsertJob} from "@hooks/useUpsertJob";
+import {JobInsert} from "@/types/JobInsert";
+import {JobUpdate} from "@/types/JobUpdate";
+import {Key} from "@react-types/shared";
 
 export default function Component({data = null}: Props) {
-    const [queryResult, setQueryResult] = useState<insertProps>();
+    const [warning, setWarning] = useState<string | null>(null);
+    const formRef = useRef<HTMLFormElement>(null);
     const {closeModal} = useModal();
+    const {upsertJob, loading, error, success} = useUpsertJob();
 
+    /* Autocomplete workaround
+    *
+    * issue #3186 -> https://github.com/heroui-inc/heroui/issues/3186
+    * issue #3436 -> https://github.com/heroui-inc/heroui/issues/3436
+    *
+    * */
+    const [locationValue, setLocationValue] = useState(data?.location || "");
+    const isSelectionChange = useRef(false);
+
+    const handleInputChange = (value: string) => {
+        if (!isSelectionChange.current) {
+            setLocationValue(value);
+            // If you need to update a form state or parent component
+            // updateFormData("location", value);
+        }
+        isSelectionChange.current = false;
+    };
+
+    const handleSelectionChange = (key: Key | null) => {
+        // Find the selected item to get its label
+        const selectedItem = locations.find(item => item.key === key);
+        if (selectedItem) {
+            setLocationValue(selectedItem.label);
+            // If you need to update a form state or parent component
+            // updateFormData("location", selectedItem.label);
+        }
+        isSelectionChange.current = true;
+    };
+
+
+    /*On Submit*/
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setWarning(null);
+
         const formData = Object.fromEntries(new FormData(e.currentTarget));
 
         console.log('formData', formData);
 
         if (!data) {
             // Insert new entry
-            const result = await invokeBackend(formData);
-            setQueryResult(result);
-            return;
-        }
-
-        // Update logic: Compare form values with existing data
-        const updates: Record<string, unknown> = {};
-        Object.keys(formData).forEach((key) => {
-            if (formData[key] !== data[key as keyof JobEntry]) {
-                updates[key] = formData[key];
-            }
-        });
-
-        // If no changes are found, show a warning
-        if (Object.keys(updates).length === 0) {
-            setQueryResult({status: false, message: "Nothing to update"});
-            return;
-        }
-
-        // Send only updated fields to the backend
-        updates.id = data.id;
-        console.log("Updates", updates);
-
-        const result = await invokeBackend(updates);
-
-        if (result.status && closeModal) {
-            closeModal();
+            const insertData = formData as JobInsert;
+            await upsertJob(insertData);
         } else {
-            setQueryResult(result);
+            // Update logic
+            const updates: Record<string, unknown> = {};
+            Object.keys(formData).forEach((key) => {
+                if (formData[key] !== data[key as keyof JobEntry]) {
+                    updates[key] = formData[key];
+                }
+            });
+
+            if (Object.keys(updates).length === 0) {
+                setWarning("Nothing to update");
+                return;
+            }
+
+            updates.id = data.id;
+            await upsertJob(updates as JobUpdate);
         }
     };
 
-    const onReset = () => {
-        setQueryResult(undefined);
-    }
+    useEffect(() => {
+        if (error || success || warning) {
+            addToast({
+                title: error ? "Error" : warning ? "Warning" : "Success",
+                description: error || warning || success || "",
+                color: error ? "danger" : warning ? "warning" : "success",
+            });
+        }
+
+        if (data?.id && success) {
+            closeModal();
+        } else {
+            formRef.current?.reset();
+        }
+
+    }, [data?.id, error, success, warning, closeModal]);
+
 
     const default_size = "md";
 
-    /*const locations: Array<{ label: string, key: string, description?: string, startContent?: never }> = [
-        {label: "Remote", key: "remote", description: "Working from home"},
-        {label: "Hybrid", key: "hybrid", description: "Working from home&office"},
-        {label: "On site", key: "on_site", description: "Working from office only"},
-    ];*/
-
     return (
         <Form
+            ref={formRef}
             className={style.container}
             onSubmit={onSubmit}
-            onReset={onReset}
         >
             {/*Required*/}
             <Input
@@ -145,22 +150,27 @@ export default function Component({data = null}: Props) {
                 defaultValue={data?.link || ""}
             />
 
-            {/*todo: to be added soon*/}
-            {/*<Autocomplete
+            <Autocomplete
+                isClearable={false} // (GitHub issue #1977)
                 allowsCustomValue
                 className="max-w-xs"
                 defaultItems={locations}
+                name="location"
                 label="Location"
+                aria-label="Location"
                 size={default_size}
-                // inputValue={data?.location || undefined}
+                inputValue={locationValue}
+                onInputChange={handleInputChange}
+                onSelectionChange={handleSelectionChange}
             >
                 {(item) =>
                     <AutocompleteItem
                         key={item.key}
                         description={item.description ?? ''}
                         startContent={item.startContent ?? ''}
-                    >{item.label}</AutocompleteItem>}
-            </Autocomplete>*/}
+                    >{item.label}</AutocompleteItem>
+                }
+            </Autocomplete>
 
             {/*Actions*/}
             <div className="flex flex-wrap gap-2 w-full">
@@ -172,7 +182,9 @@ export default function Component({data = null}: Props) {
                             size={default_size}
                             radius={default_size}
                             type="submit"
-                        >Update
+                            isLoading={loading}
+                            disabled={loading}
+                        >{loading ? "Is updating..." : "Update"}
                         </Button>
 
                         <Button
@@ -185,16 +197,6 @@ export default function Component({data = null}: Props) {
                     </>
                     :
                     <>
-                        {/*<Button
-                            className="w-full"
-                            aria-label="Insert and add a new one"
-                            color="primary"
-                            size={default_size}
-                            radius={default_size}
-                            type="submit"
-                        >Insert & Add a new one
-                        </Button>*/}
-
                         <Button
                             className="w-full"
                             aria-label="Insert"
@@ -202,7 +204,9 @@ export default function Component({data = null}: Props) {
                             size={default_size}
                             radius={default_size}
                             type="submit"
-                        >Insert
+                            isLoading={loading}
+                            disabled={loading}
+                        >{loading ? "Inserting..." : "Insert"}
                         </Button>
 
                         <Button
@@ -216,12 +220,6 @@ export default function Component({data = null}: Props) {
                     </>
                 }
             </div>
-
-            {queryResult && (
-                <div className={`text-small ${queryResult.status ? "text-success-500" : "text-danger-500"}`}>
-                    {queryResult.message}
-                </div>
-            )}
         </Form>
     );
 }

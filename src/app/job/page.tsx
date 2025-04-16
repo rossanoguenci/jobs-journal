@@ -6,7 +6,6 @@ import {
     Avatar,
     Button,
     Chip,
-    Link,
     Skeleton,
 } from "@heroui/react";
 import JobEventsList from "@components/Applications/Tables/JobEventsList";
@@ -17,41 +16,44 @@ import {useModal} from "@components/GlobalModal/ModalContext";
 import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
 import UpdateStatus from "@components/Applications/Forms/UpdateStatus";
 import useToggleJobArchive from "@hooks/useToggleJobArchive";
-import jobStatus from "@config/jobStatus";
+import jobStatusOptions from "@config/jobStatusOptions";
+import daysFromDate from "@utilities/daysFromDate";
+import {addToast} from "@heroui/toast";
+import ExternalLink from "@components/ExternalLink";
 
 export default function JobDetailsPage() {
     const router = useRouter();
-
     const [jobId, setJobId] = useState<number>(0);
-
-    const {openModal} = useModal();
-
-    useEffect(() => {
-        const id = window.location.hash.substring(1);
-        if (id) setJobId(Number(id));
-        else {
-            notFound();
-        }
-    }, []);
-
-    const {data, loading, /*error ,*/ refresh} = useJobDetails({jobId});
-    const {/*error: errorInsertStatus,*/ insertStatusJob} = useToggleJobArchive();
-
     const [refreshKey, setRefreshKey] = useState(0);
+    const {openModal} = useModal();
+    const {data, loading, error, refresh} = useJobDetails({jobId});
+    const {error: errorToggleJobArchive, toggleJobArchive} = useToggleJobArchive();
 
-    const handleInsertStatusJobChange = React.useCallback(async () => {
-        if (!data?.insert_status) return;  // Ensure data is available
+    const handleArchiveClick = React.useCallback(async () => {
+        if (!data?.insert_status) return;
 
         const statusTo = data.insert_status === "archived" ? "restore" : "archive";
+        const verb = statusTo === "archive" ? "archived" : "restored";
 
-        try {
-            await insertStatusJob({id: jobId, statusTo});
-            router.push(`/`);
-            console.log(`Job ${statusTo}d successfully`);
-        } catch (err) {
-            console.error(`Error ${statusTo}ing job:`, err);
+        await toggleJobArchive({id: jobId, statusTo});
+
+        if (errorToggleJobArchive) {
+            addToast({
+                title: "Error",
+                description: `Error ${verb} job: ${errorToggleJobArchive}`,
+                color: "danger",
+            });
+            return;
         }
-    }, [data?.insert_status, insertStatusJob, jobId, router]);
+
+        addToast({
+            title: "Success",
+            description: `Job ${verb} successfully`,
+            color: "success",
+        });
+        router.push(`/`);
+
+    }, [data?.insert_status, toggleJobArchive, errorToggleJobArchive, jobId, router]);
 
 
     //todo: manage links dynamically, company's and linkedin's from Companies table - To be developed
@@ -73,23 +75,16 @@ export default function JobDetailsPage() {
         return (<>{`${day}-${month}-${year}`}</>);
     }
 
-    const daysFromDate = (date: string) => {
-        if (date.length < 10) {
-            return null
+    const statusColor = typeof data?.status === "string" ? jobStatusOptions.find(o => o.key === data.status)?.color : "default";
+    const statusLabel = typeof data?.status === "string" ? jobStatusOptions.find(o => o.key === data.status)?.label : "Unknown";
+
+    useEffect(() => {
+        const id = window.location.hash.substring(1);
+        if (id) setJobId(Number(id));
+        else {
+            notFound();
         }
-        const givenDate = new Date(date);
-        if (isNaN(givenDate.getTime())) {
-            return null;
-        }
-        const today = new Date();
-        const diff = today.getTime() - givenDate.getTime();
-
-        return Math.floor(diff / (1000 * 60 * 60 * 24));
-    }
-
-    const statusColor = typeof data?.status === "string" ? jobStatus[data?.status].color : "default";
-    const statusLabel = typeof data?.status === "string" ? jobStatus[data?.status].label : "Unknown";
-
+    }, []);
 
     return (
         <main className="wrapper">
@@ -99,6 +94,7 @@ export default function JobDetailsPage() {
                 <i className='bx bx-arrow-back'></i> Back to the list
             </Button>
 
+            {error ? (<div className="error">{error}</div>) : (
                 <div className="container">
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
 
@@ -125,7 +121,10 @@ export default function JobDetailsPage() {
                                         <DropdownItem
                                             key="update_status"
                                             startContent={<i className="bx bxs-info-circle"/>}
-                                            onPress={() => openModal(<UpdateStatus data={data}/>, refresh)}
+                                            onPress={() => openModal(<UpdateStatus data={data}/>, () => {
+                                                void refresh();
+                                                setRefreshKey(prev => prev + 1);
+                                            })}
                                         >Update status</DropdownItem>
                                         <DropdownItem
                                             key="add_event"
@@ -147,24 +146,21 @@ export default function JobDetailsPage() {
                                             startContent={
                                                 <i className={data?.insert_status === "archived" ? "bx bxs-archive-out" : "bx bxs-archive-in"}/>
                                             }
-                                            className={data?.insert_status === "archived" ? "text-secondary" : "text-danger"}
-                                            color={data?.insert_status === "archived" ? "secondary" : "danger"}
-                                            onPress={() => handleInsertStatusJobChange()}
+                                            className={data?.insert_status === "archived" ? "text-secondary" : "text-warning"}
+                                            color={data?.insert_status === "archived" ? "secondary" : "warning"}
+                                            onPress={() => handleArchiveClick()}
                                         >
                                             {data?.insert_status === "archived" ? "Restore job" : "Archive job"}
                                         </DropdownItem>
-
-
                                     </DropdownSection>
 
                                 </DropdownMenu>
-
                             </Dropdown>
 
                         </div>
 
                         {/* Company Info */}
-                        <div className="flex items-center">
+                        <div className="col-span-1 flex items-center">
                             <Skeleton className="rounded-lg" isLoaded={!loading}>
                                 <div className="flex items-center gap-2 align-middle">
                                     <Avatar size="sm" showFallback fallback={<i className="bx bx-buildings"/>}
@@ -174,12 +170,50 @@ export default function JobDetailsPage() {
                             </Skeleton>
                         </div>
 
+                        {/* Links */}
+                        <div className="col-span-2">
+                            <Skeleton className="rounded-lg" isLoaded={!loading}>
+                                <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
+                                    {links.map((link, index) => (
+                                        <Button
+                                            key={index}
+                                            className="text-xs"
+                                            as={ExternalLink}
+                                            color="default"
+                                            href={link.url}
+                                            variant="flat"
+                                            endContent={<i className="bx bx-link-external"/>}
+                                        >
+                                            {link.label}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </Skeleton>
+                        </div>
+
+                        {/* Location */}
+                        <div className="col-span-2 sm:col-span-1 text-xs flex items-center justify-center">
+                            <Skeleton className="rounded-lg" isLoaded={!loading}>
+                                {data?.location && (
+                                    <div className="flex flex-col items-center justify-center gap-2">
+                                        <span>Location</span>
+                                        <Chip className="capitalize"
+                                              color="warning" size="sm"
+                                              variant="bordered">
+                                            <span><i className="bx bx-map-pin"></i> {data.location}</span>
+                                        </Chip>
+                                    </div>
+                                )}
+                            </Skeleton>
+                        </div>
+
                         {/* Applied Date */}
                         <div className="col-span-2 sm:col-span-1 text-xs flex items-center justify-center">
                             <Skeleton className="rounded-lg" isLoaded={!loading}>
                                 <div className="flex flex-col items-center justify-center gap-2">
-                                <span><i
-                                    className="bx bx-calendar"></i> {application_date(data?.application_date ?? '')}</span>
+                                <span>
+                                    <i className="bx bx-calendar"></i> {application_date(data?.application_date ?? '')}
+                                </span>
                                     <span>({daysFromDate(data?.application_date ?? '')} days ago)</span>
                                 </div>
                             </Skeleton>
@@ -199,31 +233,14 @@ export default function JobDetailsPage() {
                             </Skeleton>
                         </div>
 
-                        {/* Links */}
-                        <div className="col-span-full mt-2">
-                            <Skeleton className="rounded-lg" isLoaded={!loading}>
-                                <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
-                                    {links.map((link, index) => (
-                                        <Button
-                                            key={index}
-                                            className="text-xs"
-                                            showAnchorIcon
-                                            as={Link}
-                                            color="default"
-                                            href={link.url}
-                                            variant="flat"
-                                        >
-                                            {link.label}
-                                        </Button>
-                                    ))}
-                                </div>
-                            </Skeleton>
-                        </div>
                     </div>
 
-                    <JobEventsList key={refreshKey} jobId={jobId}/>
-                </div>
+                    <Skeleton className="rounded-lg" isLoaded={!loading}>
+                        <JobEventsList key={refreshKey} jobId={jobId}/>
+                    </Skeleton>
 
+                </div>
+            )}
         </main>
     );
 }

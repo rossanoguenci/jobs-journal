@@ -13,4 +13,6 @@ pub struct JobEntry {
     pub application_date: String,
     pub status: String,
     pub insert_status: String,
+    #[ts(optional)]
+    pub location: Option<String>,
 }

@@ -1,10 +1,14 @@
 mod models;
 mod queries;
 mod db;
+mod utils;
 
 use tauri::Builder;
 use db::{get_db_path, setup_database};
 use queries::*;
+
+use tauri_plugin_opener as opener;
+
 
 #[tokio::main]
 async fn main() {
@@ -38,6 +42,7 @@ async fn main() {
             job_events_insert,
             job_events_get,
         ])
+        .plugin(opener::init())
         .run(tauri::generate_context!())
         .expect("Error running Tauri application");
 }

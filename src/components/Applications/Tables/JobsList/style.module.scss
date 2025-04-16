@@ -1,8 +1,22 @@
-.container{
+.container {
   @apply w-full;
 
-  thead{
+  p {
+    @apply mt-0;
+  }
+
+  thead {
     @apply uppercase;
+  }
+
+  tr {
+    td:first-child {
+      @apply w-80;
+    }
+
+    td {
+      @apply w-48;
+    }
   }
 
 }
