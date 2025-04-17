@@ -11,7 +11,6 @@ import {
     TableRow,
     TableCell,
     // ChipProps,
-    // Tooltip,
     Chip,
     Button, Input,
     Dropdown,
@@ -22,7 +21,6 @@ import {
 
 import useFetchJobs, {JobsListRowsType} from "@hooks/useFetchJobs";
 import Link from "next/link";
-// import useToggleJobArchive from "@hooks/useToggleJobArchive";
 import jobStatusOptions from "@config/jobStatusOptions";
 import columns from "./columns";
 import UpdateStatus from "@components/Applications/Forms/UpdateStatus/component";
@@ -48,15 +46,6 @@ export default function Component() {
     const rowsPerPage = 9;
 
     const pages = Math.ceil(data.length / rowsPerPage);
-
-    /* Archive action - plan to be deleted */
-    /*const {/!*message: messageArch,*!/ /!*error: errorArch,*!/ toggleJobArchive} = useToggleJobArchive();
-
-    const handleArchiveClick = useCallback(async (id: bigint) => {
-        console.log("handleArchiveClick() clicked -> ", id);
-        await toggleJobArchive({id, statusTo: "archive"});
-        await refresh();
-    }, [toggleJobArchive, refresh]);*/
 
     /* Render cell */
     const renderCell = useCallback((item: JobsListRowType, columnKey: React.Key) => {
@@ -105,18 +94,12 @@ export default function Component() {
                                 <i className="bx bx-show text-lg"/>
                             </Button>
                         </Link>
-
-                        {/*<Button isIconOnly aria-label="Archive (hide)" color="warning" variant="faded"
-                                onPress={() => handleArchiveClick(item.id)}>
-                            <i className="bx bxs-archive-in text-lg"/>
-                        </Button>*/}
-
                     </div>
                 );
             default:
                 return cellValue;
         }
-    }, [/*handleArchiveClick,*/ openModal, refresh]);
+    }, [openModal, refresh]);
 
     /* Top content */
     const hasSearchFilter = Boolean(filterValue);
@@ -126,7 +109,8 @@ export default function Component() {
 
         if (hasSearchFilter) {
             filteredJobEntries = filteredJobEntries.filter((jobEntry) =>
-                jobEntry.title.toLowerCase().includes(filterValue.toLowerCase()),
+                jobEntry.title.toLowerCase().includes(filterValue.toLowerCase()) ||
+                jobEntry.company.toLowerCase().includes(filterValue.toLowerCase())
             );
         }
         if (statusFilter.size > 0 && statusFilter.size !== jobStatusOptions.length) {
@@ -163,7 +147,7 @@ export default function Component() {
                     <Input
                         isClearable
                         className="w-full sm:max-w-[44%]"
-                        placeholder="Search by name..."
+                        placeholder="Search by title or company..."
                         startContent={<i className="bx bx-search"/>}
                         value={filterValue}
                         onClear={() => onSearchClear()}
