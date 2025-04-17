@@ -109,18 +109,9 @@ export default function Component({data = null}: Props) {
             ref={formRef}
             className={style.container}
             onSubmit={onSubmit}
+            onReset={() => setLocationValue("")}
         >
             {/*Required*/}
-            <Input
-                isRequired
-                label="Company"
-                aria-label="Company Name"
-                type="text"
-                name="company"
-                size={default_size}
-                defaultValue={data?.company || ""}
-            />
-
             <Input
                 isRequired
                 label="Title"
@@ -129,6 +120,16 @@ export default function Component({data = null}: Props) {
                 type="text"
                 size={default_size}
                 defaultValue={data?.title || ""}
+            />
+
+            <Input
+                isRequired
+                label="Company"
+                aria-label="Company Name"
+                type="text"
+                name="company"
+                size={default_size}
+                defaultValue={data?.company || ""}
             />
 
             <DatePicker
@@ -151,7 +152,6 @@ export default function Component({data = null}: Props) {
             />
 
             <Autocomplete
-                isClearable={false} // (GitHub issue #1977)
                 allowsCustomValue
                 className="max-w-xs"
                 defaultItems={locations}
@@ -162,6 +162,7 @@ export default function Component({data = null}: Props) {
                 inputValue={locationValue}
                 onInputChange={handleInputChange}
                 onSelectionChange={handleSelectionChange}
+                onClear={() => setLocationValue("")}
             >
                 {(item) =>
                     <AutocompleteItem

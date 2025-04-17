@@ -11,7 +11,7 @@ import {addToast} from "@heroui/toast";
 import {JobEvent} from "@/types/JobEvent";
 
 
-export default function Component({jobId}: { jobId: number }) {
+export default function Component({jobId}: { jobId: bigint }) {
     const {success, error, loading, insertEvent} = useInsertJobEvent();
     const {closeModal} = useModal();
 
@@ -20,7 +20,7 @@ export default function Component({jobId}: { jobId: number }) {
 
         const data: Record<string, unknown> = {
             ...Object.fromEntries(new FormData(e.currentTarget)),
-            job_id: jobId,
+            job_id: Number(jobId),
         };
 
         await insertEvent(data as JobEvent);

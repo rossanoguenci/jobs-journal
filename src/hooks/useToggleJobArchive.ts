@@ -7,7 +7,7 @@ export default function useToggleJobArchive() {
     const [error, setError] = useState<string | null>(null);
 
     const toggleJobArchive = async ({ id, statusTo }: {
-        id: bigint | number,
+        id: number,
         statusTo: "archive" | "restore"
     }) => {
         setLoading(true);

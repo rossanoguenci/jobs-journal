@@ -2,7 +2,7 @@ import {useEffect, useState, useCallback} from "react";
 import {invoke} from "@tauri-apps/api/core";
 import {JobEntry as JobDetailsType} from "@/types/JobEntry";
 
-export default function useJobDetails({jobId}: { jobId: number }) {
+export default function useJobDetails({jobId}: { jobId: bigint }) {
     const [data, setData] = useState<JobDetailsType | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -13,7 +13,7 @@ export default function useJobDetails({jobId}: { jobId: number }) {
         try {
             setLoading(true);
             setError(null);
-            const job_details = await invoke<JobDetailsType>("jobs_get_details", {jobId});
+            const job_details = await invoke<JobDetailsType>("jobs_get_details", {jobId : Number(jobId)});
             setData(job_details);
         } catch (err) {
             setError(`Failed to fetch job details #${jobId}`);

@@ -7,7 +7,7 @@ export interface JobEventsType {
     rows: Array<JobEventType>;
 }
 
-export default function useJobEventLog({jobId}: { jobId: number }) {
+export default function useJobEventLog({jobId}: { jobId: bigint }) {
     const [data, setData] = useState<JobEventsType | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -18,7 +18,7 @@ export default function useJobEventLog({jobId}: { jobId: number }) {
         try {
             setLoading(true);
             setError(null);
-            const rows = await invoke<JobEventType[]>("job_events_get", {jobId});
+            const rows = await invoke<JobEventType[]>("job_events_get", {jobId: Number(jobId)});
             setData({
                 columns: [
                     // {key: "id", label: "ID"},

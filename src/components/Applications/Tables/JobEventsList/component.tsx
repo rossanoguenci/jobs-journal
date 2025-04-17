@@ -16,7 +16,7 @@ import {JobEvent} from "@/types/JobEvent";
 import jobStatusOptions from "@config/jobStatusOptions";
 import {Pagination} from "@heroui/pagination";
 
-export default function Component({jobId}: { jobId: number }) {
+export default function Component({jobId}: { jobId: bigint }) {
     const {data, loading, error /*,refresh*/} = useJobEventLog({jobId});
 
     /* Paging */

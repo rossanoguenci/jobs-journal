@@ -20,15 +20,18 @@ import {
 } from "@heroui/react";
 
 import useFetchJobs, {JobsListRowsType} from "@hooks/useFetchJobs";
-import Link from "next/link";
 import jobStatusOptions from "@config/jobStatusOptions";
 import columns from "./columns";
 import UpdateStatus from "@components/Applications/Forms/UpdateStatus/component";
 import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
+import InsertEvent from "@components/Applications/Forms/InsertEvent";
 import {useModal} from "@components/GlobalModal/ModalContext";
 import daysFromDate from "@utilities/daysFromDate";
 import {Pagination} from "@heroui/pagination";
 import {ChevronDownIcon} from "@heroui/shared-icons";
+import JobActionsDropdown from "@components/JobActionsDropdown";
+import type {Action} from "@components/JobActionsDropdown/props.types";
+import Link from "next/link";
 
 type JobsListRowType = JobsListRowsType[number];
 
@@ -82,20 +85,53 @@ export default function Component() {
                     </Chip>
                 );
             case "actions":
+                const actions: Action[] = [
+                    {
+                        key: "add_event",
+                        label: "Add event",
+                        icon: "bx bxs-calendar-plus",
+                        onClick: () => openModal(<InsertEvent jobId={item.id}/>, refresh),
+                        section: "main"
+                    }, {
+                        key: "update_status",
+                        label: "Update status",
+                        icon: "bx bxs-info-circle",
+                        onClick: () => openModal(<UpdateStatus data={item}/>, refresh),
+                        section: "main"
+                    }, {
+                        key: "edit_job",
+                        label: "Edit job info",
+                        icon: "bx bxs-edit-alt",
+                        onClick: () => openModal(<InsertEditJob data={item}/>, refresh),
+                        section: "main"
+                    }, {
+                        key: "archive",
+                        label: "Archive",
+                        icon: "bx bxs-archive-in",
+                        color: "warning",
+                        onClick: () => (0),
+                        section: "danger"
+                    },
+                ];
+
                 return (
                     <div className="relative flex items-center gap-2">
-                        <Button isIconOnly title="Update status" aria-label="Update status" color="default" variant="faded"
-                                onPress={() => openModal(<UpdateStatus data={item}/>, refresh)}>
-                            <i className="bx bxs-info-circle text-lg"/>
-                        </Button>
-
                         <Link href={`/job#${item.id}`} className="job-link">
-                            <Button isIconOnly title="View job details" aria-label="View job details" color="default" variant="faded">
+                            <Button isIconOnly title="View job details" aria-label="View job details" color="default"
+                                    variant="faded" size="sm">
                                 <i className="bx bx-show text-lg"/>
                             </Button>
                         </Link>
+
+                        <JobActionsDropdown
+                            actions={actions}
+                            icon={<i className="bx bx-menu text-lg"/>}
+                            triggerSize="sm"
+                            variant="faded"
+                        />
                     </div>
                 );
+
             default:
                 return cellValue;
         }
