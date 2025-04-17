@@ -14,18 +14,20 @@ const buildInfo = {
     version: `${packageJson.version}`,
     buildNumber: `${buildNumber}`,
     devVersion: `${packageJson.version}+${buildNumber}`,
+    env: process.env.NEXT_PUBLIC_ENV ?? "",
 };
 
 // Update build-info.json
 writeFileSync("build-info.json", JSON.stringify(buildInfo, null, 2));
 
 // Update tauri.conf.json
+const windowTitleSuffix = buildInfo.env !== "production" ? ` - ${buildInfo.version} (${buildInfo.env})`: "";
 const tauriConfPath = "src-tauri/tauri.conf.json";
 const tauriConf = JSON.parse(readFileSync(tauriConfPath, "utf8"));
 tauriConf.version = buildInfo.version;
 tauriConf.productName = config.name;
 tauriConf.identifier = config.identifier;
-tauriConf.app.windows[0].title = `${config.title} - ${buildInfo.version}`;
+tauriConf.app.windows[0].title = `${config.title}${windowTitleSuffix}`;
 writeFileSync(tauriConfPath, JSON.stringify(tauriConf, null, 2));
 
 // Update src-tauri/Cargo.toml

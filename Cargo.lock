@@ -2105,7 +2105,7 @@ checksum = "8eaf4bc02d17cbdd7ff4c7438cafcdf7fb9a4613313ad11b4f8fefe7d3fa0130"
 
 [[package]]
 name = "jobs_journal"
-version = "0.1.2-alpha"
+version = "0.1.3-alpha"
 dependencies = [
  "log",
  "serde",
