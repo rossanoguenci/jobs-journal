@@ -270,7 +270,12 @@ export default function Component() {
                    }
             >
                 <TableHeader columns={columns ?? []}>
-                    {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+                    {(column) =>
+                        <TableColumn
+                            key={column.key}
+                            width={column.width}
+                        >{column.label}
+                        </TableColumn>}
                 </TableHeader>
                 <TableBody
                     isLoading={loading}

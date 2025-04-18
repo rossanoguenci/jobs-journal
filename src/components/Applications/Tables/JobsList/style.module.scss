@@ -9,14 +9,4 @@
     @apply uppercase;
   }
 
-  tr {
-    td:first-child {
-      @apply w-80;
-    }
-
-    td {
-      @apply w-48;
-    }
-  }
-
 }
