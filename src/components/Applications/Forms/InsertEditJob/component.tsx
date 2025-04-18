@@ -26,6 +26,7 @@ export default function Component({data = null}: Props) {
     *
     * issue #3186 -> https://github.com/heroui-inc/heroui/issues/3186
     * issue #3436 -> https://github.com/heroui-inc/heroui/issues/3436
+    * issue #5113 -> https://github.com/heroui-inc/heroui/issues/5113
     *
     * */
     const [locationValue, setLocationValue] = useState(data?.location || "");
@@ -34,19 +35,14 @@ export default function Component({data = null}: Props) {
     const handleInputChange = (value: string) => {
         if (!isSelectionChange.current) {
             setLocationValue(value);
-            // If you need to update a form state or parent component
-            // updateFormData("location", value);
         }
         isSelectionChange.current = false;
     };
 
     const handleSelectionChange = (key: Key | null) => {
-        // Find the selected item to get its label
         const selectedItem = locations.find(item => item.key === key);
         if (selectedItem) {
             setLocationValue(selectedItem.label);
-            // If you need to update a form state or parent component
-            // updateFormData("location", selectedItem.label);
         }
         isSelectionChange.current = true;
     };
@@ -62,7 +58,7 @@ export default function Component({data = null}: Props) {
         console.log('formData', formData);
 
         if (!data) {
-            // Insert new entry
+            // Insert a new entry
             const insertData = formData as JobInsert;
             await upsertJob(insertData);
         } else {
@@ -109,7 +105,7 @@ export default function Component({data = null}: Props) {
             ref={formRef}
             className={style.container}
             onSubmit={onSubmit}
-            onReset={() => setLocationValue("")}
+            onReset={() => setLocationValue(data?.location || "")}
         >
             {/*Required*/}
             <Input
@@ -162,7 +158,15 @@ export default function Component({data = null}: Props) {
                 inputValue={locationValue}
                 onInputChange={handleInputChange}
                 onSelectionChange={handleSelectionChange}
-                onClear={() => setLocationValue("")}
+                onClear={() => {
+                    if (data) {
+                        // When editing, reset to the original value
+                        setLocationValue(data.location || "");
+                    } else {
+                        // When creating new, clear completely
+                        setLocationValue("");
+                    }
+                }}
             >
                 {(item) =>
                     <AutocompleteItem
