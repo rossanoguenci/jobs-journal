@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useCallback, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import type {Key} from "@react-types/shared";
 import style from "./style.module.scss"
 import {
@@ -45,10 +45,9 @@ export default function Component() {
     const {openModal} = useModal();
 
     /* Paging */
-    const [page, setPage] = useState(1);
     const rowsPerPage = 9;
-
-    const pages = Math.ceil(data.length / rowsPerPage);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     /* Render cell */
     const renderCell = useCallback((item: JobsListRowType, columnKey: React.Key) => {
@@ -161,7 +160,7 @@ export default function Component() {
     const onSearchChange = useCallback((value: string) => {
         if (value) {
             setFilterValue(value);
-            setPage(1);
+            setCurrentPage(1);
         } else {
             setFilterValue("");
         }
@@ -169,7 +168,7 @@ export default function Component() {
 
     const onSearchClear = useCallback(() => {
         setFilterValue("");
-        setPage(1);
+        setCurrentPage(1);
     }, []);
 
     const handleSelectionChange = (keys: Iterable<Key>) => {
@@ -240,13 +239,18 @@ export default function Component() {
         onSearchClear
     ]);
 
-    /* The items */
+    /* The items (shown) */
     const items = useMemo(() => {
-        const start = (page - 1) * rowsPerPage;
+        const start = (currentPage - 1) * rowsPerPage;
         const end = start + rowsPerPage;
 
         return filteredItems.slice(start, end);
-    }, [page, filteredItems, rowsPerPage]);
+    }, [currentPage, filteredItems, rowsPerPage]);
+
+    useEffect(() => {
+        setTotalPages(Math.ceil(filteredItems.length / rowsPerPage));
+
+    }, [filteredItems, refresh]);
 
     return (
         <div className={style.container}>
@@ -257,11 +261,10 @@ export default function Component() {
                            <Pagination
                                isCompact
                                showControls
-                               showShadow
-                               color="secondary"
-                               page={page}
-                               total={pages}
-                               onChange={(page) => setPage(page)}
+                               color="default"
+                               page={currentPage}
+                               total={totalPages}
+                               onChange={(page) => setCurrentPage(page)}
                            />
                        </div>
                    }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useMemo, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import style from "./style.module.scss"
 import {
     Table,
@@ -20,10 +20,9 @@ export default function Component({jobId}: { jobId: bigint }) {
     const {data, loading, error /*,refresh*/} = useJobEventLog({jobId});
 
     /* Paging */
-    const [page, setPage] = useState(1);
     const rowsPerPage = 7;
-
-    const pages = Math.ceil(data ? data.rows.length / rowsPerPage : 0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     const renderCell = React.useCallback((item: JobEvent, columnKey: React.Key) => {
         const cellValue = item[columnKey as keyof JobEvent];
@@ -51,13 +50,20 @@ export default function Component({jobId}: { jobId: bigint }) {
         }
     }, []);
 
-    /* The items */
+    /* The items (shown) */
     const items = useMemo(() => {
-        const start = (page - 1) * rowsPerPage;
+        const start = (currentPage - 1) * rowsPerPage;
         const end = start + rowsPerPage;
 
         return data?.rows.slice(start, end) || [];
-    }, [page, data, rowsPerPage]);
+    }, [currentPage, data, rowsPerPage]);
+
+    useEffect(() => {
+        if (data?.rows) {
+            setTotalPages(Math.ceil(data?.rows.length / rowsPerPage));
+        }
+
+    }, [data]);
 
     return (
         <div className={`${style.container}`}>
@@ -70,11 +76,10 @@ export default function Component({jobId}: { jobId: bigint }) {
                            <Pagination
                                isCompact
                                showControls
-                               showShadow
-                               color="secondary"
-                               page={page}
-                               total={pages}
-                               onChange={(page) => setPage(page)}
+                               color="default"
+                               page={currentPage}
+                               total={totalPages}
+                               onChange={(page) => setCurrentPage(page)}
                            />
                        </div>
                    }
