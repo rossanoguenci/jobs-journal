@@ -10,8 +10,6 @@ import {
     TableBody,
     TableRow,
     TableCell,
-    // ChipProps,
-    Chip,
     Button, Input,
     Dropdown,
     DropdownTrigger,
@@ -32,6 +30,7 @@ import {ChevronDownIcon} from "@heroui/shared-icons";
 import JobActionsDropdown from "@components/JobActionsDropdown";
 import type {Action} from "@components/JobActionsDropdown/props.types";
 import Link from "next/link";
+import StatusChip from "@components/StatusChip";
 
 type JobsListRowType = JobsListRowsType[number];
 
@@ -70,19 +69,20 @@ export default function Component() {
                 const daysFrom = daysFromDate(cellValue);
                 return (<><p>{`${day}-${month}-${year}`}</p><p className="text-xs text-default-400">{daysFrom} days
                     ago</p></>);
+
             case "status":
                 const statusColor = typeof cellValue === "string" ? jobStatusOptions.find(option => option.key === cellValue)?.color : "default";
                 const statusLabel = typeof cellValue === "string" ? jobStatusOptions.find(option => option.key === cellValue)?.label : "Unknown";
+                const statusIcon = typeof cellValue === "string" ? jobStatusOptions.find(option => option.key === cellValue)?.icon : null;
 
                 return (
-                    <Chip
-                        className="capitalize"
+                    <StatusChip
                         color={statusColor}
-                        size="sm"
-                        variant="solid"
-                    >{statusLabel}
-                    </Chip>
+                        label={statusLabel ?? "Unknown"}
+                        icon={statusIcon}
+                    />
                 );
+
             case "actions":
                 const actions: Action[] = [
                     {

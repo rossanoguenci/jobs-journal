@@ -12,6 +12,7 @@ import {
 } from "@heroui/react";
 
 import useJobEventLog from "@hooks/useJobEventLog";
+import columns from "./columns";
 import {JobEvent} from "@/types/JobEvent";
 import jobStatusOptions from "@config/jobStatusOptions";
 import {Pagination} from "@heroui/pagination";
@@ -55,12 +56,12 @@ export default function Component({jobId}: { jobId: bigint }) {
         const start = (currentPage - 1) * rowsPerPage;
         const end = start + rowsPerPage;
 
-        return data?.rows.slice(start, end) || [];
+        return data?.slice(start, end) || [];
     }, [currentPage, data, rowsPerPage]);
 
     useEffect(() => {
-        if (data?.rows) {
-            setTotalPages(Math.ceil(data?.rows.length / rowsPerPage));
+        if (data) {
+            setTotalPages(Math.ceil(data?.length / rowsPerPage));
         }
 
     }, [data]);
@@ -84,9 +85,9 @@ export default function Component({jobId}: { jobId: bigint }) {
                        </div>
                    }
             >
-                <TableHeader columns={data?.columns ?? []}>
-                    {/* there's an issue with props, they are truing to fix*/}
-                    {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+                <TableHeader columns={columns ?? []}>
+                    {/* there's an issue with props, they are trying to fix*/}
+                    {(column) => <TableColumn key={column.key} width={column.width}>{column.label}</TableColumn>}
                 </TableHeader>
                 <TableBody
                     isLoading={loading}

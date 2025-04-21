@@ -2,11 +2,6 @@ import {useEffect, useState, useCallback} from "react";
 import {invoke} from "@tauri-apps/api/core";
 import {JobEntry} from "@/types/JobEntry";
 
-/*export interface JobsListType {
-    columns: Array<{ key: string; label: string | JSX.Element }>;
-    rows: Array<JobEntry>;
-}*/
-
 export type JobsListRowsType = Array<JobEntry>;
 
 export default function useFetchJobs() {

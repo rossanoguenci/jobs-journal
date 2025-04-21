@@ -1,14 +1,11 @@
 import {useEffect, useState, useCallback} from "react";
 import {invoke} from "@tauri-apps/api/core";
-import {JobEvent as JobEventType} from "@/types/JobEvent";
+import {JobEvent} from "@/types/JobEvent";
 
-export interface JobEventsType {
-    columns: Array<{ key: string; label: string }>;
-    rows: Array<JobEventType>;
-}
+export type JobEventsRowsType = Array<JobEvent>;
 
 export default function useJobEventLog({jobId}: { jobId: bigint }) {
-    const [data, setData] = useState<JobEventsType | null>(null);
+    const [data, setData] = useState<JobEventsRowsType | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -18,18 +15,8 @@ export default function useJobEventLog({jobId}: { jobId: bigint }) {
         try {
             setLoading(true);
             setError(null);
-            const rows = await invoke<JobEventType[]>("job_events_get", {jobId: Number(jobId)});
-            setData({
-                columns: [
-                    // {key: "id", label: "ID"},
-                    // {key: "job_id", label: "Job ID"},
-                    {key: "date_of_event", label: "Date of event"},
-                    {key: "description", label: "Description"},
-                    // {key: "insert_type", label: "Insert Type"},
-                    // {key: "insert_date", label: "Insert Date"},
-                ],
-                rows: rows ?? []
-            });
+            const rows = await invoke<JobEventsRowsType>("job_events_get", {jobId: Number(jobId)});
+            setData(rows);
         } catch (err) {
             setError(`Failed to fetch job events #${jobId}`);
             console.error(`Failed to fetch job events #${jobId}:`, err);

@@ -13,6 +13,7 @@ const jobStatusOptions: Array<JobStatusProps> = [
     {key: "got_offer", label: "Successful", color: "success", icon: <i className="bx bxs-party"/>},
     {key: "rejected", label: "Unsuccessful", color: "danger", icon: <i className="bx bxs-sad"/>},
     {key: "withdrawn", label: "Withdrawn", color: "danger", icon: <i className="bx bx-x"/>},
+    {key: "ghosted", label: "Ghosted", color: "default", icon: <i className="bx bxs-ghost"/>},
 ];
 
 export default jobStatusOptions;

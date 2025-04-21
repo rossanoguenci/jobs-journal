@@ -5,7 +5,6 @@ import {notFound, useRouter} from "next/navigation";
 import {
     Avatar,
     Button,
-    Chip,
     Skeleton,
 } from "@heroui/react";
 import JobEventsList from "@components/Applications/Tables/JobEventsList";
@@ -22,6 +21,7 @@ import {addToast} from "@heroui/toast";
 import ExternalLink from "@components/ExternalLink";
 import JobActionsDropdown from "@components/JobActionsDropdown";
 import {Action} from "@components/JobActionsDropdown/props.types";
+import StatusChip from "@components/StatusChip";
 
 
 export default function JobDetailsPage() {
@@ -190,11 +190,12 @@ export default function JobDetailsPage() {
                                 {data?.location && (
                                     <div className="flex flex-col items-center justify-center gap-2">
                                         <span>Location</span>
-                                        <Chip className="capitalize"
-                                              color="warning" size="sm"
-                                              variant="bordered">
-                                            <span><i className="bx bx-map-pin"></i> {data.location}</span>
-                                        </Chip>
+                                        <StatusChip
+                                            color="warning"
+                                            label={data.location}
+                                            icon={<i className="bx bx-map-pin" />}
+                                            variant="bordered"
+                                        />
                                     </div>
                                 )}
                             </Skeleton>
@@ -217,11 +218,11 @@ export default function JobDetailsPage() {
                             <Skeleton className="rounded-lg" isLoaded={!loading}>
                                 <div className="flex flex-col items-center justify-center gap-2">
                                     <span>Current status</span>
-                                    <Chip className="capitalize"
-                                          color={statusColor} size="sm"
-                                          variant="solid">
-                                        {statusLabel}
-                                    </Chip>
+                                    <StatusChip
+                                        color={statusColor}
+                                        label={statusLabel ?? "Unknown"}
+                                        icon={jobStatusOptions.find(option => option.key === data?.status)?.icon}
+                                    />
                                 </div>
                             </Skeleton>
                         </div>
