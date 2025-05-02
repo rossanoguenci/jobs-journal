@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Jobs Journal - 0.1.3-alpha (development)",
+        "title": "Jobs Journal",
         "width": 800,
         "height": 1000,
         "resizable": true,

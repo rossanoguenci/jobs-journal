@@ -24,15 +24,16 @@ name = "jobs_journal"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.1.1", features = [] }
+tauri-build = { version = "2.2.0", features = [] }
 
 [dependencies]
 ts-rs = "10.1.0"
 serde = { version = "1.0.219", features = ["derive"] }
 log = "0.4.27"
-tauri = { version = "2.4.1", features = [] }
-tauri-plugin-log = "2.3.1"
+tauri = { version = "2.5.1", features = [] }
+tauri-plugin-log = "2.4.0"
 tokio = { version = "1.44.2", features = ["full"] }
-sqlx = { version = "0.8.3", features = ["sqlite", "chrono", "runtime-tokio"] }
+sqlx = { version = "0.8.5", features = ["sqlite", "chrono", "runtime-tokio"] }
 serde_json = "1.0.140"
 tauri-plugin-opener = "2.2.6"
+uuid = { version = "1.16.0", features = ["v4"] }

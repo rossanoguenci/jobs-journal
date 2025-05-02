@@ -5,8 +5,8 @@ use ts_rs::TS;
 #[ts(export)]
 pub struct JobEvent {
     #[ts(optional)]
-    pub id: Option<i64>,
-    pub job_id: i64,
+    pub id: Option<String>,
+    pub job_id: String,
     pub date_of_event: String,
     pub description: String,
     #[ts(optional)]

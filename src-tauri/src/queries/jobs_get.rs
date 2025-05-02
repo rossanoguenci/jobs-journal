@@ -15,8 +15,8 @@ pub async fn jobs_get_list(db: State<'_, Database>) -> Result<Vec<JobEntry>, Str
 }
 
 #[tauri::command]
-pub async fn jobs_get_details(db: State<'_, Database>, job_id: i64) -> Result<Option<JobEntry>, String> {
-    if job_id <= 0 {
+pub async fn jobs_get_details(db: State<'_, Database>, job_id: String) -> Result<Option<JobEntry>, String> {
+    if job_id.is_empty() {
         return Ok(None);
     }
     let pool = db.pool.lock().await;

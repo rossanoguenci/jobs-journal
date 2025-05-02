@@ -11,7 +11,7 @@ export default function useInsertJobEvent() {
     const insertEvent = useCallback(async (data: JobEvent) => {
         const jobId = data.job_id;
 
-        if (!jobId || jobId <= 0) {
+        if (!jobId || jobId.length === 0) {
             setError(`Ref #job_id invalid "${jobId}"`);
             return;
         }

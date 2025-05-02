@@ -33,7 +33,7 @@ export function useUpsertJob() {
             } else if (typeof error === "object" && error !== null && "message" in error) {
                 errorMessage = String(error.message);
             }
-            setError(errorMessage); // Store error message in state
+            setError(errorMessage); // Store the error message in state
         } finally {
             setLoading(false);
             setSuccess(functionToInvoke === "jobs_insert" ? "Job entry inserted successfully!" : "Job entry updated successfully!");

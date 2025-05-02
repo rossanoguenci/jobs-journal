@@ -4,7 +4,7 @@ use ts_rs::TS;
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow, TS)]
 #[ts(export)]
 pub struct JobEntry {
-    pub id: i64,
+    pub id: String,
     pub insert_date: String,
     pub company: String,
     pub title: String,

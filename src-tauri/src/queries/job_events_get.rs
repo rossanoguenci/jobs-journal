@@ -3,8 +3,8 @@ use tauri::State;
 use crate::models::job_event::JobEvent;
 
 #[tauri::command]
-pub async fn job_events_get(db: State<'_, Database>, job_id: i64) -> Result<Vec<JobEvent>, String> {
-    if job_id <= 0 {
+pub async fn job_events_get(db: State<'_, Database>, job_id: String) -> Result<Vec<JobEvent>, String> {
+    if job_id.is_empty() {
         return Ok(vec![]);
     }
 

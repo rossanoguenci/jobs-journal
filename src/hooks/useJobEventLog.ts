@@ -4,18 +4,18 @@ import {JobEvent} from "@/types/JobEvent";
 
 export type JobEventsRowsType = Array<JobEvent>;
 
-export default function useJobEventLog({jobId}: { jobId: bigint }) {
+export default function useJobEventLog({jobId}: { jobId: string }) {
     const [data, setData] = useState<JobEventsRowsType | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const fetchJobEvents = useCallback(async () => {
-        if (!jobId || jobId <= 0) return;
+        if (!jobId || jobId === '') return;
 
         try {
             setLoading(true);
             setError(null);
-            const rows = await invoke<JobEventsRowsType>("job_events_get", {jobId: Number(jobId)});
+            const rows = await invoke<JobEventsRowsType>("job_events_get", {jobId});
             setData(rows);
         } catch (err) {
             setError(`Failed to fetch job events #${jobId}`);

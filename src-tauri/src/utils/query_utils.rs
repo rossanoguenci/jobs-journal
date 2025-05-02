@@ -10,13 +10,13 @@ pub enum BindValue {
 }
 
 /// Extracts field names and their corresponding values from a JSON object,
-/// skipping any null or `id` fields.
+/// skipping any null fields.
 pub fn extract_fields(obj: &Map<String, Value>) -> (Vec<String>, Vec<BindValue>) {
     let mut columns = vec![];
     let mut values = vec![];
 
     for (key, value) in obj {
-        if key == "id" || value.is_null() {
+        if value.is_null() {
             continue;
         }
 

@@ -22,11 +22,12 @@ import ExternalLink from "@components/ExternalLink";
 import JobActionsDropdown from "@components/JobActionsDropdown";
 import {Action} from "@components/JobActionsDropdown/props.types";
 import StatusChip from "@components/StatusChip";
+// import {User} from "@heroui/shared-icons";
 
 
 export default function JobDetailsPage() {
     const router = useRouter();
-    const [jobId, setJobId] = useState<bigint>(BigInt(0));
+    const [jobId, setJobId] = useState<string>("");
     const [refreshKey, setRefreshKey] = useState(0);
     const {openModal} = useModal();
     const {data, loading, error, refresh} = useJobDetails({jobId});
@@ -50,7 +51,11 @@ export default function JobDetailsPage() {
 
     useEffect(() => {
         const id = window.location.hash.substring(1);
-        if (id) setJobId(BigInt(id));
+        console.log("id: ",id);
+
+        if (id && id.length > 0) {
+            setJobId(id);
+        }
         else {
             notFound();
         }
@@ -98,7 +103,7 @@ export default function JobDetailsPage() {
         const statusTo = isArchived ? "restore" : "archive";
         const verb = statusTo === "archive" ? "archived" : "restored";
 
-        await toggleJobArchive({id: Number(jobId), statusTo});
+        await toggleJobArchive({id: jobId, statusTo});
 
         if (errorToggleJobArchive) {
             addToast({
@@ -106,7 +111,6 @@ export default function JobDetailsPage() {
                 description: `Error ${verb} job: ${errorToggleJobArchive}`,
                 color: "danger",
             });
-            return;
         }
 
         if (successToggleJobArchive) {
@@ -153,18 +157,26 @@ export default function JobDetailsPage() {
                         </div>
 
                         {/* Company Info */}
-                        <div className="col-span-1 flex items-center">
+                        <div className="col-span-1 sm:col-span-2 flex items-center">
                             <Skeleton className="rounded-lg" isLoaded={!loading}>
-                                <div className="flex items-center gap-2 align-middle">
-                                    <Avatar size="sm" showFallback fallback={<i className="bx bx-buildings"/>}
-                                            src="https://images.unsplash.com/broken"/>
+                                <div className="flex items-center gap-3 align-middle">
+                                    {/* There's an open issue (#5058) where users have reported that Avatar images lose quality or appear distorted when they're not perfectly square. Additionally, another issue (#3813) mentions problems with the Image component stretching beyond parent elements. */}
+                                    <Avatar
+                                        isDisabled
+                                        radius="full"
+                                        size="sm"
+                                        color="default"
+                                        showFallback
+                                        fallback={<i className="bx bx-buildings"/>}
+                                            src=""
+                                    />
                                     <span>{data?.company ?? "N/A"}</span>
                                 </div>
                             </Skeleton>
                         </div>
 
                         {/* Links */}
-                        <div className="col-span-2">
+                        <div className="col-span-1">
                             <Skeleton className="rounded-lg" isLoaded={!loading}>
                                 <div className="flex flex-wrap gap-3 justify-center sm:justify-start">
                                     {links.map((link, index) => (

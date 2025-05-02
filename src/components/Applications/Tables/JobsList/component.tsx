@@ -31,6 +31,8 @@ import JobActionsDropdown from "@components/JobActionsDropdown";
 import type {Action} from "@components/JobActionsDropdown/props.types";
 import Link from "next/link";
 import StatusChip from "@components/StatusChip";
+import useToggleJobArchive from "@hooks/useToggleJobArchive";
+import {addToast} from "@heroui/toast";
 
 type JobsListRowType = JobsListRowsType[number];
 
@@ -40,6 +42,7 @@ export default function Component() {
         () => new Set(jobStatusOptions.map((status) => status.key))
     );
 
+    const {error: errorToggleJobArchive, success: successToggleJobArchive, toggleJobArchive} = useToggleJobArchive();
     const {data, loading, error, refresh} = useFetchJobs();
     const {openModal} = useModal();
 
@@ -47,6 +50,40 @@ export default function Component() {
     const rowsPerPage = 9;
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+
+    /* Handler for archiving job entry */
+    const handleJobArchive = useCallback(async (jobId: string) => {
+        if (!jobId || jobId.length === 0) return;
+
+        const statusTo = "archive";
+        const verb = "archived";
+
+        await toggleJobArchive({id: jobId, statusTo});
+
+        if (errorToggleJobArchive) {
+            addToast({
+                title: "Error",
+                description: `Error ${verb} job: ${errorToggleJobArchive}`,
+                color: "danger",
+            });
+        } else if (successToggleJobArchive) {
+            addToast({
+                title: "Success",
+                description: successToggleJobArchive,
+                color: "success",
+            });
+        } else {
+            addToast({
+                title: "Warning",
+                description: `Something went wrong`,
+                color: "warning",
+            });
+        }
+
+        refresh().then();
+
+    }, [toggleJobArchive, successToggleJobArchive, errorToggleJobArchive, refresh]);
+
 
     /* Render cell */
     const renderCell = useCallback((item: JobsListRowType, columnKey: React.Key) => {
@@ -108,7 +145,7 @@ export default function Component() {
                         label: "Archive",
                         icon: "bx bxs-archive-in",
                         color: "warning",
-                        onClick: () => (0),
+                        onClick: () => handleJobArchive(item.id),
                         section: "danger"
                     },
                 ];
@@ -128,13 +165,14 @@ export default function Component() {
                             triggerSize="sm"
                             variant="faded"
                         />
+
                     </div>
                 );
 
             default:
                 return cellValue;
         }
-    }, [openModal, refresh]);
+    }, [handleJobArchive, openModal, refresh]);
 
     /* Top content */
     const hasSearchFilter = Boolean(filterValue);
@@ -293,6 +331,8 @@ export default function Component() {
                     )}
                 </TableBody>
             </Table>
+
+            <pre>{errorToggleJobArchive}{successToggleJobArchive}</pre>
 
         </div>
     );

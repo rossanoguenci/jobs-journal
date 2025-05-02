@@ -89,9 +89,9 @@ export default function Component({data = null}: Props) {
             });
         }
 
-        if (data?.id && success) {
+        if (data?.id && success) { //Updated
             closeModal();
-        } else {
+        } else if (data?.id && data.id.length > 0 && success) { //Inserted
             formRef.current?.reset();
         }
 

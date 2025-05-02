@@ -5,6 +5,8 @@ use ts_rs::TS;
 #[ts(export)]
 pub struct JobInsert {
     #[ts(optional)]
+    pub id: Option<String>,
+    #[ts(optional)]
     pub insert_date: Option<String>,
     pub company: String,
     pub title: String,

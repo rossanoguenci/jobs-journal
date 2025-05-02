@@ -1,5 +1,5 @@
 use serde_json::json;
-use jobs_journal::utils::query_utils::{extract_fields, BindValue};
+use jobs_journal::utils::query_utils::{extract_fields};
 
 #[test]
 fn test_extract_fields_skips_nulls_and_id() {
