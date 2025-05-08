@@ -21,5 +21,7 @@ pub struct JobUpdate {
     pub insert_status: Option<String>,
     #[ts(optional)]
     pub location: Option<String>,
+    #[ts(optional)]
+    pub note: Option<String>,
 }
 

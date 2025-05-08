@@ -23,6 +23,8 @@ import JobActionsDropdown from "@components/JobActionsDropdown";
 import {Action} from "@components/JobActionsDropdown/props.types";
 import StatusChip from "@components/StatusChip";
 // import {User} from "@heroui/shared-icons";
+import Note from "@components/Applications/Note";
+import InsertEditNote from "@components/Applications/Forms/InsertEditNote";
 
 
 export default function JobDetailsPage() {
@@ -83,6 +85,12 @@ export default function JobDetailsPage() {
             label: "Edit job info",
             icon: "bx bxs-edit-alt",
             onClick: () => openModal(<InsertEditJob data={data}/>, refresh),
+            section: "main"
+        },{
+            key: "note_field",
+            label: data?.note && "Edit note" || "Add note field",
+            icon: "bx bxs-note",
+            onClick: () => openModal(<InsertEditNote data={data!} />, refresh),
             section: "main"
         }, {
             key: "archive",
@@ -241,6 +249,11 @@ export default function JobDetailsPage() {
 
                     </div>
 
+                    {/* Notes */}
+                    {data?.note && <Note>{data.note}</Note>}
+
+
+                    {/* Job Events list */}
                     <Skeleton className="rounded-lg" isLoaded={!loading}>
                         <JobEventsList key={refreshKey} jobId={jobId}/>
                     </Skeleton>

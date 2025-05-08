@@ -91,7 +91,7 @@ export default function Component({data = null}: Props) {
 
         if (data?.id && success) { //Updated
             closeModal();
-        } else if (data?.id && data.id.length > 0 && success) { //Inserted
+        } else if (!data?.id && success) { //Inserted
             formRef.current?.reset();
         }
 
