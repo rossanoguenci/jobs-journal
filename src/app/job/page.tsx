@@ -2,11 +2,12 @@
 
 import React, {useCallback, useEffect, useState} from "react";
 import {notFound, useRouter} from "next/navigation";
-import {
-    Avatar,
-    Button,
-    Skeleton,
-} from "@heroui/react";
+
+import {Avatar} from "@heroui/avatar";
+import {Button} from "@heroui/button";
+import {Skeleton} from "@heroui/skeleton";
+import {addToast} from "@heroui/toast";
+
 import JobEventsList from "@components/Applications/Tables/JobEventsList";
 import InsertEvent from "@components/Applications/Forms/InsertEvent";
 import useJobDetails from "@hooks/useJobDetails";
@@ -17,7 +18,6 @@ import useToggleJobArchive from "@hooks/useToggleJobArchive";
 import jobStatusOptions from "@config/jobStatusOptions";
 import daysFromDate from "@utilities/daysFromDate";
 import dateFormat from "@utilities/dateFormat";
-import {addToast} from "@heroui/toast";
 import ExternalLink from "@components/ExternalLink";
 import JobActionsDropdown from "@components/JobActionsDropdown";
 import {Action} from "@components/JobActionsDropdown/props.types";
@@ -25,6 +25,7 @@ import StatusChip from "@components/StatusChip";
 // import {User} from "@heroui/shared-icons";
 import Note from "@components/Applications/Note";
 import InsertEditNote from "@components/Applications/Forms/InsertEditNote";
+import Icon from "@components/Icons";
 
 
 export default function JobDetailsPage() {
@@ -53,12 +54,11 @@ export default function JobDetailsPage() {
 
     useEffect(() => {
         const id = window.location.hash.substring(1);
-        console.log("id: ",id);
+        console.log("id: ", id);
 
         if (id && id.length > 0) {
             setJobId(id);
-        }
-        else {
+        } else {
             notFound();
         }
     }, []);
@@ -68,13 +68,13 @@ export default function JobDetailsPage() {
         {
             key: "add_event",
             label: "Add event",
-            icon: "bx bxs-calendar-plus",
+            icon: <Icon name="addEvent"/>,
             onClick: () => openModal(<InsertEvent jobId={jobId}/>, () => setRefreshKey(prev => prev + 1)),
             section: "main"
         }, {
             key: "update_status",
             label: "Update status",
-            icon: "bx bxs-info-circle",
+            icon: <Icon name="updateStatus"/>,
             onClick: () => openModal(<UpdateStatus data={data}/>, () => {
                 void refresh();
                 setRefreshKey(prev => prev + 1);
@@ -83,19 +83,19 @@ export default function JobDetailsPage() {
         }, {
             key: "edit_job",
             label: "Edit job info",
-            icon: "bx bxs-edit-alt",
+            icon: <Icon name="edit"/>,
             onClick: () => openModal(<InsertEditJob data={data}/>, refresh),
             section: "main"
-        },{
+        }, {
             key: "note_field",
             label: data?.note && "Edit note" || "Add note field",
-            icon: "bx bxs-note",
-            onClick: () => openModal(<InsertEditNote data={data!} />, refresh),
+            icon: <Icon name="noteField"/>,
+            onClick: () => openModal(<InsertEditNote data={data!}/>, refresh),
             section: "main"
         }, {
             key: "archive",
             label: "Archive",
-            icon: "bx bxs-archive-in",
+            icon: <Icon name="archive"/>,
             color: "warning",
             onClick: () => handleToggleJobArchive(),
             section: "danger"
@@ -145,7 +145,7 @@ export default function JobDetailsPage() {
 
             {/* Back Button */}
             <Button className="mb-5" onPress={() => router.push("/")} size="sm" variant="flat" color="default">
-                <i className='bx bx-arrow-back'></i> Back to the list
+                <Icon name="arrowBack"/> Back to the list
             </Button>
 
             {error ? (<div className="error">{error}</div>) : (
@@ -155,13 +155,14 @@ export default function JobDetailsPage() {
                         {/* Job Title */}
                         <div className="col-span-1 sm:col-span-2 flex items-center">
                             <Skeleton className="rounded-lg" isLoaded={!loading}>
-                                <h1 className="text-xl">{data?.insert_status === "archived" ? `<i class="bx bxs-archive-in"/> Archived - ` : ''}{data?.title ?? "N/A"}</h1>
+                                <h1 className="text-xl flex items-center gap-2">{data?.insert_status === "archived" ? <><Icon
+                                    name="archive" /> Archived - </> : ''}{data?.title ?? "N/A"}</h1>
                             </Skeleton>
                         </div>
 
                         {/* Actions */}
                         <div className="col-span-1 flex justify-end">
-                            <JobActionsDropdown actions={actions} icon={<i className="bx bx-menu text-xl"/>}/>
+                            <JobActionsDropdown actions={actions} icon={<Icon name="menu" className="size-5"/>}/>
                         </div>
 
                         {/* Company Info */}
@@ -176,7 +177,7 @@ export default function JobDetailsPage() {
                                         color="default"
                                         showFallback
                                         fallback={<i className="bx bx-buildings"/>}
-                                            src=""
+                                        src=""
                                     />
                                     <span>{data?.company ?? "N/A"}</span>
                                 </div>
@@ -213,7 +214,7 @@ export default function JobDetailsPage() {
                                         <StatusChip
                                             color="warning"
                                             label={data.location}
-                                            icon={<i className="bx bx-map-pin" />}
+                                            icon={<Icon name="location"/>}
                                             variant="bordered"
                                         />
                                     </div>

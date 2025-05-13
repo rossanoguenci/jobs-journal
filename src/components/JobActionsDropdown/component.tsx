@@ -28,7 +28,7 @@ export default function JobActionsDropdown({actions, icon, triggerSize = "lg", v
                         {mainActions.map(action => (
                             <DropdownItem
                                 key={action.key}
-                                startContent={<i className={action.icon}/>}
+                                startContent={action.icon}
                                 color={action.color}
                                 onPress={action.onClick}
                             >
@@ -43,7 +43,7 @@ export default function JobActionsDropdown({actions, icon, triggerSize = "lg", v
                         {dangerActions.map(action => (
                             <DropdownItem
                                 key={action.key}
-                                startContent={<i className={action.icon}/>}
+                                startContent={action.icon}
                                 className={`text-${action.color}`}
                                 color={action.color}
                                 onPress={action.onClick}

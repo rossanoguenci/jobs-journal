@@ -14,11 +14,12 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
         // suppressHydrationWarning by next-themes
         <html lang="en" suppressHydrationWarning>
         <body className={`${GeistSans.className} ${GeistMono.className}`}>
+        {/* Providers by HeroUI */}
         <Providers>
             <ModalProvider>
                 <NavBar/>
                 {children}
-                <GlobalModal />
+                <GlobalModal/>
             </ModalProvider>
         </Providers>
         </body>

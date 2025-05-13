@@ -1,39 +1,43 @@
 "use client";
 
+// Core React and Types
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import type {Key} from "@react-types/shared";
-import style from "./style.module.scss"
-import {
-    Table,
-    TableHeader,
-    TableColumn,
-    TableBody,
-    TableRow,
-    TableCell,
-    Button, Input,
-    Dropdown,
-    DropdownTrigger,
-    DropdownMenu,
-    DropdownItem
-} from "@heroui/react";
+import Link from "next/link";
 
-import useFetchJobs, {JobsListRowsType} from "@hooks/useFetchJobs";
-import jobStatusOptions from "@config/jobStatusOptions";
-import columns from "./columns";
+// Styles
+import style from "./style.module.scss"
+
+// UI Components
+import {Button} from "@heroui/button";
+import {Input} from "@heroui/input";
+import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem} from "@heroui/dropdown";
+import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell} from "@heroui/table";
+import {Pagination} from "@heroui/pagination";
+import StatusChip from "@components/StatusChip";
+import JobActionsDropdown from "@components/JobActionsDropdown";
+
+// Icons
+import Icon from "@components/Icons";
+
+// Forms
 import UpdateStatus from "@components/Applications/Forms/UpdateStatus/component";
 import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
 import InsertEvent from "@components/Applications/Forms/InsertEvent";
+
+// Hooks and Utilities
+import useFetchJobs, {JobsListRowsType} from "@hooks/useFetchJobs";
 import {useModal} from "@components/GlobalModal/ModalContext";
-import daysFromDate from "@utilities/daysFromDate";
-import {Pagination} from "@heroui/pagination";
-import {ChevronDownIcon} from "@heroui/shared-icons";
-import JobActionsDropdown from "@components/JobActionsDropdown";
-import type {Action} from "@components/JobActionsDropdown/props.types";
-import Link from "next/link";
-import StatusChip from "@components/StatusChip";
 import useToggleJobArchive from "@hooks/useToggleJobArchive";
+import daysFromDate from "@utilities/daysFromDate";
+
+// Config
+import jobStatusOptions from "@config/jobStatusOptions";
+import columns from "./columns";
 import {addToast} from "@heroui/toast";
 
+// Types
+import type {Action} from "@components/JobActionsDropdown/props.types";
 type JobsListRowType = JobsListRowsType[number];
 
 export default function Component() {
@@ -125,25 +129,25 @@ export default function Component() {
                     {
                         key: "add_event",
                         label: "Add event",
-                        icon: "bx bxs-calendar-plus",
+                        icon: <Icon name="addEvent" />,
                         onClick: () => openModal(<InsertEvent jobId={item.id}/>, refresh),
                         section: "main"
                     }, {
                         key: "update_status",
                         label: "Update status",
-                        icon: "bx bxs-info-circle",
+                        icon: <Icon name="updateStatus" />,
                         onClick: () => openModal(<UpdateStatus data={item}/>, refresh),
                         section: "main"
                     }, {
                         key: "edit_job",
                         label: "Edit job info",
-                        icon: "bx bxs-edit-alt",
+                        icon: <Icon name="edit" />,
                         onClick: () => openModal(<InsertEditJob data={item}/>, refresh),
                         section: "main"
                     }, {
                         key: "archive",
                         label: "Archive",
-                        icon: "bx bxs-archive-in",
+                        icon: <Icon name="archive" />,
                         color: "warning",
                         onClick: () => handleJobArchive(item.id),
                         section: "danger"
@@ -155,13 +159,13 @@ export default function Component() {
                         <Link href={`/job#${item.id}`} className="job-link">
                             <Button isIconOnly title="View job details" aria-label="View job details" color="default"
                                     variant="faded" size="sm">
-                                <i className="bx bx-show text-lg"/>
+                                <Icon name="seeMore"/>
                             </Button>
                         </Link>
 
                         <JobActionsDropdown
                             actions={actions}
-                            icon={<i className="bx bx-menu text-lg"/>}
+                            icon={<Icon name="menu"/>}
                             triggerSize="sm"
                             variant="faded"
                         />
@@ -221,7 +225,7 @@ export default function Component() {
                         isClearable
                         className="w-full sm:max-w-[44%]"
                         placeholder="Search by title or company..."
-                        startContent={<i className="bx bx-search"/>}
+                        startContent={<Icon name="search" className="size-4"/>}
                         value={filterValue}
                         onClear={() => onSearchClear()}
                         onValueChange={onSearchChange}
@@ -230,7 +234,7 @@ export default function Component() {
                     <div className="flex gap-3">
                         <Dropdown>
                             <DropdownTrigger className="hidden sm:flex">
-                                <Button size="sm" endContent={<ChevronDownIcon className="text-small"/>}>
+                                <Button size="sm" endContent={<Icon name="chevronDown" className="text-small"/>}>
                                     Status
                                 </Button>
                             </DropdownTrigger>

@@ -6,6 +6,7 @@ import {
     Navbar, NavbarBrand, NavbarContent, /*NavbarItem, NavbarMenuToggle, Button,*/ Avatar
 } from "@heroui/react";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownTrigger} from "@heroui/dropdown";
+import Icon from "@components/Icons";
 // import {useRouter} from "next/navigation";
 
 // import {useActionContext} from "@components/ActionProvider";
@@ -60,18 +61,21 @@ export default function Component() {
                             <p className="font-semibold">Hey there 👋</p>
                         </DropdownItem>
 
-                        <DropdownItem key="profile_settings" startContent={<i className="bx bxs-briefcase"/>} href="/">Jobs list</DropdownItem>
+                        <DropdownItem key="profile_settings" startContent={<Icon name="jobsList" className="size-4"/>} href="/">Jobs
+                            list</DropdownItem>
 
                         {/*<DropdownItem key="profile_settings">My Profile</DropdownItem>*/}
 
-                        <DropdownItem key="settings" startContent={<i className="bx bxs-cog"/>} href="/settings/">App
+                        <DropdownItem key="settings" startContent={<Icon name="settings" className="size-4"/>} href="/settings/">App
                             Settings</DropdownItem>
 
                         {/*<DropdownItem key="analytics">Analytics</DropdownItem>*/}
 
                         {/*<DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>*/}
 
-                        <DropdownItem key="about" href="/about/" startContent={<i className="bx bxs-info-circle"/>}>About & Legal</DropdownItem>
+                        <DropdownItem key="about" href="/about/" startContent={<Icon name="info" className="size-4"/>}>About
+                            &
+                            Legal</DropdownItem>
 
                     </DropdownMenu>
                 </Dropdown>
@@ -91,9 +95,11 @@ export default function Component() {
                         </Link>
                     </NavbarMenuItem>
                 ))}
-            </NavbarMenu>*/}
+            </NavbarMenu>*/
+            }
 
 
         </Navbar>
-    );
+    )
+        ;
 }

@@ -17,7 +17,7 @@ export default function StatusChip({
                 size="sm"
                 variant={variant}
             >
-                <div className="inline-flex gap-1 items-center">
+                <div className="inline-flex gap-1 items-center align-middle">
                     {icon && icon}
                     {label}
                 </div>

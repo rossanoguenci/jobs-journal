@@ -1,7 +1,9 @@
+import React from "react";
+
 export interface Action {
     key: string;
     label: string;
-    icon: string;
+    icon: React.ReactElement;
     color?: "default" | "primary" | "secondary" | "warning" | "danger";
     section?: "main" | "danger";
     onClick: () => void;
