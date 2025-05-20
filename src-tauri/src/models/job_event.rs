@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::models::job_event_meta::JobEventMeta;
 use ts_rs::TS;
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow, TS)]
@@ -13,4 +14,7 @@ pub struct JobEvent {
     pub insert_type: Option<String>,
     #[ts(optional)]
     pub insert_date: Option<String>,
+    #[sqlx(json)]
+    #[ts(optional)]
+    pub meta: Option<JobEventMeta>,
 }

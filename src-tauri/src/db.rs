@@ -4,7 +4,11 @@ use std::fs;
 use tokio::sync::Mutex;
 use sqlx::SqlitePool;
 use tauri::{AppHandle, Manager};
-use crate::queries::Database;
+
+#[derive(Clone)]
+pub struct Database {
+    pub pool: Arc<Mutex<SqlitePool>>,
+}
 
 #[cfg(feature = "dev")]
 pub fn get_db_path() -> String {

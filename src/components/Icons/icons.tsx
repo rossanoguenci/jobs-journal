@@ -19,29 +19,33 @@ import {NewspaperIcon} from "@heroicons/react/24/solid";
 import {ChatBubbleLeftEllipsisIcon} from "@heroicons/react/24/outline";
 import {ArrowLeftIcon} from "@heroicons/react/24/solid";
 import {MapPinIcon} from "@heroicons/react/24/solid";
+import {BuildingOffice2Icon} from "@heroicons/react/24/solid";
+import {ArrowTopRightOnSquareIcon} from "@heroicons/react/24/solid";
 
 const Icons = {
-    menu: Bars3Icon,
-    seeMore: EyeIcon,
+    addEvent: PlusCircleIcon,
+    archive: ArchiveBoxArrowDownIcon,
+    arrowBack: ArrowLeftIcon,
     chevronDown: ChevronDownIcon,
+    company: BuildingOffice2Icon,
+    edit: PencilSquareIcon,
+    externalLink: ArrowTopRightOnSquareIcon,
+    ghosted: Ghost,
+    gotOffer: Party,
+    info: InformationCircleIcon,
+    inProgress: ArrowPathIcon,
+    jobsList: BriefcaseIcon,
+    location: MapPinIcon,
+    menu: Bars3Icon,
+    noteField: ChatBubbleLeftEllipsisIcon,
+    rejected: FaceFrownIcon,
+    restore: ArchiveBoxXMarkIcon,
+    seeMore: EyeIcon,
     search: MagnifyingGlassIcon,
     sent: PaperAirplaneIcon,
-    inProgress: ArrowPathIcon,
-    gotOffer: Party,
-    rejected: FaceFrownIcon,
-    withdrawn:XMarkIcon,
-    ghosted: Ghost,
-    jobsList: BriefcaseIcon,
     settings: CogIcon,
-    info: InformationCircleIcon,
-    addEvent: PlusCircleIcon,
-    edit: PencilSquareIcon,
-    archive: ArchiveBoxArrowDownIcon,
-    restore: ArchiveBoxXMarkIcon,
     updateStatus: NewspaperIcon,
-    noteField: ChatBubbleLeftEllipsisIcon,
-    arrowBack: ArrowLeftIcon,
-    location: MapPinIcon,
+    withdrawn: XMarkIcon,
 };
 
 export default Icons;

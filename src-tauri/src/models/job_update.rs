@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use ts_rs::TS;
+use crate::models::job_entry_meta::JobEntryMeta;
 
 #[derive(Debug, Serialize, Deserialize, sqlx::FromRow, TS)]
 #[ts(export)]
@@ -12,16 +14,13 @@ pub struct JobUpdate {
     #[ts(optional)]
     pub title: Option<String>,
     #[ts(optional)]
-    pub link: Option<String>,
-    #[ts(optional)]
     pub application_date: Option<String>,
     #[ts(optional)]
     pub status: Option<String>,
     #[ts(optional)]
     pub insert_status: Option<String>,
+    #[sqlx(json)]
     #[ts(optional)]
-    pub location: Option<String>,
-    #[ts(optional)]
-    pub note: Option<String>,
+    pub meta: Option<JobEntryMeta>,
 }
 

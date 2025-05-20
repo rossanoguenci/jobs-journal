@@ -9,6 +9,8 @@ use uuid::Uuid;
 
 #[tauri::command]
 pub async fn jobs_insert(db: State<'_, Database>, mut data: JobInsert) -> Result<String, String> {
+    crate::debug_log!("jobs_insert() - Inserting job with data: {:?}", data);
+    
     let pool = db.pool.lock().await;
 
     // Generate the UUID before insertion

@@ -43,8 +43,8 @@ export default function JobDetailsPage() {
         // {label: "LinkedIn profile", url: "#"},
     ];
 
-    if (data?.link) {
-        links.push({label: "Job posting", url: data?.link ?? ""});
+    if (data?.meta.link_to_job_posting) {
+        links.push({label: "Job posting", url: data?.meta.link_to_job_posting ?? ""});
     }
 
     const isArchived = data?.insert_status === "archived";
@@ -88,7 +88,7 @@ export default function JobDetailsPage() {
             section: "main"
         }, {
             key: "note_field",
-            label: data?.note && "Edit note" || "Add note field",
+            label: data?.meta.note && "Edit note" || "Add note field",
             icon: <Icon name="noteField"/>,
             onClick: () => openModal(<InsertEditNote data={data!}/>, refresh),
             section: "main"
@@ -176,7 +176,7 @@ export default function JobDetailsPage() {
                                         size="sm"
                                         color="default"
                                         showFallback
-                                        fallback={<i className="bx bx-buildings"/>}
+                                        fallback={<Icon name="company" />}
                                         src=""
                                     />
                                     <span>{data?.company ?? "N/A"}</span>
@@ -196,7 +196,7 @@ export default function JobDetailsPage() {
                                             color="default"
                                             href={link.url}
                                             variant="flat"
-                                            endContent={<i className="bx bx-link-external"/>}
+                                            startContent={<Icon name="externalLink"/>}
                                         >
                                             {link.label}
                                         </Button>
@@ -208,12 +208,12 @@ export default function JobDetailsPage() {
                         {/* Location */}
                         <div className="col-span-2 sm:col-span-1 text-xs flex items-center justify-center">
                             <Skeleton className="rounded-lg" isLoaded={!loading}>
-                                {data?.location && (
+                                {data?.meta.location && (
                                     <div className="flex flex-col items-center justify-center gap-2">
                                         <span>Location</span>
                                         <StatusChip
                                             color="warning"
-                                            label={data.location}
+                                            label={data.meta.location}
                                             icon={<Icon name="location"/>}
                                             variant="bordered"
                                         />
@@ -251,7 +251,7 @@ export default function JobDetailsPage() {
                     </div>
 
                     {/* Notes */}
-                    {data?.note && <Note>{data.note}</Note>}
+                    {data?.meta.note && <Note>{data.meta.note}</Note>}
 
 
                     {/* Job Events list */}

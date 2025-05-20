@@ -93,6 +93,7 @@ async fn seed_database(pool: &SqlitePool, num_entries: usize) -> Result<String, 
         let status = statuses.choose(&mut rng).unwrap();
         let insert_status = insert_statuses.choose(&mut rng).unwrap();
 
+        //todo: adjust query to the latest DB schema version
         let query = "
             INSERT INTO jobs (insert_date, company, title, link, application_date, status, insert_status)
             VALUES (?, ?, ?, ?, ?, ?, ?)

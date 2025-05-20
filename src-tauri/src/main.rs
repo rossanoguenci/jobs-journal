@@ -1,17 +1,25 @@
+mod commands;
+mod db;
 mod models;
 mod queries;
-mod db;
 mod utils;
 
-use tauri::Builder;
 use db::{get_db_path, setup_database};
 use queries::*;
+use tauri::Builder;
+use utils::*;
+use commands::*;
 
+use tauri_plugin_dialog as dialog;
 use tauri_plugin_opener as opener;
+
 
 
 #[tokio::main]
 async fn main() {
+    // Initialise logger
+    dev_logger::init_logger();
+
     Builder::default()
         .setup(|app| {
             let app_handle = app.handle();
@@ -32,6 +40,7 @@ async fn main() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            // check_ready,
             jobs_insert,
             jobs_update,
             jobs_get_list,
@@ -41,8 +50,13 @@ async fn main() {
             jobs_restore_entry,
             job_events_insert,
             job_events_get,
+            export_jobs_json,
+            import_jobs_json,
+            import_jobs_csv,
+            clear_database,
         ])
         .plugin(opener::init())
+        .plugin(dialog::init())
         .run(tauri::generate_context!())
-        .expect("Error running Tauri application");
+        .expect("Error running application");
 }

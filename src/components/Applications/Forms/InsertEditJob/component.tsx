@@ -15,6 +15,9 @@ import {useUpsertJob} from "@hooks/useUpsertJob";
 import {JobInsert} from "@/types/JobInsert";
 import {JobUpdate} from "@/types/JobUpdate";
 import {Key} from "@react-types/shared";
+import {toJobInsert} from "@utilities/toJobInsert";
+import {debugLog} from "@utilities/devLog";
+import {toJobUpdate} from "@utilities/toJobUpdate";
 
 export default function Component({data = null}: Props) {
     const [warning, setWarning] = useState<string | null>(null);
@@ -29,7 +32,7 @@ export default function Component({data = null}: Props) {
     * issue #5113 -> https://github.com/heroui-inc/heroui/issues/5113
     *
     * */
-    const [locationValue, setLocationValue] = useState(data?.location || "");
+    const [locationValue, setLocationValue] = useState(data?.meta.location || "");
     const isSelectionChange = useRef(false);
 
     const handleInputChange = (value: string) => {
@@ -55,29 +58,23 @@ export default function Component({data = null}: Props) {
 
         const formData = Object.fromEntries(new FormData(e.currentTarget));
 
-        console.log('formData', formData);
+        debugLog('formData', formData);
+
+        let payload: JobInsert | JobUpdate | null = null;
 
         if (!data) {
-            // Insert a new entry
-            const insertData = formData as JobInsert;
-            await upsertJob(insertData);
+            payload = toJobInsert(formData);
         } else {
-            // Update logic
-            const updates: Record<string, unknown> = {};
-            Object.keys(formData).forEach((key) => {
-                if (formData[key] !== data[key as keyof JobEntry]) {
-                    updates[key] = formData[key];
-                }
-            });
+            payload = toJobUpdate(formData, data);
 
-            if (Object.keys(updates).length === 0) {
+            if (!payload) {
                 setWarning("Nothing to update");
                 return;
             }
-
-            updates.id = data.id;
-            await upsertJob(updates as JobUpdate);
         }
+
+        await upsertJob(payload);
+
     };
 
     useEffect(() => {
@@ -105,7 +102,7 @@ export default function Component({data = null}: Props) {
             ref={formRef}
             className={style.container}
             onSubmit={onSubmit}
-            onReset={() => setLocationValue(data?.location || "")}
+            onReset={() => setLocationValue(data?.meta.location || "")}
         >
             {/*Required*/}
             <Input
@@ -142,9 +139,9 @@ export default function Component({data = null}: Props) {
                 label="Link"
                 aria-label="Link"
                 type="url"
-                name="link"
+                name="link_to_job_posting"
                 size={default_size}
-                defaultValue={data?.link || ""}
+                defaultValue={data?.meta.link_to_job_posting || ""}
             />
 
             <Autocomplete
@@ -161,7 +158,7 @@ export default function Component({data = null}: Props) {
                 onClear={() => {
                     if (data) {
                         // When editing, reset to the original value
-                        setLocationValue(data.location || "");
+                        setLocationValue(data.meta.location || "");
                     } else {
                         // When creating new, clear completely
                         setLocationValue("");

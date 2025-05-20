@@ -21,7 +21,7 @@ pub async fn jobs_get_details(db: State<'_, Database>, job_id: String) -> Result
     }
     let pool = db.pool.lock().await;
     let job_detail =
-        sqlx::query_as::<_, JobEntry>("SELECT * FROM jobs WHERE id=? AND insert_status!='archived'")
+        sqlx::query_as::<_, JobEntry>("SELECT * FROM jobs WHERE id=?")
             .bind(job_id)
             .fetch_optional(&*pool)
             .await

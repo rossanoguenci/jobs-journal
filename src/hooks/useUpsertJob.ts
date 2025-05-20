@@ -2,11 +2,7 @@ import {useCallback, useState} from "react";
 import { invoke } from "@tauri-apps/api/core";
 import {JobInsert} from "@/types/JobInsert";
 import {JobUpdate} from "@/types/JobUpdate";
-
-/*interface InsertProps {
-    status: boolean;
-    message: string;
-}*/
+import {debugLog} from "@utilities/devLog";
 
 export function useUpsertJob() {
     const [loading, setLoading] = useState(false);
@@ -14,6 +10,9 @@ export function useUpsertJob() {
     const [error, setError] = useState<string | null>(null);
 
     const upsertJob = useCallback(async (data: JobInsert | JobUpdate): Promise<void> => {
+
+        debugLog("upsertJob(): data passed -> ", data);
+
         const functionToInvoke = "id" in data ? "jobs_update" : "jobs_insert";
 
         setLoading(true);

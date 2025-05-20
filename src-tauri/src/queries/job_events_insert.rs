@@ -1,12 +1,18 @@
 use super::Database;
-use tauri::State;
 use crate::models::job_event::JobEvent;
 use crate::utils::query_utils::build_insert_query;
 use serde_json::json;
+use tauri::State;
 use uuid::Uuid;
 
 #[tauri::command]
-pub async fn job_events_insert(db: State<'_, Database>, mut data: JobEvent) -> Result<String, String> {
+pub async fn job_events_insert(
+    db: State<'_, Database>,
+    mut data: JobEvent,
+) -> Result<String, String> {
+
+    crate::debug_log!("job_events_insert() - Insert event with data {:?}", data);
+
     let pool = db.pool.lock().await;
 
     // Generate the UUID before insertion
@@ -23,7 +29,6 @@ pub async fn job_events_insert(db: State<'_, Database>, mut data: JobEvent) -> R
 
     // Add insert_type manually
     json_data.insert("insert_type".to_string(), json!("manual"));
-
 
     // Build the query (this internally extracts fields and values)
     let mut builder = build_insert_query("job_events", &json_data)?;

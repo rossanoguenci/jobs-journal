@@ -1,6 +1,7 @@
 import {useState, useCallback} from "react";
 import {invoke} from "@tauri-apps/api/core";
 import {JobEvent} from "@/types/JobEvent";
+import {debugLog} from "@utilities/devLog";
 
 
 export default function useInsertJobEvent() {
@@ -9,6 +10,8 @@ export default function useInsertJobEvent() {
     const [error, setError] = useState<string | null>(null);
 
     const insertEvent = useCallback(async (data: JobEvent) => {
+        debugLog("insertEvent(): data passed -> ", data);
+
         const jobId = data.job_id;
 
         if (!jobId || jobId.length === 0) {

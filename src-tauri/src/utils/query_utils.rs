@@ -1,5 +1,6 @@
 use serde_json::{Map, Value};
 use sqlx::{QueryBuilder, Sqlite};
+use log::debug;
 
 #[derive(Debug)]
 pub enum BindValue {
@@ -7,6 +8,13 @@ pub enum BindValue {
     Integer(i64),
     Float(f64),
     Bool(bool),
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum InsertMode {
+    Insert,
+    Ignore,
+    Replace,
 }
 
 /// Extracts field names and their corresponding values from a JSON object,
@@ -32,7 +40,13 @@ pub fn extract_fields(obj: &Map<String, Value>) -> (Vec<String>, Vec<BindValue>)
                 }
             }
             Value::Bool(b) => BindValue::Bool(*b),
-            _ => continue, // Skip arrays or nested objects for now
+
+            Value::Object(_) | Value::Array(_) => match serde_json::to_string(value) {
+                Ok(json_str) => BindValue::String(json_str),
+                Err(_) => continue,
+            },
+
+            _ => continue,
         };
 
         columns.push(key.clone());
@@ -42,12 +56,12 @@ pub fn extract_fields(obj: &Map<String, Value>) -> (Vec<String>, Vec<BindValue>)
     (columns, values)
 }
 
-
-/// Builds a dynamic UPDATE SET clause (without the WHERE clause).
 pub fn build_update_set_clause<'a>(
     table_name: &str,
     obj: &'a Map<String, Value>,
 ) -> Result<(QueryBuilder<'a, Sqlite>, usize), String> {
+    debug!("Update object: {:?}", obj);
+
     let (columns, values) = extract_fields(obj);
 
     if columns.is_empty() {
@@ -60,32 +74,59 @@ pub fn build_update_set_clause<'a>(
         if i > 0 {
             query_builder.push(", ");
         }
-        query_builder.push(format!("{} = ", column));
 
-        match &values[i] {
-            BindValue::String(s) => {
-                query_builder.push_bind(s.clone());
-            }
-            BindValue::Integer(i) => {
-                query_builder.push_bind(*i);
-            }
-            BindValue::Float(f) => {
-                query_builder.push_bind(*f);
-            }
-            BindValue::Bool(b) => {
-                query_builder.push_bind(*b);
+        if column == "meta" {
+            // Create a JSON object with only the non-null fields
+            let meta_value = obj.get("meta")
+                .and_then(|v| v.as_object())
+                .ok_or_else(|| "Invalid meta field".to_string())?;
+            
+            // Build a JSON object containing only non-null fields
+            let patch_obj: Map<String, Value> = meta_value
+                .iter()
+                .filter(|(_, v)| !v.is_null())
+                .map(|(k, v)| (k.clone(), v.clone()))
+                .collect();
+
+            // Convert the patch object to a JSON string
+            let patch_json = serde_json::to_string(&patch_obj)
+                .map_err(|e| format!("Failed to serialize meta patch: {}", e))?;
+
+            // Use json_patch to merge only the provided fields
+            query_builder.push("meta = json_patch(COALESCE(meta, '{}'), ");
+            query_builder.push_bind(patch_json);
+        } else {
+            query_builder.push(format!("{} = ", column));
+            match &values[i] {
+                BindValue::String(s) => {
+                    query_builder.push_bind(s.clone());
+                }
+                BindValue::Integer(i) => {
+                    query_builder.push_bind(*i);
+                }
+                BindValue::Float(f) => {
+                    query_builder.push_bind(*f);
+                }
+                BindValue::Bool(b) => {
+                    query_builder.push_bind(*b);
+                }
             }
         }
+
+        if column == "meta" {
+            query_builder.push(")");
+        }
     }
+    
 
     Ok((query_builder, values.len()))
 }
 
-
-/// Builds a full INSERT INTO ... query for a given table and fields.
-pub fn build_insert_query<'a>(
+/// Builds a full INSERT ... query for a given table and fields and mode.
+pub fn build_insert_query_with_mode<'a>(
     table_name: &str,
     obj: &Map<String, Value>,
+    mode: InsertMode,
 ) -> Result<QueryBuilder<'static, Sqlite>, String> {
     let (columns, values) = extract_fields(obj);
 
@@ -93,7 +134,13 @@ pub fn build_insert_query<'a>(
         return Err("No insertable fields found".into());
     }
 
-    let mut builder = QueryBuilder::<Sqlite>::new(format!("INSERT INTO {} (", table_name));
+    let insert_clause = match mode {
+        InsertMode::Ignore => "INSERT OR IGNORE INTO",
+        InsertMode::Replace => "INSERT OR REPLACE INTO",
+        InsertMode::Insert => "INSERT INTO", //Typically default
+    };
+
+    let mut builder = QueryBuilder::<Sqlite>::new(format!("{} {} (", insert_clause, table_name));
 
     // Columns
     for (i, column) in columns.iter().enumerate() {
@@ -122,4 +169,12 @@ pub fn build_insert_query<'a>(
     builder.push(")");
 
     Ok(builder)
+}
+
+//Shorthand version for INSERT INTO
+pub fn build_insert_query<'a>(
+    table_name: &str,
+    obj: &Map<String, Value>,
+) -> Result<QueryBuilder<'static, Sqlite>, String> {
+    build_insert_query_with_mode(table_name, obj, InsertMode::Insert)
 }

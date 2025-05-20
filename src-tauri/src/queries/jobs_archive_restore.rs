@@ -3,7 +3,7 @@ use tauri::State;
 
 #[tauri::command]
 pub async fn jobs_archive_entry(db: State<'_, Database>, id: String) -> Result<String, String> {
-    println!("jobs_archive_entry invoked {}",id);
+    crate::debug_log!("jobs_archive_entry invoked {}",id);
 
     let pool = db.pool.lock().await;
 
@@ -19,6 +19,8 @@ pub async fn jobs_archive_entry(db: State<'_, Database>, id: String) -> Result<S
 
 #[tauri::command]
 pub async fn jobs_restore_entry(db: State<'_, Database>, id: String) -> Result<String, String> {
+    crate::debug_log!("jobs_restore_entry invoked {}",id);
+
     let pool = db.pool.lock().await;
 
     let query_str = "UPDATE jobs SET insert_status = 'restored' WHERE id = ?";

@@ -8,6 +8,8 @@ use crate::utils::query_utils::build_update_set_clause;
 
 #[tauri::command]
 pub async fn jobs_update(db: State<'_, Database>, data: JobUpdate) -> Result<String, String> {
+    crate::debug_log!("jobs_update() - Updating job with data: {:?}", data);
+    
     let pool = db.pool.lock().await;
     let job_id = &data.id;
 

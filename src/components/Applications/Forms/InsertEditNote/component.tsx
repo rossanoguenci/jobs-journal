@@ -24,7 +24,7 @@ export default function Component({data}: Props) {
         const submitter = nativeEvent.submitter;
         const action = submitter?.getAttribute('data-action');
 
-        const noteUpdate: JobUpdate = {id: data.id, note: ""};
+        let note = "";
 
         if (action === "upsert") {
 
@@ -42,10 +42,10 @@ export default function Component({data}: Props) {
                 return;
             }
 
-            noteUpdate.note = updates.note as string;
+            note = updates.note as string;
         }
 
-        await upsertJob(noteUpdate);
+        await upsertJob({id: data.id, meta: {note: note}} as JobUpdate);
     };
 
     useEffect(() => {
@@ -77,20 +77,20 @@ export default function Component({data}: Props) {
                 name="note"
                 label="Note for this job"
                 placeholder="Enter a personal note here"
-                defaultValue={data?.note || ""}
+                defaultValue={data?.meta.note || ""}
             />
 
             <div className="flex gap-2">
 
                 <Button
                     data-action="upsert"
-                    aria-label={data?.note ? "Update" : "Insert"}
-                    color={data?.note ? "warning" : "primary"}
+                    aria-label={data?.meta.note ? "Update" : "Insert"}
+                    color={data?.meta.note ? "warning" : "primary"}
                     size={default_size}
                     radius={default_size}
                     type="submit"
                     isDisabled={loading}
-                >{data?.note ? "Update" : "Insert"}
+                >{data?.meta.note ? "Update" : "Insert"}
                 </Button>
 
                 <Button
