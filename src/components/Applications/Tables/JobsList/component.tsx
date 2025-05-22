@@ -38,6 +38,7 @@ import {addToast} from "@heroui/toast";
 
 // Types
 import type {Action} from "@components/JobActionsDropdown/props.types";
+
 type JobsListRowType = JobsListRowsType[number];
 
 export default function Component() {
@@ -91,92 +92,100 @@ export default function Component() {
 
     /* Render cell */
     const renderCell = useCallback((item: JobsListRowType, columnKey: React.Key) => {
-        const cellValue = item[columnKey as keyof JobsListRowType];
-
-        switch (columnKey) {
-            case "job_entry":
-                return (
-                    <div className="flex flex-col">
-                        <p className="text-bold text-sm">{item.title}</p>
-                        <p className="text-bold text-sm text-default-400">{item.company}</p>
-                    </div>
-                );
-
-            case "application_date":
-                if (typeof cellValue !== "string" || cellValue.length < 10) {
-                    return null;
-                }
-                const [year, month, day] = cellValue.split("-");
-                const daysFrom = daysFromDate(cellValue);
-                return (<><p>{`${day}-${month}-${year}`}</p><p className="text-xs text-default-400">{daysFrom} days
-                    ago</p></>);
-
-            case "status":
-                const statusColor = typeof cellValue === "string" ? jobStatusOptions.find(option => option.key === cellValue)?.color : "default";
-                const statusLabel = typeof cellValue === "string" ? jobStatusOptions.find(option => option.key === cellValue)?.label : "Unknown";
-                const statusIcon = typeof cellValue === "string" ? jobStatusOptions.find(option => option.key === cellValue)?.icon : null;
-
-                return (
-                    <StatusChip
-                        color={statusColor}
-                        label={statusLabel ?? "Unknown"}
-                        icon={statusIcon}
-                    />
-                );
-
-            case "actions":
-                const actions: Action[] = [
-                    {
-                        key: "add_event",
-                        label: "Add event",
-                        icon: <Icon name="addEvent" />,
-                        onClick: () => openModal(<InsertEvent jobId={item.id}/>, refresh),
-                        section: "main"
-                    }, {
-                        key: "update_status",
-                        label: "Update status",
-                        icon: <Icon name="updateStatus" />,
-                        onClick: () => openModal(<UpdateStatus data={item}/>, refresh),
-                        section: "main"
-                    }, {
-                        key: "edit_job",
-                        label: "Edit job info",
-                        icon: <Icon name="edit" />,
-                        onClick: () => openModal(<InsertEditJob data={item}/>, refresh),
-                        section: "main"
-                    }, {
-                        key: "archive",
-                        label: "Archive",
-                        icon: <Icon name="archive" />,
-                        color: "warning",
-                        onClick: () => handleJobArchive(item.id),
-                        section: "danger"
-                    },
-                ];
-
-                return (
-                    <div className="relative flex items-center gap-2">
-                        <Link href={`/job#${item.id}`} className="job-link">
-                            <Button isIconOnly title="View job details" aria-label="View job details" color="default"
-                                    variant="faded" size="sm">
-                                <Icon name="seeMore"/>
-                            </Button>
-                        </Link>
-
-                        <JobActionsDropdown
-                            actions={actions}
-                            icon={<Icon name="menu"/>}
-                            triggerSize="sm"
-                            variant="faded"
-                        />
-
-                    </div>
-                );
-
-            default:
-                return cellValue;
+        if (columnKey === "job_entry") {
+            return (
+                <div className="flex flex-col">
+                    <p className="text-bold text-sm">{item.title}</p>
+                    <p className="text-bold text-sm text-default-400">{item.company}</p>
+                </div>
+            );
         }
+
+        if (columnKey === "application_date") {
+            const value = item.application_date;
+            if (value.length < 10) {
+                return null;
+            }
+            const [year, month, day] = value.split("-");
+            const daysFrom = daysFromDate(value);
+            return (
+                <>
+                    <p>{`${day}-${month}-${year}`}</p>
+                    <p className="text-xs text-default-400">{daysFrom} days ago</p>
+                </>
+            );
+        }
+
+        if (columnKey === "status") {
+            const value = item.status;
+            const statusColor = jobStatusOptions.find(option => option.key === value)?.color ?? "default";
+            const statusLabel = jobStatusOptions.find(option => option.key === value)?.label ?? "Unknown";
+            const statusIcon = jobStatusOptions.find(option => option.key === value)?.icon ?? null;
+
+            return (
+                <StatusChip
+                    color={statusColor}
+                    label={statusLabel}
+                    icon={statusIcon}
+                />
+            );
+        }
+
+        if (columnKey === "actions") {
+            const actions: Action[] = [
+                {
+                    key: "add_event",
+                    label: "Add event",
+                    icon: <Icon name="addEvent"/>,
+                    onClick: () => openModal(<InsertEvent jobId={item.id}/>, refresh),
+                    section: "main",
+                },
+                {
+                    key: "update_status",
+                    label: "Update status",
+                    icon: <Icon name="updateStatus"/>,
+                    onClick: () => openModal(<UpdateStatus data={item}/>, refresh),
+                    section: "main",
+                },
+                {
+                    key: "edit_job",
+                    label: "Edit job info",
+                    icon: <Icon name="edit"/>,
+                    onClick: () => openModal(<InsertEditJob data={item}/>, refresh),
+                    section: "main",
+                },
+                {
+                    key: "archive",
+                    label: "Archive",
+                    icon: <Icon name="archive"/>,
+                    color: "warning",
+                    onClick: () => handleJobArchive(item.id),
+                    section: "danger",
+                },
+            ];
+
+            return (
+                <div className="relative flex items-center gap-2">
+                    <Link href={`/job#${item.id}`} className="job-link">
+                        <Button isIconOnly title="View job details" aria-label="View job details" color="default"
+                                variant="faded" size="sm">
+                            <Icon name="seeMore"/>
+                        </Button>
+                    </Link>
+
+                    <JobActionsDropdown
+                        actions={actions}
+                        icon={<Icon name="menu"/>}
+                        triggerSize="sm"
+                        variant="faded"
+                    />
+                </div>
+            );
+        }
+
+        return null; // default fallback, avoids returning something unsafe
     }, [handleJobArchive, openModal, refresh]);
+
 
     /* Top content */
     const hasSearchFilter = Boolean(filterValue);

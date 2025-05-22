@@ -11,7 +11,7 @@ CREATE TABLE jobs_new
     link             TEXT,
     application_date TEXT DEFAULT CURRENT_DATE      NOT NULL,
     status           TEXT DEFAULT 'sent'            NOT NULL,
-    insert_status    TEXT DEFAULT 'inserted' CHECK (insert_status IN ('inserted', 'archived','deleted')),
+    insert_status    TEXT DEFAULT 'inserted' CHECK (insert_status IN ('inserted', 'archived', 'restored', 'deleted')),
     location         TEXT,
     last_updated_at  TEXT DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
