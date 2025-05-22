@@ -6,7 +6,7 @@ import style from "./style.module.scss";
 
 import {Button, DatePicker, Input, Form, Autocomplete, AutocompleteItem} from "@heroui/react"
 
-import {JobEntry} from "@/types/JobEntry";
+// import {JobEntry} from "@/types/JobEntry";
 import {parseDate, getLocalTimeZone, today} from "@internationalized/date";
 import {useModal} from "@components/GlobalModal/ModalContext";
 import locations from "@config/locations";
@@ -60,7 +60,7 @@ export default function Component({data = null}: Props) {
 
         debugLog('formData', formData);
 
-        let payload: JobInsert | JobUpdate | null = null;
+        let payload: JobInsert | JobUpdate | null;
 
         if (!data) {
             payload = toJobInsert(formData);

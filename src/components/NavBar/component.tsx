@@ -73,9 +73,7 @@ export default function Component() {
 
                         {/*<DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>*/}
 
-                        <DropdownItem key="about" href="/about/" startContent={<Icon name="info" className="size-4"/>}>About
-                            &
-                            Legal</DropdownItem>
+                        <DropdownItem key="about" href="/about/" startContent={<Icon name="info" className="size-4"/>}>About & Legal</DropdownItem>
 
                     </DropdownMenu>
                 </Dropdown>

@@ -1,4 +1,5 @@
 import React from 'react';
+import Icon from "@components/Icons";
 
 export default function AboutPage() {
 
@@ -11,8 +12,10 @@ export default function AboutPage() {
                     offline using Tauri and stores your data locally with SQLite.
                 </p>
                 <ul className="flex items-center flex-wrap gap-5 mt-3">
-                    <li className="flex items-center gap-2"><i className="bx bx-laptop"/> {process.env.NEXT_PUBLIC_VERSION}</li>
-                    <li className="flex items-center gap-2"><i className="bx bx-building"/> {process.env.NEXT_PUBLIC_BUILD_NUMBER}</li>
+                    <li className="flex items-center gap-2"><Icon name="version"/> {process.env.NEXT_PUBLIC_VERSION}
+                    </li>
+                    <li className="flex items-center gap-2"><Icon name="build"/> {process.env.NEXT_PUBLIC_BUILD_NUMBER}
+                    </li>
                 </ul>
             </section>
 
@@ -28,7 +31,7 @@ export default function AboutPage() {
                 <h2 className="text-xl font-semibold mb-1">Copyright</h2>
                 <p>© {new Date().getFullYear()} @RossanoGuenci. All rights reserved.</p>
                 <ul className="mt-3">
-                    <li className="flex items-center gap-2"><i className="bx bxl-github text-xl"/> github.com/@rossanoguenci</li>
+                    <li className="flex items-center gap-2"><Icon name="gitHub"/> github.com/@rossanoguenci</li>
                 </ul>
             </section>
 

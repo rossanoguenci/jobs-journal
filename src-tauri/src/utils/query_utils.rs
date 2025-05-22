@@ -13,8 +13,8 @@ pub enum BindValue {
 #[derive(Debug, Clone, Copy)]
 pub enum InsertMode {
     Insert,
-    Ignore,
-    Replace,
+    // Ignore,
+    // Replace,
 }
 
 /// Extracts field names and their corresponding values from a JSON object,
@@ -135,8 +135,8 @@ pub fn build_insert_query_with_mode<'a>(
     }
 
     let insert_clause = match mode {
-        InsertMode::Ignore => "INSERT OR IGNORE INTO",
-        InsertMode::Replace => "INSERT OR REPLACE INTO",
+        // InsertMode::Ignore => "INSERT OR IGNORE INTO",
+        // InsertMode::Replace => "INSERT OR REPLACE INTO",
         InsertMode::Insert => "INSERT INTO", //Typically default
     };
 

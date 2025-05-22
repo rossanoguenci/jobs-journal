@@ -25,5 +25,5 @@ pub use job_events_insert::{job_events_insert};
 // pub use job_events_update::{job_events_update}; //todo: to be developed?
 // pub use job_events_delete::{job_events_delete}; //todo: to be developed
 pub use job_events_get::{job_events_get};
-pub use jobs_export::fetch_all_jobs_with_events;
+// pub use jobs_export::fetch_all_jobs_with_events;
 pub use clear_database::clear_database;

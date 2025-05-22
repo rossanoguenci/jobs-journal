@@ -21,8 +21,12 @@ import {ArrowLeftIcon} from "@heroicons/react/24/solid";
 import {MapPinIcon} from "@heroicons/react/24/solid";
 import {BuildingOffice2Icon} from "@heroicons/react/24/solid";
 import {ArrowTopRightOnSquareIcon} from "@heroicons/react/24/solid";
+import {CubeTransparentIcon} from "@heroicons/react/24/solid";
+import {CubeIcon} from "@heroicons/react/24/solid";
+import GitHub from "./svg/GitHub";
 
 const Icons = {
+    default: CubeTransparentIcon,
     addEvent: PlusCircleIcon,
     archive: ArchiveBoxArrowDownIcon,
     arrowBack: ArrowLeftIcon,
@@ -46,6 +50,10 @@ const Icons = {
     settings: CogIcon,
     updateStatus: NewspaperIcon,
     withdrawn: XMarkIcon,
-};
+    build: BuildingOffice2Icon,
+    version: CubeIcon,
+    gitHub: GitHub
+
+} as const;
 
 export default Icons;

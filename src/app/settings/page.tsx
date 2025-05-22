@@ -24,7 +24,7 @@ export default function SettingsPage() {
                     <li className="inline-flex w-full max-w-full items-center justify-between rounded-lg gap-2 p-4 border-2 border-transparent">
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Light or Dark mode</p>
-                            <p className="text-tiny text-default-400">
+                            <p className="text-tiny text-default-400 max-w-md">
                                 Switch to light or dark mode. The current theme is {theme}
                             </p>
                         </div>
@@ -50,8 +50,8 @@ export default function SettingsPage() {
                     <li className="inline-flex w-full max-w-full items-center justify-between rounded-lg gap-2 p-4 border-2 border-transparent">
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Import</p>
-                            <p className="text-tiny text-default-400">
-                                ###Description here###
+                            <p className="text-tiny text-default-400 max-w-md">
+                                Import data from a local file. Use with caution — invalid or altered files may cause issues. Proceed at your own risk.
                             </p>
                             <p className="text-success">{importSuccess}</p>
                             <p className="text-danger">{importError}</p>
@@ -67,8 +67,8 @@ export default function SettingsPage() {
                     <li className="inline-flex w-full max-w-full items-center justify-between rounded-lg gap-2 p-4 border-2 border-transparent">
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Export</p>
-                            <p className="text-tiny text-default-400">
-                                ##Description here##
+                            <p className="text-tiny text-default-400 max-w-md">
+                                Export your current data to a file. Make sure to store it safely. We’re not responsible for lost or corrupted files.
                             </p>
                             <p className="text-success">{exportSuccess}</p>
                             <p className="text-danger">{exportError}</p>
@@ -84,7 +84,7 @@ export default function SettingsPage() {
                     <li className="inline-flex w-full max-w-full items-center justify-between rounded-lg gap-2 p-4 border-2 border-transparent text-danger">
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Reset Database</p>
-                            <p className="text-tiny text-default-400">
+                            <p className="text-tiny text-default-400 max-w-md">
                                 This will permanently remove all entries and events. This action cannot be undone.
                             </p>
                             <p className="text-success">{clearDBSuccess}</p>

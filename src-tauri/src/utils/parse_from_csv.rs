@@ -1,12 +1,12 @@
 use crate::models::export::JobWithEvents;
+use crate::models::job_event_meta::JobEventMeta;
 use crate::models::{job_entry::JobEntry, job_entry_meta::JobEntryMeta, job_event::JobEvent};
-use chrono::{Datelike, Local, NaiveDate, Timelike};
+use chrono::{Local, NaiveDate};
 use serde::Deserialize;
 use serde_json::json;
 use std::fs::File;
 use std::io::BufReader;
 use uuid::Uuid;
-use crate::models::job_event_meta::JobEventMeta;
 
 #[derive(Debug, Deserialize)]
 struct CsvRow {
@@ -53,7 +53,6 @@ pub fn parse_events(events_str: &str, job_id: &str) -> Vec<JobEvent> {
             meta: Some(JobEventMeta {
                 type_of_import: Some("csv".into()),
             }),
-
         })
         .collect()
 }

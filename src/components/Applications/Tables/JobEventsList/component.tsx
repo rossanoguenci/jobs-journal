@@ -26,30 +26,28 @@ export default function Component({jobId}: { jobId: string }) {
     const [totalPages, setTotalPages] = useState(1);
 
     const renderCell = React.useCallback((item: JobEvent, columnKey: React.Key) => {
-        const cellValue = item[columnKey as keyof JobEvent];
 
-        switch (columnKey) {
-            case "date_of_event": {
-                if (typeof cellValue !== "string" || cellValue.length < 10) {
-                    return null;
-                }
-                const [year, month, day] = cellValue.split("-");
-                return (<>{`${day}-${month}-${year}`}</>);
-            }
-            case "description": {
-                if (typeof cellValue !== "string") return cellValue;
-
-                let updatedValue = cellValue;
-
-                jobStatusOptions.forEach(({key, label}) => {
-                    const regex = new RegExp(`\\b${key}\\b`, "gi");
-                    updatedValue = updatedValue.replace(regex, label);
-                });
-
-                return updatedValue;
-            }
+        if (columnKey === "date_of_event") {
+            const value = item.date_of_event;
+            if (value.length < 10) return null;
+            const [year, month, day] = value.split("-");
+            return <>{`${day}-${month}-${year}`}</>;
         }
+
+        if (columnKey === "description") {
+            let updatedValue = item.description;
+
+            jobStatusOptions.forEach(({ key, label }) => {
+                const regex = new RegExp(`\\b${key}\\b`, "gi");
+                updatedValue = updatedValue.replace(regex, label);
+            });
+
+            return updatedValue;
+        }
+
+        return null;
     }, []);
+
 
     /* The items (shown) */
     const items = useMemo(() => {
