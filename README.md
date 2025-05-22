@@ -38,6 +38,7 @@ We’re committed to releasing this project as open source and welcome contribut
 - Update job status
 - Each job entry has its own event list
 - Support for dark and light mode
+- Import & Export support for migration
 
 ## 🛠️ Tech Stack
 
@@ -106,6 +107,7 @@ We’re committed to releasing this project as open source and welcome contribut
 - `src-tauri-dev-tools/`: Backend tools and DB storage for development
 - `scripts/`: Command-line scripts
 - `public/`: Static assets such as images and icons
+- `types/`: Contains TypeScript types, either generated from Rust structs or manually customised
 - `utils/`: Reusable helper functions for common tasks
 
 

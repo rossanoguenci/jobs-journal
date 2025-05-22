@@ -1,9 +1,11 @@
 #[cfg(feature = "cli")]
 use rand::Rng;
 use rand::prelude::IndexedRandom;
+use serde_json::json;
 use sqlx::SqlitePool;
 use std::env;
 use tokio::runtime::Runtime;
+use uuid::Uuid;
 
 fn get_db_path() -> String {
     use std::env;
@@ -71,42 +73,48 @@ async fn seed_database(pool: &SqlitePool, num_entries: usize) -> Result<String, 
         "DevOps Engineer",
         "UI/UX Designer",
     ];
-    let statuses = vec!["sent", "in_progress", "got_offer", "rejected"];
+    let statuses = vec!["sent", "in_progress", "got_offer", "rejected", "ghosted"];
     let insert_statuses = vec!["inserted", "archived"];
 
     let mut rng = rand::rng();
 
     for _ in 0..num_entries {
-        let insert_date = chrono::offset::Utc::now().naive_utc();
+        let insert_date = chrono::Utc::now().naive_utc();
         let application_date = insert_date - chrono::Duration::days(rng.random_range(1..30));
 
         let company = companies.choose(&mut rng).unwrap();
         let title = titles.choose(&mut rng).unwrap();
-        let link = if rng.random_bool(0.7) {
-            Some(format!(
-                "https://joblisting.com/{}",
-                rng.random_range(1000..9999)
-            ))
-        } else {
-            None
-        };
         let status = statuses.choose(&mut rng).unwrap();
         let insert_status = insert_statuses.choose(&mut rng).unwrap();
 
-        //todo: adjust query to the latest DB schema version
+        // Randomised meta content
+        let meta = json!({
+            "note": if rng.random_bool(0.5) { Some("Example note") } else { None::<&str> },
+            "location": if rng.random_bool(0.5) { Some("Remote") } else { None::<&str> },
+            "link_to_job_posting": if rng.random_bool(0.7) {
+                Some(format!("https://joblisting.com/{}", rng.random_range(1000..9999)))
+            } else {
+                None::<String>
+            }
+        });
+
+        let id = Uuid::new_v4().to_string();
+
         let query = "
-            INSERT INTO jobs (insert_date, company, title, link, application_date, status, insert_status)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO jobs (id, insert_date, company, title, application_date, status, insert_status, last_updated_at, meta)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ";
 
         let result = sqlx::query(query)
+            .bind(id)
             .bind(insert_date.format("%Y-%m-%d %H:%M:%S").to_string())
             .bind(company)
             .bind(title)
-            .bind(link)
             .bind(application_date.format("%Y-%m-%d").to_string())
             .bind(status)
             .bind(insert_status)
+            .bind(insert_date.format("%Y-%m-%d %H:%M:%S").to_string())
+            .bind(meta.to_string())
             .execute(pool)
             .await;
 
