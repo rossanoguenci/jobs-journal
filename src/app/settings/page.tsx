@@ -6,13 +6,29 @@ import {Button} from "@heroui/button";
 import useExportData from "@hooks/useExportData";
 import useImportData from "@hooks/useImportData";
 import useClearDatabase from "@hooks/useClearDatabase";
+import {useAppSettingsContext} from "@contexts/AppSettingsContext";
+import {AppSettings} from "@/types/AppSettings";
+import {debugLog} from "@utilities/devLog";
 
 export default function SettingsPage() {
 
     const {theme, setTheme} = useTheme();
     const {exportJobs, loading: exportLoading, error: exportError, success: exportSuccess} = useExportData();
-    const { importJobs, loading: importLoading, error: importError, success: importSuccess } = useImportData();
-    const { clearDatabase, loading: clearDBLoading, error: clearDBError, success: clearDBSuccess } = useClearDatabase();
+    const {importJobs, loading: importLoading, error: importError, success: importSuccess} = useImportData();
+    const {clearDatabase, loading: clearDBLoading, error: clearDBError, success: clearDBSuccess} = useClearDatabase();
+
+    const {settings, saveSettings, loading: settingsLoading} = useAppSettingsContext();
+
+    const handleThemeChange = (newTheme: AppSettings["theme"]) => {
+        debugLog("handleThemeChange", "theme: ", theme, "to", newTheme, "settings: ", settings);
+
+        setTheme(newTheme); // Updates the actual theme
+        if (settings) {
+            debugLog("handleThemeChange", "settings: ", settings);
+            saveSettings({...settings, theme: newTheme}).then();  // Persist
+        }
+    };
+
 
     return (
         <main className="wrapper" suppressHydrationWarning>
@@ -25,18 +41,19 @@ export default function SettingsPage() {
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Light or Dark mode</p>
                             <p className="text-tiny text-default-400 max-w-md">
-                                Switch to light or dark mode. The current theme is {theme}
+                                Switch to light or dark mode. The current theme is {/*{theme}*/}
                             </p>
                         </div>
                         <Switch
                             isSelected={theme === "light"}
                             onValueChange={(isSelected) => {
-                                setTheme(isSelected ? "light" : "dark");
+                                handleThemeChange(isSelected ? "light" : "dark");
                             }}
                             color="success"
                             thumbIcon={({isSelected}) =>
                                 isSelected ? <i className="bx bxs-sun"/> : <i className="bx bxs-moon"/>
                             }
+                            isDisabled={settingsLoading}
                         />
                     </li>
 
@@ -51,24 +68,26 @@ export default function SettingsPage() {
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Import</p>
                             <p className="text-tiny text-default-400 max-w-md">
-                                Import data from a local file. Use with caution — invalid or altered files may cause issues. Proceed at your own risk.
+                                Import data from a local file. Use with caution — invalid or altered files may cause
+                                issues. Proceed at your own risk.
                             </p>
                             <p className="text-success">{importSuccess}</p>
                             <p className="text-danger">{importError}</p>
                         </div>
-                            <Button
-                                color="primary"
-                                isLoading={importLoading}
-                                isDisabled={importLoading}
-                                onPress={importJobs}
-                            >{importLoading ? "Importing..." : "Import data"}</Button>
+                        <Button
+                            color="primary"
+                            isLoading={importLoading}
+                            isDisabled={importLoading}
+                            onPress={importJobs}
+                        >{importLoading ? "Importing..." : "Import data"}</Button>
                     </li>
 
                     <li className="inline-flex w-full max-w-full items-center justify-between rounded-lg gap-2 p-4 border-2 border-transparent">
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Export</p>
                             <p className="text-tiny text-default-400 max-w-md">
-                                Export your current data to a file. Make sure to store it safely. We’re not responsible for lost or corrupted files.
+                                Export your current data to a file. Make sure to store it safely. We’re not responsible
+                                for lost or corrupted files.
                             </p>
                             <p className="text-success">{exportSuccess}</p>
                             <p className="text-danger">{exportError}</p>

@@ -4,16 +4,14 @@ mod models;
 mod queries;
 mod utils;
 
+use commands::*;
 use db::{get_db_path, setup_database};
 use queries::*;
 use tauri::Builder;
 use utils::*;
-use commands::*;
 
 use tauri_plugin_dialog as dialog;
 use tauri_plugin_opener as opener;
-
-
 
 #[tokio::main]
 async fn main() {
@@ -54,6 +52,10 @@ async fn main() {
             import_jobs_json,
             import_jobs_csv,
             clear_database,
+            get_option,
+            set_option,
+            save_app_settings,
+            load_app_settings,
         ])
         .plugin(opener::init())
         .plugin(dialog::init())

@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS options
+(
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);

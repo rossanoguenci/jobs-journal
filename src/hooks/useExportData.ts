@@ -1,6 +1,7 @@
 import {useState, useCallback} from "react";
 import {invoke} from "@tauri-apps/api/core";
 import { save } from "@tauri-apps/plugin-dialog";
+import {debugLog} from "@utilities/devLog";
 
 export default function useExportData() {
     const [loading, setLoading] = useState(false);
@@ -35,7 +36,7 @@ export default function useExportData() {
             await invoke("export_jobs_json", { path: selectedPath });
             setSuccess("Jobs exported successfully.");
         } catch (err) {
-            console.error("Export error:", err);
+            debugLog("Export error:", err);
             setError("Failed to export jobs.");
         } finally {
             setLoading(false);
