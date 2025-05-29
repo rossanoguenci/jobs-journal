@@ -11,33 +11,16 @@ pub struct Database {
     pub pool: Arc<Mutex<SqlitePool>>,
 }
 
-#[cfg(feature = "dev")]
-pub fn get_db_path() -> String {
-    use std::env;
+pub async fn setup_database(app_dir_path: String, app_handle: AppHandle) -> Result<(), sqlx::Error> {
 
-    let current_dir = env::current_dir().expect("Failed to get current directory");
-
-    // Move up one level from `src-tauri/` to `jobs-journal/`
-    let project_root = current_dir.parent().expect("Failed to find project root");
-
-    let db_path = project_root
-        .join("src-tauri-dev-tools")
-        .join("dev_jobs_journal.db");
-
-    db_path.to_str().unwrap().to_string()
-}
-
-#[cfg(not(feature = "dev"))]
-pub fn get_db_path(app_handle: &AppHandle) -> String {
-    let base_dir = app_handle
-        .path()
-        .app_data_dir()
-        .expect("Failed to get app data directory");
-    let db_path = base_dir.join("jobs_journal.db");
-    db_path.to_str().unwrap().to_string()
-}
-
-pub async fn setup_database(db_path: String, app_handle: AppHandle) -> Result<(), sqlx::Error> {
+    #[cfg(feature = "dev")]
+    let db_name = "dev_jobs_journal.db";
+    
+    #[cfg(not(feature = "dev"))] 
+    let db_name = "jobs_journal.db";
+    
+    let db_path=app_dir_path.clone() + "/" + db_name;
+    
     let database_url = format!("sqlite://{}", db_path);
 
     crate::debug_log!("Database path: {}", db_path);
@@ -75,9 +58,7 @@ pub async fn setup_database(db_path: String, app_handle: AppHandle) -> Result<()
     app_handle.manage(Database {
         pool: Arc::new(Mutex::new(pool)),
     });
-
-
-    //todo: check from here
+    
     let app_handle_clone = app_handle.clone();
     
     async_runtime::spawn(async move {

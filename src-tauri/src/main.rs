@@ -5,7 +5,7 @@ mod queries;
 mod utils;
 
 use commands::*;
-use db::{get_db_path, setup_database};
+use db::setup_database;
 use queries::*;
 use tauri::Builder;
 use utils::*;
@@ -23,10 +23,10 @@ async fn main() {
             let app_handle = app.handle();
 
             #[cfg(feature = "dev")]
-            let db_path = get_db_path();
+            let db_path = paths::get_app_data_path();
 
             #[cfg(not(feature = "dev"))]
-            let db_path = get_db_path(app_handle);
+            let db_path = paths::get_app_data_path(app_handle);
 
             let app_handle_clone = app_handle.clone();
             tokio::spawn(async move {
