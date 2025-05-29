@@ -3,36 +3,63 @@ import {
     useContext,
     useEffect,
     ReactNode,
+    useMemo,
 } from "react";
-import useAppSettings from "@hooks/useAppSettings";
+import useOptions from "@hooks/useOptions";
 import {useTheme} from "next-themes";
 import {debugLog} from "@utilities/devLog";
+import {AppSettings} from "@/types/AppSettings";
 
-const AppSettingsContext = createContext<ReturnType<typeof useAppSettings> | undefined>(undefined);
+// Stable context type
+type AppSettingsContextType = {
+    settings: AppSettings | null;
+    loadSettings: () => Promise<void>;
+    saveSettings: (newValue: AppSettings) => Promise<void>;
+    loading: boolean;
+    loaded: boolean;
+    error: string | null;
+    success: string | null;
+};
+
+const AppSettingsContext = createContext<AppSettingsContextType | undefined>(undefined);
 
 export function AppSettingsProvider({children}: { children: ReactNode }) {
     const {
-        settings,
-        loadSettings,
+        value,
+        load,
+        save,
+        loading,
         loaded,
-        ...rest
-    } = useAppSettings();
+        error,
+        success,
+    } = useOptions<AppSettings>("app_settings");
+
     const {setTheme} = useTheme();
 
-    useEffect(() => {
-        loadSettings().then();
-    }, [loadSettings]);
+    const contextValue = useMemo<AppSettingsContextType>(() => ({
+        settings: value,
+        loadSettings: load,
+        saveSettings: save,
+        loading,
+        loaded,
+        error,
+        success,
+    }), [value, load, save, loading, loaded, error, success]);
 
     useEffect(() => {
-        if (loaded && settings?.theme) {
-            setTheme(settings.theme);
+        load().then();
+    }, [load]);
+
+    useEffect(() => {
+        if (loaded && value?.theme) {
+            setTheme(value.theme);
         }
-    }, [loaded, settings?.theme, setTheme]);
+    }, [loaded, value?.theme, setTheme]);
 
-    debugLog("AppSettingsContext: ", settings);
+    debugLog("AppSettingsProvider:", contextValue);
 
     return (
-        <AppSettingsContext.Provider value={{settings, loadSettings, loaded, ...rest}}>
+        <AppSettingsContext.Provider value={contextValue}>
             {children}
         </AppSettingsContext.Provider>
     );

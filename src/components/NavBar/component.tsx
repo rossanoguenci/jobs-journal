@@ -7,6 +7,7 @@ import {
 } from "@heroui/react";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownTrigger} from "@heroui/dropdown";
 import Icon from "@components/Icons";
+import {useUserContext} from "@contexts/UserContex";
 // import {useRouter} from "next/navigation";
 
 // import {useActionContext} from "@components/ActionProvider";
@@ -22,6 +23,8 @@ export default function Component() {
     /*const menuItems = [
         "Insert Application",
     ];*/
+
+    const {user} = useUserContext();
 
 
     return (
@@ -47,7 +50,7 @@ export default function Component() {
                         <Avatar
                             isBordered
                             as="button"
-                            name="U"
+                            name={user?.name}
                             size="sm"
                         />
                     </DropdownTrigger>
@@ -58,13 +61,11 @@ export default function Component() {
 
                         <DropdownItem
                             key="user" className="h-14 gap-2 cursor-default" isReadOnly>
-                            <p className="font-semibold">Hey there 👋</p>
+                            <p className="font-semibold">Hey {user?.name ? user.name :"there"} 👋</p>
                         </DropdownItem>
 
                         <DropdownItem key="profile_settings" startContent={<Icon name="jobsList" className="size-4"/>} href="/">Jobs
                             list</DropdownItem>
-
-                        {/*<DropdownItem key="profile_settings">My Profile</DropdownItem>*/}
 
                         <DropdownItem key="settings" startContent={<Icon name="settings" className="size-4"/>} href="/settings/">App
                             Settings</DropdownItem>

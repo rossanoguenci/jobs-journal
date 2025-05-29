@@ -7,8 +7,10 @@ import useExportData from "@hooks/useExportData";
 import useImportData from "@hooks/useImportData";
 import useClearDatabase from "@hooks/useClearDatabase";
 import {useAppSettingsContext} from "@contexts/AppSettingsContext";
+import {useUserContext} from "@contexts/UserContex";
 import {AppSettings} from "@/types/AppSettings";
 import {debugLog} from "@utilities/devLog";
+import User from "@components/User";
 
 export default function SettingsPage() {
 
@@ -18,6 +20,7 @@ export default function SettingsPage() {
     const {clearDatabase, loading: clearDBLoading, error: clearDBError, success: clearDBSuccess} = useClearDatabase();
 
     const {settings, saveSettings, loading: settingsLoading} = useAppSettingsContext();
+    const {user} = useUserContext();
 
     const handleThemeChange = (newTheme: AppSettings["theme"]) => {
         debugLog("handleThemeChange", "theme: ", theme, "to", newTheme, "settings: ", settings);
@@ -33,6 +36,9 @@ export default function SettingsPage() {
     return (
         <main className="wrapper" suppressHydrationWarning>
 
+            <section className="container">
+                {user ? <User data={user}/> : "No user data available. Please complete onboarding."}
+            </section>
             <section className="container">
                 <h2>Appearance</h2>
                 <ul className="">

@@ -54,8 +54,6 @@ async fn main() {
             clear_database,
             get_option,
             set_option,
-            save_app_settings,
-            load_app_settings,
         ])
         .plugin(opener::init())
         .plugin(dialog::init())

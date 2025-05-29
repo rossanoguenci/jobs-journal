@@ -1,21 +1,24 @@
-use tauri::State;
+use crate::commands::options::{get_option, set_option};
 use crate::db::Database;
-use crate::commands::options::{get_option_json, set_option_json};
 use crate::models::app_settings::AppSettings;
+use tauri::State;
 
 pub async fn ensure_default_settings(db: State<'_, Database>) -> Result<(), String> {
-    let db_ref = db.clone();
-    
-    let existing = get_option_json::<AppSettings>(db, "app_settings").await?;
+    let existing = get_option(db.clone(), "app_settings").await?;
 
     if existing.is_none() {
         crate::debug_log!("Creating default app settings");
-        
+
         let default = AppSettings {
             onboarding_complete: false,
             theme: "system".to_string(),
         };
-        set_option_json(db_ref, "app_settings", &default).await?;
+
+        // Convert to serde_json::Value
+        let default_json = serde_json::to_value(default)
+            .map_err(|e| format!("Failed to convert default settings to JSON: {}", e))?;
+        
+        set_option(db.clone(), "app_settings", default_json).await?;
     }
 
     Ok(())

@@ -15,6 +15,7 @@
         "title": "Jobs Journal - 0.1.4-alpha (development)",
         "width": 800,
         "height": 1000,
+        "minWidth": 400,
         "resizable": true,
         "fullscreen": false
       }

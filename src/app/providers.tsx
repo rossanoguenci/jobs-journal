@@ -6,6 +6,7 @@ import {ThemeProvider as NextThemesProvider} from "next-themes";
 import React from "react";
 import {useRouter} from "next/navigation";
 import {AppSettingsProvider} from "@/contexts/AppSettingsContext";
+import {UserProvider} from "@contexts/UserContex";
 
 declare module "@react-types/shared" {
     interface RouterConfig {
@@ -19,10 +20,12 @@ export function Providers({children}: { children: React.ReactNode }) {
     return (
         <HeroUIProvider navigate={router.push}>
             <AppSettingsProvider>
-                <ToastProvider/>
-                <NextThemesProvider attribute="class" defaultTheme="dark">
-                    {children}
-                </NextThemesProvider>
+                <UserProvider>
+                    <ToastProvider/>
+                    <NextThemesProvider attribute="class" defaultTheme="dark">
+                        {children}
+                    </NextThemesProvider>
+                </UserProvider>
             </AppSettingsProvider>
         </HeroUIProvider>
     )

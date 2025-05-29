@@ -1,0 +1,19 @@
+.container{
+  @apply flex md:flex-col md:justify-center items-center gap-5 md:text-center min-h-16 p-4;
+}
+
+.avatar{
+  @apply md:size-20;
+}
+
+.user_info{
+
+}
+
+.user_info_name{
+  @apply md:text-lg md:font-bold;
+}
+
+.user_info_role{
+  @apply text-sm md:text-medium text-gray-400;
+}
