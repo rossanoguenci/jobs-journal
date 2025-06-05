@@ -12,6 +12,7 @@
   "type": "module",
   "scripts": {
     "dev": "NEXT_PUBLIC_ENV=development pnpm tauri dev --features dev",
+    "dev-no-watcher": "NEXT_PUBLIC_ENV=development pnpm tauri dev --no-watch --features dev",
     "build": "NEXT_PUBLIC_ENV=production pnpm tauri build -- --no-default-features",
     "debug": "RUST_BACKTRACE=full pnpm tauri dev",
     "sync-config": "node scripts/sync-config.js"
@@ -23,6 +24,7 @@
     "@react-types/shared": "^3.29.1",
     "@tauri-apps/api": "^2.5.0",
     "@tauri-apps/plugin-dialog": "^2.2.2",
+    "@tauri-apps/plugin-fs": "^2.3.0",
     "@tauri-apps/plugin-opener": "^2.2.7",
     "@tauri-apps/plugin-shell": "^2.2.1",
     "date-fns": "^4.1.0",

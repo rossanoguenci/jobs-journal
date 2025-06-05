@@ -6,5 +6,5 @@ pub struct UserProfile {
     pub id: String,
     pub name: String,
     #[ts(optional)]
-    pub avatar: Option<String>,
+    pub color: Option<String>,
 }

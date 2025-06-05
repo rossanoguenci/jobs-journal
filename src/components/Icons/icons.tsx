@@ -18,18 +18,30 @@ import {ArchiveBoxXMarkIcon} from "@heroicons/react/24/solid";
 import {NewspaperIcon} from "@heroicons/react/24/solid";
 import {ChatBubbleLeftEllipsisIcon} from "@heroicons/react/24/outline";
 import {ArrowLeftIcon} from "@heroicons/react/24/solid";
+import {ArrowRightIcon} from "@heroicons/react/24/solid";
+import {ChevronRightIcon} from "@heroicons/react/24/solid";
 import {MapPinIcon} from "@heroicons/react/24/solid";
 import {BuildingOffice2Icon} from "@heroicons/react/24/solid";
 import {ArrowTopRightOnSquareIcon} from "@heroicons/react/24/solid";
 import {CubeTransparentIcon} from "@heroicons/react/24/solid";
 import {CubeIcon} from "@heroicons/react/24/solid";
 import GitHub from "./svg/GitHub";
+import {ArrowDownOnSquareStackIcon} from "@heroicons/react/24/solid";
+import {ArrowUpOnSquareStackIcon} from "@heroicons/react/24/solid";
+import {TrashIcon} from "@heroicons/react/24/solid";
+import {SunIcon} from "@heroicons/react/24/solid";
+import {MoonIcon} from "@heroicons/react/24/solid";
+import {UserIcon} from "@heroicons/react/24/solid";
+import {PhotoIcon} from "@heroicons/react/24/solid";
+import {XCircleIcon} from "@heroicons/react/24/solid";
 
 const Icons = {
     default: CubeTransparentIcon,
     addEvent: PlusCircleIcon,
     archive: ArchiveBoxArrowDownIcon,
     arrowBack: ArrowLeftIcon,
+    arrowForward: ArrowRightIcon,
+    arrowNext: ChevronRightIcon,
     chevronDown: ChevronDownIcon,
     company: BuildingOffice2Icon,
     edit: PencilSquareIcon,
@@ -52,7 +64,15 @@ const Icons = {
     withdrawn: XMarkIcon,
     build: BuildingOffice2Icon,
     version: CubeIcon,
-    gitHub: GitHub
+    gitHub: GitHub,
+    import: ArrowDownOnSquareStackIcon,
+    export: ArrowUpOnSquareStackIcon,
+    clear: TrashIcon,
+    sun: SunIcon,
+    moon: MoonIcon,
+    user: UserIcon,
+    image: PhotoIcon,
+    delete: XCircleIcon,
 
 } as const;
 

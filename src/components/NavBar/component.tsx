@@ -7,7 +7,9 @@ import {
 } from "@heroui/react";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownTrigger} from "@heroui/dropdown";
 import Icon from "@components/Icons";
-import {useUserContext} from "@contexts/UserContex";
+import {useUserContext} from "@contexts/UserContext";
+import User from "../UserProfile/User";
+import {HeroColor} from "@/types/HeroColor";
 // import {useRouter} from "next/navigation";
 
 // import {useActionContext} from "@components/ActionProvider";
@@ -24,7 +26,7 @@ export default function Component() {
         "Insert Application",
     ];*/
 
-    const {user} = useUserContext();
+    const {user, avatarDataUrl} = useUserContext();
 
 
     return (
@@ -47,12 +49,21 @@ export default function Component() {
             <NavbarContent as="div" justify="end">
                 <Dropdown placement="bottom-end" backdrop="blur">
                     <DropdownTrigger>
+
                         <Avatar
+                            src={avatarDataUrl ?? undefined}
                             isBordered
                             as="button"
                             name={user?.name}
                             size="sm"
+                            color={user?.color as HeroColor}
                         />
+
+                        {/*
+                        //Cannot use the user component as a trigger for now because a known issue with the dropdown menu
+                        <User size="sm" iconOnly as="button"/>
+                        */}
+
                     </DropdownTrigger>
                     <DropdownMenu
                         aria-label="Profile Actions"
@@ -61,20 +72,23 @@ export default function Component() {
 
                         <DropdownItem
                             key="user" className="h-14 gap-2 cursor-default" isReadOnly>
-                            <p className="font-semibold">Hey {user?.name ? user.name :"there"} 👋</p>
+                            <p className="font-semibold">Hey {user?.name ? user.name : "there"} 👋</p>
                         </DropdownItem>
 
-                        <DropdownItem key="profile_settings" startContent={<Icon name="jobsList" className="size-4"/>} href="/">Jobs
+                        <DropdownItem key="profile_settings" startContent={<Icon name="jobsList" className="size-4"/>}
+                                      href="/">Jobs
                             list</DropdownItem>
 
-                        <DropdownItem key="settings" startContent={<Icon name="settings" className="size-4"/>} href="/settings/">App
+                        <DropdownItem key="settings" startContent={<Icon name="settings" className="size-4"/>}
+                                      href="/settings/">App
                             Settings</DropdownItem>
 
                         {/*<DropdownItem key="analytics">Analytics</DropdownItem>*/}
 
                         {/*<DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>*/}
 
-                        <DropdownItem key="about" href="/about/" startContent={<Icon name="info" className="size-4"/>}>About & Legal</DropdownItem>
+                        <DropdownItem key="about" href="/about/" startContent={<Icon name="info" className="size-4"/>}>About
+                            & Legal</DropdownItem>
 
                     </DropdownMenu>
                 </Dropdown>

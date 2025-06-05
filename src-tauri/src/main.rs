@@ -12,6 +12,7 @@ use utils::*;
 
 use tauri_plugin_dialog as dialog;
 use tauri_plugin_opener as opener;
+use tauri_plugin_fs as fileSystem;
 
 #[tokio::main]
 async fn main() {
@@ -20,15 +21,11 @@ async fn main() {
 
     Builder::default()
         .setup(|app| {
-            let app_handle = app.handle();
+            paths::set_app_handle(app.handle().clone());
 
-            #[cfg(feature = "dev")]
             let db_path = paths::get_app_data_path();
 
-            #[cfg(not(feature = "dev"))]
-            let db_path = paths::get_app_data_path(app_handle);
-
-            let app_handle_clone = app_handle.clone();
+            let app_handle_clone = app.handle().clone();
             tokio::spawn(async move {
                 if let Err(err) = setup_database(db_path, app_handle_clone).await {
                     eprintln!("Database setup failed: {:?}", err);
@@ -54,9 +51,13 @@ async fn main() {
             clear_database,
             get_option,
             set_option,
+            load_avatar,
+            save_avatar,
+            delete_avatar,
         ])
         .plugin(opener::init())
         .plugin(dialog::init())
+        .plugin(fileSystem::init())
         .run(tauri::generate_context!())
         .expect("Error running application");
 }

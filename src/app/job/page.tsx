@@ -26,6 +26,7 @@ import StatusChip from "@components/StatusChip";
 import Note from "@components/Applications/Note";
 import InsertEditNote from "@components/Applications/Forms/InsertEditNote";
 import Icon from "@components/Icons";
+import BackButton from "@components/BackButton";
 
 
 export default function JobDetailsPage() {
@@ -143,10 +144,7 @@ export default function JobDetailsPage() {
     return (
         <main className="wrapper">
 
-            {/* Back Button */}
-            <Button className="mb-5" onPress={() => router.push("/")} size="sm" variant="flat" color="default">
-                <Icon name="arrowBack"/> Back to the list
-            </Button>
+            <BackButton title="Back to the list" />
 
             {error ? (<div className="error">{error}</div>) : (
                 <div className="container">

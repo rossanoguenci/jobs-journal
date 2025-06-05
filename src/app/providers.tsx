@@ -6,7 +6,7 @@ import {ThemeProvider as NextThemesProvider} from "next-themes";
 import React from "react";
 import {useRouter} from "next/navigation";
 import {AppSettingsProvider} from "@/contexts/AppSettingsContext";
-import {UserProvider} from "@contexts/UserContex";
+import {UserProvider} from "@contexts/UserContext";
 
 declare module "@react-types/shared" {
     interface RouterConfig {

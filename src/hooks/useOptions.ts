@@ -35,7 +35,7 @@ export default function useOptions<T = unknown>(key: string) {
 
         try {
             await invoke("set_option", {key, value: newValue});
-            setValue(newValue);
+            load().then();
             setSuccess("Option saved.");
             debugLog("Option saved:", newValue);
         } catch (err) {
