@@ -2,25 +2,41 @@
 
 import React, {useEffect, useRef, useState} from "react";
 // import Props from './props.types';
+import {Button, Input, Form} from "@heroui/react"
 import style from "./style.module.scss";
 
-import {Button, Input, Form} from "@heroui/react"
-
+import Icon from "@components/Icons";
+import User from "@components/Settings/UserProfile/User";
+import {useUserStore} from "@stores/useUserStore";
+import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
 import {useModal} from "@components/GlobalModal/ModalContext";
 import {addToast} from "@heroui/toast";
-import {debugLog} from "@utilities/devLog";
-import {useUserContext} from "@contexts/UserContext";
-import User from "@components/UserProfile/User";
 import {UserProfile} from "@/types/UserProfile";
 import {allowedColors, HeroColor} from "@/types/HeroColor";
 import getJsonDiff from "@utilities/getJsonDiff";
-import {useSubmitWithStatus} from "@hooks/useSubmitWithStatus";
-import Icon from "@components/Icons";
+import {debugLog} from "@utilities/devLog";
 
+
+const default_size = "md";
+
+/**
+ * User profile editor component that allows creating new profiles or editing existing ones.
+ * 
+ * Features:
+ * - Avatar management (upload, view, delete)
+ * - Profile colour selection
+ * - Name editing
+ * - Form validation with toast notifications
+ * 
+ * Renders different UI based on whether the user exists (edit mode) or not (create mode).
+ * Integrates with a modal system for display and dismissal.
+ */
 export default function Component() {
-    const {user, saveUser, uploadAvatar, deleteAvatar, avatarDataUrl} = useUserContext();
+    const user = useUserStore((s) => s.user);
+    const avatarDataUrl = useUserStore((s) => s.avatar);
+    const {...userOptions} = useGlobalSettingsContext();
 
-    const {...useSubmit} = useSubmitWithStatus(saveUser);
+    const {uploadAvatar, deleteAvatar} = useGlobalSettingsContext();
 
     const [warning, setWarning] = useState<string | null>(null);
 
@@ -29,7 +45,13 @@ export default function Component() {
 
     const [userColorSelector, setUserColorSelector] = useState<HeroColor>((user?.color ?? "default") as HeroColor);
 
-    /*On Submit*/
+    /**
+     * Handles form submission for user profile updates.
+     * Compares form data with current user data to detect changes.
+     * Shows warning if no changes are detected, otherwise saves profile.
+     * 
+     * @param e - Form submission event
+     */
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setWarning(null);
@@ -42,49 +64,53 @@ export default function Component() {
             newUserData.color = userColorSelector;
         }
 
-        debugLog('current user', user);
-        debugLog('userForm', formData);
+        debugLog('onSubmit: current user', user);
+        debugLog('onSubmit: userForm', formData);
 
         if (Object.keys(newUserData).length === 0) {
+            debugLog("onSubmit: No changes detected");
             setWarning("No changes detected");
             return;
         }
 
-        await useSubmit.submit(newUserData as UserProfile);
-
+        await userOptions.saveUserProfile(newUserData as UserProfile)
     };
 
+    /**
+     * Handles notifications and post-operation actions.
+     * Displays toast messages for errors, warnings, and success states.
+     * Closes modal and reloads user data after a successful profile update.
+     */
     useEffect(() => {
-        if (useSubmit.error || useSubmit.success || warning) {
+        if (userOptions.error || userOptions.success || warning) {
             addToast({
-                title: useSubmit.error ? "Error" : warning ? "Warning" : "Success",
-                description: useSubmit.error || warning || useSubmit.success || "",
-                color: useSubmit.error ? "danger" : warning ? "warning" : "success",
+                title: userOptions.error ? "Error" : warning ? "Warning" : "Success",
+                description: userOptions.error || warning || userOptions.success || "",
+                color: userOptions.error ? "danger" : warning ? "warning" : "success",
             });
         }
 
-        if (useSubmit.success) { //Updated
+        if (userOptions.success) { //Updated
+            debugLog("onSuccess: userOptions.success", userOptions.success);
+            userOptions.reload();
             closeModal();
         }
 
-    }, [useSubmit.error, useSubmit.success, warning, closeModal]);
-
-
-    const default_size = "md";
+    }, [userOptions.error, userOptions.success, warning, closeModal, user, userOptions]);
 
     return (
         <>
             <div className="relative flex justify-center w-full mt-6">
                 <div className="relative group w-fit">
                     {/* Avatar (base layer) */}
-                    <User variant="full" color={userColorSelector} iconOnly />
+                    <User variant="full" color={userColorSelector} iconOnly/>
 
                     {/* Hover overlay button (upload) */}
                     <button
                         onClick={uploadAvatar}
                         className="absolute inset-0 z-10 flex items-center justify-center rounded-full bg-gray-500 bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     >
-                        <Icon name="image" className="w-6 h-6 text-white" />
+                        <Icon name="image" className="w-6 h-6 text-white"/>
                     </button>
 
                     {/* Delete button (top-right corner) */}
@@ -93,7 +119,7 @@ export default function Component() {
                             onClick={deleteAvatar}
                             className="absolute -top-1 -right-1 z-20 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition-colors duration-200"
                         >
-                            <Icon name="delete" className="w-3 h-3" />
+                            <Icon name="delete" className="w-3 h-3"/>
                         </button>
                     )}
                 </div>
@@ -153,9 +179,9 @@ export default function Component() {
                                 size={default_size}
                                 radius={default_size}
                                 type="submit"
-                                isLoading={useSubmit.loading}
-                                disabled={useSubmit.loading}
-                            >{useSubmit.loading ? "Is updating..." : "Update"}
+                                isLoading={userOptions.loading}
+                                disabled={userOptions.loading}
+                            >{userOptions.loading ? "Is updating..." : "Update"}
                             </Button>
 
                             <Button
@@ -175,9 +201,9 @@ export default function Component() {
                                 size={default_size}
                                 radius={default_size}
                                 type="submit"
-                                isLoading={useSubmit.loading}
-                                disabled={useSubmit.loading}
-                            >{useSubmit.loading ? "Inserting..." : "Insert"}
+                                isLoading={userOptions.loading}
+                                disabled={userOptions.loading}
+                            >{userOptions.loading ? "Inserting..." : "Insert"}
                             </Button>
 
                             <Button

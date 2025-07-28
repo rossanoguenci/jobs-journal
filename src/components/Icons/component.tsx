@@ -1,13 +1,13 @@
 import { FC } from 'react';
-import Icons from './icons';
+import icons from './icons';
 import type { IconProps } from './props.types';
 
 const default_size = 'size-4';
 
 const Component: FC<IconProps> = ({ name = 'default', className = '' }) => {
-    const iconKey = name in Icons ? name : 'default';
+    const iconKey = name in icons ? name : 'default';
 
-    const Icon = Icons[iconKey];
+    const Icon = icons[iconKey];
 
     if (!Icon) return null;
 

@@ -7,36 +7,22 @@ import {
 } from "@heroui/react";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownTrigger} from "@heroui/dropdown";
 import Icon from "@components/Icons";
-import {useUserContext} from "@contexts/UserContext";
-import User from "../UserProfile/User";
 import {HeroColor} from "@/types/HeroColor";
+import {useUserStore} from "@stores/useUserStore";
 // import {useRouter} from "next/navigation";
 
-// import {useActionContext} from "@components/ActionProvider";
-// import {Avatar} from "@heroui/avatar";
 
-
-export default function Component() {
-    // const router = useRouter();
-    // const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
-    // const {setActiveAction} = useActionContext();
-
-    /*const menuItems = [
+/*const menuItems = [
         "Insert Application",
     ];*/
 
-    const {user, avatarDataUrl} = useUserContext();
-
+export default function Component() {
+    const user = useUserStore((s) => s.user);
+    const avatarDataUrl = useUserStore((s) => s.avatar);
 
     return (
-        <Navbar isBordered /*onMenuOpenChange={setIsMenuOpen}*/>
+        <Navbar isBordered>
             <NavbarContent>
-
-                {/*<NavbarMenuToggle
-                    aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-                    className="sm:hidden"
-                />*/}
 
                 <NavbarBrand>
                     <div className="flex items-center justify-between flex-col">
@@ -113,6 +99,5 @@ export default function Component() {
 
 
         </Navbar>
-    )
-        ;
+    );
 }

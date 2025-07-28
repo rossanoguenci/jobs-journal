@@ -34,8 +34,10 @@ import {MoonIcon} from "@heroicons/react/24/solid";
 import {UserIcon} from "@heroicons/react/24/solid";
 import {PhotoIcon} from "@heroicons/react/24/solid";
 import {XCircleIcon} from "@heroicons/react/24/solid";
+import {CalendarDateRangeIcon} from "@heroicons/react/24/solid";
+import {PlusIcon} from "@heroicons/react/24/solid";
 
-const Icons = {
+const icons = {
     default: CubeTransparentIcon,
     addEvent: PlusCircleIcon,
     archive: ArchiveBoxArrowDownIcon,
@@ -73,7 +75,9 @@ const Icons = {
     user: UserIcon,
     image: PhotoIcon,
     delete: XCircleIcon,
+    calendarRange: CalendarDateRangeIcon,
+    addNew: PlusIcon,
 
 } as const;
 
-export default Icons;
+export default icons;

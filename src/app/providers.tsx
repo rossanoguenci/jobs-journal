@@ -5,8 +5,7 @@ import {ToastProvider} from "@heroui/toast";
 import {ThemeProvider as NextThemesProvider} from "next-themes";
 import React from "react";
 import {useRouter} from "next/navigation";
-import {AppSettingsProvider} from "@/contexts/AppSettingsContext";
-import {UserProvider} from "@contexts/UserContext";
+import {GlobalSettingsProvider} from "@contexts/GlobalSettingsContext";
 
 declare module "@react-types/shared" {
     interface RouterConfig {
@@ -17,16 +16,15 @@ declare module "@react-types/shared" {
 export function Providers({children}: { children: React.ReactNode }) {
     const router = useRouter();
 
+
     return (
-        <HeroUIProvider navigate={router.push}>
-            <AppSettingsProvider>
-                <UserProvider>
-                    <ToastProvider/>
-                    <NextThemesProvider attribute="class" defaultTheme="dark">
-                        {children}
-                    </NextThemesProvider>
-                </UserProvider>
-            </AppSettingsProvider>
-        </HeroUIProvider>
+        <GlobalSettingsProvider>
+            <HeroUIProvider navigate={router.push}>
+                <ToastProvider/>
+                <NextThemesProvider attribute="class" defaultTheme="dark">
+                    {children}
+                </NextThemesProvider>
+            </HeroUIProvider>
+        </GlobalSettingsProvider>
     )
 }
