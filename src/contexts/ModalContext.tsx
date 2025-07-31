@@ -1,5 +1,6 @@
 'use client';
-import {createContext, useContext, useState, ReactNode} from 'react';
+
+import React, {createContext, useContext, useState, ReactNode} from 'react';
 
 type ModalContextType = {
     openModal: (content: ReactNode, onCloseCallback?: () => void) => void;

@@ -5,7 +5,7 @@ import React from "react";
 import styles from "./styles.module.scss";
 import {Button} from "@heroui/react";
 
-import { useModal } from './ModalContext';
+import { useModal } from '@contexts/ModalContext';
 
 
 

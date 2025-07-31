@@ -5,7 +5,7 @@ import React, {useEffect} from "react";
 import style from "./style.module.scss";
 import {Button, DatePicker, Input, Form,} from "@heroui/react"
 import {getLocalTimeZone, today} from "@internationalized/date";
-import {useModal} from "@components/GlobalModal/ModalContext";
+import {useModal} from "@contexts/ModalContext";
 import useInsertJobEvent from "@hooks/useInsertJobEvent";
 import {addToast} from "@heroui/toast";
 import {JobEvent} from "@/types/JobEvent";

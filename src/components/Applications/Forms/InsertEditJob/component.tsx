@@ -8,7 +8,7 @@ import {Button, DatePicker, Input, Form, Autocomplete, AutocompleteItem} from "@
 
 // import {JobEntry} from "@/types/JobEntry";
 import {parseDate, getLocalTimeZone, today} from "@internationalized/date";
-import {useModal} from "@components/GlobalModal/ModalContext";
+import {useModal} from "@contexts/ModalContext";
 import locations from "@config/locations";
 import {addToast} from "@heroui/toast";
 import {useUpsertJob} from "@hooks/useUpsertJob";

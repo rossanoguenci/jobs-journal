@@ -30,6 +30,7 @@ export default function useOptions<T = unknown>(key: string) {
 
     const load = useCallback(async () => {
         debugLog(`load(${key})`);
+
         setLoading(true);
         setError(null);
         setSuccess(null);
@@ -49,22 +50,25 @@ export default function useOptions<T = unknown>(key: string) {
 
     const save = useCallback(async (newValue: T) => {
         debugLog(`save(${key}):`, newValue);
+
         setLoading(true);
         setError(null);
         setSuccess(null);
 
         try {
             await invoke("set_option", {key, value: newValue});
-            debugLog("Option saved:", newValue);
-            setSuccess("Option saved.");
-            setValue(newValue);
+
+            const result = await invoke<T>("get_option", {key});
+            setValue(result);
+
+            setSuccess("Option saved & loaded.");
         } catch (err) {
             errorLog("Save option error:", err);
             setError("Failed to save option.");
         } finally {
             setLoading(false);
         }
-    }, [key, setValue]);
+    }, [key]);
 
     return {
         value,

@@ -9,7 +9,7 @@ import Icon from "@components/Icons";
 import User from "@components/Settings/UserProfile/User";
 import {useUserStore} from "@stores/useUserStore";
 import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
-import {useModal} from "@components/GlobalModal/ModalContext";
+import {useModal} from "@contexts/ModalContext";
 import {addToast} from "@heroui/toast";
 import {UserProfile} from "@/types/UserProfile";
 import {allowedColors, HeroColor} from "@/types/HeroColor";
@@ -66,6 +66,7 @@ export default function Component() {
 
         debugLog('onSubmit: current user', user);
         debugLog('onSubmit: userForm', formData);
+        debugLog('onSubmit: newUserData', newUserData);
 
         if (Object.keys(newUserData).length === 0) {
             debugLog("onSubmit: No changes detected");
@@ -82,21 +83,21 @@ export default function Component() {
      * Closes modal and reloads user data after a successful profile update.
      */
     useEffect(() => {
-        if (userOptions.error || userOptions.success || warning) {
+        if (userOptions.userError || userOptions.userSuccess || warning) {
             addToast({
-                title: userOptions.error ? "Error" : warning ? "Warning" : "Success",
-                description: userOptions.error || warning || userOptions.success || "",
-                color: userOptions.error ? "danger" : warning ? "warning" : "success",
+                title: userOptions.userError ? "Error" : warning ? "Warning" : "Success",
+                description: userOptions.userError || warning || userOptions.userSuccess || "",
+                color: userOptions.userError ? "danger" : warning ? "warning" : "success",
             });
         }
 
-        if (userOptions.success) { //Updated
-            debugLog("onSuccess: userOptions.success", userOptions.success);
-            userOptions.reload();
+        if (userOptions.userSuccess) { //Updated
+            debugLog("onSuccess: userOptions.success", userOptions.userSuccess);
+            userOptions.userReload().then();
             closeModal();
         }
 
-    }, [userOptions.error, userOptions.success, warning, closeModal, user, userOptions]);
+    }, [userOptions.userError, userOptions.userSuccess, warning, closeModal, user, userOptions]);
 
     return (
         <>
@@ -179,9 +180,9 @@ export default function Component() {
                                 size={default_size}
                                 radius={default_size}
                                 type="submit"
-                                isLoading={userOptions.loading}
-                                disabled={userOptions.loading}
-                            >{userOptions.loading ? "Is updating..." : "Update"}
+                                isLoading={userOptions.userLoading}
+                                disabled={userOptions.userLoading}
+                            >{userOptions.userLoading ? "Is updating..." : "Update"}
                             </Button>
 
                             <Button
@@ -201,9 +202,9 @@ export default function Component() {
                                 size={default_size}
                                 radius={default_size}
                                 type="submit"
-                                isLoading={userOptions.loading}
-                                disabled={userOptions.loading}
-                            >{userOptions.loading ? "Inserting..." : "Insert"}
+                                isLoading={userOptions.userLoading}
+                                disabled={userOptions.userLoading}
+                            >{userOptions.userLoading ? "Inserting..." : "Insert"}
                             </Button>
 
                             <Button

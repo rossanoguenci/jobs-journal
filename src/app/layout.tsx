@@ -6,7 +6,7 @@ import {GeistSans} from 'geist/font/sans';
 import {GeistMono} from 'geist/font/mono';
 import React from "react";
 import NavBar from "@components/NavBar/component";
-import {ModalProvider} from "@components/GlobalModal/ModalContext";
+import {ModalProvider} from "@contexts/ModalContext";
 import GlobalModal from "@components/GlobalModal";
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {

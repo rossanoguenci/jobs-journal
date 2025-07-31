@@ -3,7 +3,7 @@ import Props from './props.types';
 import styles from "./styles.module.scss";
 import {Form, Textarea, Button} from "@heroui/react";
 import {addToast} from "@heroui/toast";
-import {useModal} from "@components/GlobalModal/ModalContext";
+import {useModal} from "@contexts/ModalContext";
 import {useUpsertJob} from "@hooks/useUpsertJob";
 import {JobUpdate} from "@/types/JobUpdate";
 import {JobEntry} from "@/types/JobEntry";

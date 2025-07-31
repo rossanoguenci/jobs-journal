@@ -4,7 +4,7 @@ import React, {useEffect, useState} from "react";
 // import Props from './props.types';
 import style from "./style.module.scss";
 import {Button, Form, Selection} from "@heroui/react"
-import {useModal} from "@components/GlobalModal/ModalContext";
+import {useModal} from "@contexts/ModalContext";
 import {Select, SelectItem} from "@heroui/select";
 import jobStatusOptions from "@config/jobStatusOptions";
 import {JobUpdate} from "@/types/JobUpdate";

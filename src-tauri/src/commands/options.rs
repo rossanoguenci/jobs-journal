@@ -1,14 +1,11 @@
-use tauri::State;
 use crate::db::Database;
 use serde_json::Value;
 use sqlx::Row;
+use tauri::State;
 
 /// Unified get_option: returns JSON Value
 #[tauri::command]
-pub async fn get_option(
-    db: State<'_, Database>,
-    key: &str,
-) -> Result<Option<Value>, String> {
+pub async fn get_option(db: State<'_, Database>, key: &str) -> Result<Option<Value>, String> {
     let pool = db.pool.lock().await;
     let result = sqlx::query("SELECT value FROM options WHERE key = ?")
         .bind(&key)
@@ -16,9 +13,18 @@ pub async fn get_option(
         .await
         .map_err(|e| format!("DB error: {}", e))?;
 
+    crate::debug_log!("get_option() - Result for key {:?} : {:?} ", key, if result.is_some() { "Some(row)" } else { "None" });
+
     match result {
         Some(row) => {
             let raw: String = row.get("value");
+
+            crate::debug_log!(
+            "Result for key '{:?}' -> Some(value: {:?})",
+            key, raw
+        );
+
+
             serde_json::from_str(&raw)
                 .map(Some)
                 .map_err(|e| format!("Deserialization error: {}", e))
@@ -27,13 +33,15 @@ pub async fn get_option(
     }
 }
 
-/// Unified set_option: stores anything as JSON string
+/// Unified set_option: stores anything as a JSON string
 #[tauri::command]
-pub async fn set_option(
-    db: State<'_, Database>,
-    key: &str,
-    value: Value,
-) -> Result<(), String> {
+pub async fn set_option(db: State<'_, Database>, key: &str, value: Value) -> Result<(), String> {
+    crate::debug_log!(
+        "set_option() - Updating DB with data: {{key: {:?}, value: {:?}}}",
+        key,
+        value
+    );
+
     let pool = db.pool.lock().await;
 
     let existing = sqlx::query("SELECT value FROM options WHERE key = ?")
@@ -44,8 +52,8 @@ pub async fn set_option(
 
     let merged_value = if let Some(row) = existing {
         let raw: String = row.get("value");
-        let mut existing_json: Value = serde_json::from_str(&raw)
-            .map_err(|e| format!("Deserialization error: {}", e))?;
+        let mut existing_json: Value =
+            serde_json::from_str(&raw).map_err(|e| format!("Deserialization error: {}", e))?;
 
         match (&mut existing_json, &value) {
             (Value::Object(existing_obj), Value::Object(new_obj)) => {
@@ -61,6 +69,8 @@ pub async fn set_option(
     };
 
     let json_str = merged_value.to_string();
+
+    crate::debug_log!("set_option() - json_str: {:?}", json_str);
 
     sqlx::query("INSERT OR REPLACE INTO options (key, value) VALUES (?, ?)")
         .bind(key)

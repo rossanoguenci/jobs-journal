@@ -5,12 +5,16 @@ import {AppSettings} from "@/types/AppSettings";
 type OptionsState = {
     appSettings: AppSettings | null
     jobPeriods: JobPeriod[]
+}
 
-    setAppSettings: (settings: AppSettings) => void
+type OptionsActions = {
+    setAppSettings: (settings: AppSettings | null) => void
     setJobPeriods: (periods: JobPeriod[]) => void
 }
 
-export const useAppSettingsStore = create<OptionsState>((set) => ({
+type OptionsStore = OptionsState & OptionsActions
+
+export const useAppSettingsStore = create<OptionsStore>((set) => ({
     appSettings: null,
     jobPeriods: [],
 
