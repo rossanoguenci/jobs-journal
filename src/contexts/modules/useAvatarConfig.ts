@@ -1,26 +1,21 @@
 import {useUserStore} from "@stores/useUserStore";
 import useAvatar from "@hooks/useAvatar";
 import {debugLog} from "@utilities/devLog";
-import {useEffect} from "react";
 
-export function useAvatarSettings() {
+export function useAvatarConfig() {
     const avatar = useUserStore((s) => s.avatar);
     const setAvatar = useUserStore((s) => s.setAvatar);
     const avatarHook = useAvatar();
 
-    useEffect(() => {
-        debugLog("Avatar: loading...", avatar);
+    async function init(){
+        if(avatar) return;
 
-        if (!avatar) {
-            debugLog("Avatar: undefined, loading...");
-            avatarHook.loadAvatar().then(() => {
-                debugLog("Avatar: loaded", avatarHook.avatarDataUrl);
-                setAvatar(avatarHook.avatarDataUrl);
-            });
-        }
-    }, [avatar, avatarHook, setAvatar])
+        await avatarHook.loadAvatar();
+        setAvatar(avatarHook.avatarDataUrl);
+    }
 
     return {
+        init,
         avatarDataUrl: avatarHook.avatarDataUrl,
         avatarLoading: avatarHook.loading,
         avatarError: avatarHook.error,

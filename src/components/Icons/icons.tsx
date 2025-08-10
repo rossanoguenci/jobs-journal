@@ -77,6 +77,7 @@ const icons = {
     delete: XCircleIcon,
     calendarRange: CalendarDateRangeIcon,
     addNew: PlusIcon,
+    close: XMarkIcon,
 
 } as const;
 

@@ -18,6 +18,5 @@ pub struct JobInsert {
     #[ts(optional)]
     pub insert_status: Option<String>,
     #[sqlx(json)]
-    #[ts(optional)]
-    pub meta: Option<JobEntryMeta>,
+    pub meta: JobEntryMeta,
 }

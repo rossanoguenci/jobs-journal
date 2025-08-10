@@ -6,25 +6,30 @@ import {Button} from "@heroui/button";
 import useExportData from "@hooks/useExportData";
 import useImportData from "@hooks/useImportData";
 import useClearDatabase from "@hooks/useClearDatabase";
-import {useAppSettingsContext} from "@contexts/AppSettingsContext";
-import {useUserContext} from "@contexts/UserContext";
 import {AppSettings} from "@/types/AppSettings";
 import {debugLog} from "@utilities/devLog";
-import User from "@components/UserProfile/User";
+import User from "@components/Settings/UserProfile/User";
 import Icon from "@components/Icons";
 import {Section, SectionItemList, SectionList} from "@components/Sections";
-import InsertEditUserDetails from "@components/UserProfile/InsertEditUserDetails";
-import {useModal} from "@components/GlobalModal/ModalContext";
+import InsertEditUserDetails from "@components/Settings/UserProfile/InsertEditUserDetails";
+import {useModal} from "@contexts/ModalContext";
+import {ManagePeriod, UpsertPeriod} from "@components/Settings/Periods";
+import {useJobPeriodsStore} from "@stores/useJobPeriodsStore";
+import {useUserStore} from "@stores/useUserStore";
+import {useSettingsStore} from "@stores/useSettingsStore";
+import dateFormat from "@utilities/dateFormat";
 
 export default function SettingsPage() {
+    const {theme, setTheme} = useTheme(); //todo: to be included in GlobalSettings
 
-    const {theme, setTheme} = useTheme();
-    const {exportJobs, loading: exportLoading, error: exportError, success: exportSuccess} = useExportData();
-    const {importJobs, loading: importLoading, error: importError, success: importSuccess} = useImportData();
-    const {clearDatabase, loading: clearDBLoading, error: clearDBError, success: clearDBSuccess} = useClearDatabase();
+    const exportData = useExportData();
+    const importData = useImportData();
+    const clearDatabase = useClearDatabase();
 
-    const {settings, saveSettings, loading: settingsLoading} = useAppSettingsContext();
-    const {loaded: userLoaded} = useUserContext();
+    const settings = useSettingsStore(s => s.appSettings);
+    const user = useUserStore(s => s.user);
+
+    const {jobPeriodsList, selectedJobPeriodID, getSelectedJobPeriodItem} = useJobPeriodsStore()
 
     const {openModal} = useModal();
 
@@ -32,11 +37,21 @@ export default function SettingsPage() {
         debugLog("handleThemeChange", "theme: ", theme, "to", newTheme, "settings: ", settings);
 
         setTheme(newTheme); // Updates the actual theme
-        if (settings) {
+        /*if (settings) {
             debugLog("handleThemeChange", "settings: ", settings);
             saveSettings({...settings, theme: newTheme}).then();  // Persist
-        }
+        }*/
     };
+
+    const periodRangeText = () => {
+        const item = getSelectedJobPeriodItem()!
+        if (!selectedJobPeriodID || !item) return "No period selected or available."
+
+        const start = item.start ? dateFormat(item.start) : "N/A"
+        const end = item.end ? dateFormat(item.end) : "present"
+
+        return `Current period selected: ${start} - ${end}`
+    }
 
 
     return (
@@ -46,13 +61,50 @@ export default function SettingsPage() {
             <Section title="Profile">
                 <SectionList>
                     <SectionItemList>
-                        {userLoaded ? <User size="lg" variant="compact"/> :
+                        {user ? <User size="lg" variant="compact"/> :
                             <p>No user data available. Please click here to complete onboarding</p>}
 
                         <Button
                             color="primary"
-                            onPress={() => {openModal(<InsertEditUserDetails/>)}}
+                            onPress={() => {
+                                openModal(<InsertEditUserDetails/>)
+                            }}
                         ><Icon name="user"/>Edit profile</Button>
+                    </SectionItemList>
+                </SectionList>
+            </Section>
+
+            <Section title="Job hunting">
+                <SectionList>
+
+                    <SectionItemList>
+                        <div className="flex flex-col gap-1">
+                            <p className="text-medium">Periods</p>
+                            <p className="text-tiny text-default-400 max-w-md">
+                                Manage the list of periods saved.<br/>{periodRangeText()}
+                            </p>
+                        </div>
+                        <Button
+                            color="primary"
+                            onPress={() => {
+                                openModal(<ManagePeriod/>)
+                            }}
+                            isDisabled={jobPeriodsList ? jobPeriodsList.length === 0 : true}
+                        ><Icon name="calendarRange"/> Manage periods</Button>
+                    </SectionItemList>
+
+                    <SectionItemList>
+                        <div className="flex flex-col gap-1">
+                            <p className="text-tiny text-default-400 max-w-md">
+                                Create a new period
+                            </p>
+                        </div>
+                        <Button
+                            color="primary"
+                            onPress={() => {
+                                openModal(<UpsertPeriod/>)
+                            }}
+                        ><Icon name="addNew"/> Add new period</Button>
                     </SectionItemList>
                 </SectionList>
             </Section>
@@ -66,18 +118,18 @@ export default function SettingsPage() {
                                 Switch to light or dark mode. The current theme is {theme}
                             </p>
                         </div>
-                            <Switch
-                                isSelected={theme === "light"}
-                                onValueChange={(isSelected) => {
-                                    handleThemeChange(isSelected ? "light" : "dark");
-                                }}
-                                color="success"
-                                thumbIcon={({isSelected}) =>
-                                    isSelected ? <Icon name="sun" className="text-yellow-600"/> :
-                                        <Icon name="moon" className="text-blue-600"/>
-                                }
-                                isDisabled={settingsLoading}
-                            />
+                        <Switch
+                            isSelected={theme === "light"}
+                            onValueChange={(isSelected) => {
+                                handleThemeChange(isSelected ? "light" : "dark");
+                            }}
+                            color="success"
+                            thumbIcon={({isSelected}) =>
+                                isSelected ? <Icon name="sun" className="text-yellow-600"/> :
+                                    <Icon name="moon" className="text-blue-600"/>
+                            }
+                            // isDisabled={settingsLoading}
+                        />
                     </SectionItemList>
                 </SectionList>
             </Section>
@@ -91,17 +143,17 @@ export default function SettingsPage() {
                                 Import data from a local file. Use with caution — invalid or altered files may cause
                                 issues. Proceed at your own risk.
                             </p>
-                            <p className="text-success">{importSuccess}</p>
-                            <p className="text-danger">{importError}</p>
+                            <p className="text-success">{importData.success}</p>
+                            <p className="text-danger">{importData.error}</p>
                         </div>
                         <Button
                             color="primary"
-                            isLoading={importLoading}
-                            isDisabled={importLoading}
-                            onPress={importJobs}
+                            isLoading={importData.loading}
+                            isDisabled={importData.loading}
+                            onPress={importData.importJobs}
 
                         ><Icon name="import"/><span
-                            className="hidden md:block"> {importLoading ? "Importing..." : "Import data"}</span></Button>
+                            className="hidden md:block"> {importData.loading ? "Importing..." : "Import data"}</span></Button>
                     </SectionItemList>
 
                     <SectionItemList>
@@ -111,13 +163,13 @@ export default function SettingsPage() {
                                 Export your current data to a file. Make sure to store it safely. We’re not responsible
                                 for lost or corrupted files.
                             </p>
-                            <p className="text-success">{exportSuccess}</p>
-                            <p className="text-danger">{exportError}</p>
+                            <p className="text-success">{exportData.success}</p>
+                            <p className="text-danger">{exportData.error}</p>
                         </div>
                         <Button
                             color="primary"
-                            isLoading={exportLoading}
-                            onPress={exportJobs}
+                            isLoading={exportData.loading}
+                            onPress={exportData.exportJobs}
                         ><Icon name="export"/><span className="hidden md:block"> Export data</span></Button>
                     </SectionItemList>
 
@@ -128,13 +180,13 @@ export default function SettingsPage() {
                             <p className="text-tiny text-default-400 max-w-md">
                                 This will permanently remove all entries and events. This action cannot be undone.
                             </p>
-                            <p className="text-success">{clearDBSuccess}</p>
-                            <p className="text-danger">{clearDBError}</p>
+                            <p className="text-success">{clearDatabase.success}</p>
+                            <p className="text-danger">{clearDatabase.error}</p>
                         </div>
                         <Button
                             color="danger"
-                            isLoading={clearDBLoading}
-                            onPress={clearDatabase}
+                            isLoading={clearDatabase.loading}
+                            onPress={clearDatabase.clearDatabase}
                         ><Icon name="clear"/><span className="hidden md:block"> Clear entries</span></Button>
                     </SectionItemList>
 

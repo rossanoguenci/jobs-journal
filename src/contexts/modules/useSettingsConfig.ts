@@ -1,24 +1,23 @@
-import {useAppSettingsStore} from "@stores/useAppSettingsStore";
+import {useSettingsStore} from "@stores/useSettingsStore";
 import useOptions from "@hooks/useOptions";
 import {AppSettings} from "@/types/AppSettings";
 import {useEffect} from "react";
 
-export function useAppSettings() {
-    const appSettings = useAppSettingsStore((s) => s.appSettings);
-    const setAppSettings = useAppSettingsStore((s) => s.setAppSettings);
+export function useSettingsConfig() {
     const options = useOptions<AppSettings>("app_settings");
 
-    useEffect(() => {
-        if (!appSettings) {
-            options.load().then(() => {
-                if (!options.error) {
-                    setAppSettings(options.value)
-                }
-            })
-        }
-    }, [appSettings, options, setAppSettings]);
+    const appSettings = useSettingsStore((s) => s.appSettings);
+    const setAppSettings = useSettingsStore((s) => s.setAppSettings);
+
+    async function init(){
+        if(appSettings) return;
+
+        await options.load();
+        setAppSettings(options.value);
+    }
 
     return {
+        init,
         appSettings,
         appSettingsLoading: options.loading,
         appSettingsError: options.error,

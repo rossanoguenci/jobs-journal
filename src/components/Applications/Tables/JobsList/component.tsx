@@ -27,7 +27,7 @@ import InsertEvent from "@components/Applications/Forms/InsertEvent";
 
 // Hooks and Utilities
 import useFetchJobs, {JobsListRowsType} from "@hooks/useFetchJobs";
-import {useModal} from "@components/GlobalModal/ModalContext";
+import {useModal} from "@contexts/ModalContext";
 import useToggleJobArchive from "@hooks/useToggleJobArchive";
 import daysFromDate from "@utilities/daysFromDate";
 

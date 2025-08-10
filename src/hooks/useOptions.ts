@@ -38,6 +38,7 @@ export default function useOptions<T = unknown>(key: string) {
         try {
             const result = await invoke<T>("get_option", {key});
             setValue(result);
+
             debugLog(`Option loaded (${key}):`, result);
         } catch (err) {
             errorLog("Load option error:", err);

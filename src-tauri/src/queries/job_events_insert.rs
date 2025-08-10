@@ -3,7 +3,7 @@ use crate::models::job_event::JobEvent;
 use crate::utils::query_utils::build_insert_query;
 use serde_json::json;
 use tauri::State;
-use uuid::Uuid;
+use crate::utils::id::generate_id;
 
 #[tauri::command]
 pub async fn job_events_insert(
@@ -17,7 +17,7 @@ pub async fn job_events_insert(
 
     // Generate the UUID before insertion
     if data.id.is_none() {
-        data.id = Some(Uuid::new_v4().to_string());
+        data.id = Some(generate_id());
     }
 
     // Convert to JSON object

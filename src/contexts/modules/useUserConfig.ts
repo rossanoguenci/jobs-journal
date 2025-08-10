@@ -1,28 +1,26 @@
 import {useUserStore} from "@stores/useUserStore";
 import useOptions from "@hooks/useOptions";
 import {UserProfile} from "@/types/UserProfile";
-import {useEffect} from "react";
 import {debugLog} from "@utilities/devLog";
 
-export function useUserSettings() {
+export function useUserConfig() {
     const user = useUserStore((s) => s.user);
     const setUser = useUserStore((s) => s.setUser);
     const options = useOptions<UserProfile>("user_profile");
 
-    useEffect(() => {
-        debugLog("user ->", user)
-        debugLog("options ->", options)
+    async function init(){
+        debugLog("useUserSettings.init() called",`user ${user}`)
 
-        if (!user) {
-            debugLog("user is undefined, loading...");
+        if(user) return;
 
-            options.load().then(() => {
-                if (!options.error) setUser(options.value);
-            });
-        }
-    }, [options, setUser, user]);
+        await options.load();
+        setUser(options.value);
+
+        debugLog("useUserSettings.init() - loaded", options.value)
+    }
 
     return {
+        init,
         user,
         saveUserProfile: async (newUserData: UserProfile) => {
             debugLog("saveUserProfile() called", newUserData)

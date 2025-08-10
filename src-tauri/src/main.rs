@@ -54,6 +54,9 @@ async fn main() {
             load_avatar,
             save_avatar,
             delete_avatar,
+            get_periods,
+            upsert_period,
+            remove_period,
         ])
         .plugin(opener::init())
         .plugin(dialog::init())

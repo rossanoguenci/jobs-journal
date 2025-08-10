@@ -23,11 +23,8 @@ import {useUserStore} from "@stores/useUserStore";
  * @param props.className - Additional CSS class names
  */
 export default function Component(props: Props) {
-
     const avatarDataUrl = useUserStore((s) => s.avatar);
-
     const user = useUserStore((s) => s.user);
-
 
     if (!user) return null;
 
