@@ -1,4 +1,4 @@
-import {JobEntry} from "@/types/JobEntry";
+import {JobEntry} from "@shared-types/JobEntry";
 
 export default interface Props {
     data: JobEntry;

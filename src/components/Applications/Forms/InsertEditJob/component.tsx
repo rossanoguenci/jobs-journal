@@ -6,14 +6,14 @@ import style from "./style.module.scss";
 
 import {Button, DatePicker, Input, Form, Autocomplete, AutocompleteItem} from "@heroui/react"
 
-// import {JobEntry} from "@/types/JobEntry";
+// import {JobEntry} from "@shared-types/JobEntry";
 import {parseDate, getLocalTimeZone, today} from "@internationalized/date";
 import {useModal} from "@contexts/ModalContext";
 import locations from "@config/locations";
 import {addToast} from "@heroui/toast";
 import {useUpsertJob} from "@hooks/useUpsertJob";
-import {JobInsert} from "@/types/JobInsert";
-import {JobUpdate} from "@/types/JobUpdate";
+import {JobInsert} from "@shared-types/JobInsert";
+import {JobUpdate} from "@shared-types/JobUpdate";
 import {Key} from "@react-types/shared";
 import {toJobInsert} from "@utilities/toJobInsert";
 import {debugLog} from "@utilities/devLog";

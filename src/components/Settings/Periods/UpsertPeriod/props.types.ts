@@ -1,4 +1,4 @@
-import {JobPeriod} from "@/types/JobPeriod";
+import {JobPeriod} from "@shared-types/JobPeriod";
 
 export default interface Props {
     jobPeriodItem?: JobPeriod | null;

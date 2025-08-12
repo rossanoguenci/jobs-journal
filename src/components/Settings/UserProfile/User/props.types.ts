@@ -1,4 +1,4 @@
-import {HeroColor} from "@/types/HeroColor";
+import {HeroColor} from "@shared-types/HeroColor";
 
 export default interface Props {
     variant?: "full" | "compact" | "default";

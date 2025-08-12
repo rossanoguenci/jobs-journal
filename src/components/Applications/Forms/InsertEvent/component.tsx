@@ -8,7 +8,7 @@ import {getLocalTimeZone, today} from "@internationalized/date";
 import {useModal} from "@contexts/ModalContext";
 import useInsertJobEvent from "@hooks/useInsertJobEvent";
 import {addToast} from "@heroui/toast";
-import {JobEvent} from "@/types/JobEvent";
+import {JobEvent} from "@shared-types/JobEvent";
 
 
 export default function Component({jobId}: { jobId: string }) {

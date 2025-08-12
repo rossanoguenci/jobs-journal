@@ -6,7 +6,7 @@ import {Button} from "@heroui/button";
 import {Form} from "@heroui/form";
 import {DateValue, getLocalTimeZone, parseDate, today} from "@internationalized/date";
 import {DatePicker} from "@heroui/date-picker";
-import {JobPeriod} from "@/types/JobPeriod";
+import {JobPeriod} from "@shared-types/JobPeriod";
 import getJsonDiff from "@utilities/getJsonDiff";
 import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
 import {useModal} from "@contexts/ModalContext";

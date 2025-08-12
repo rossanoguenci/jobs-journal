@@ -5,8 +5,8 @@ import {Form, Textarea, Button} from "@heroui/react";
 import {addToast} from "@heroui/toast";
 import {useModal} from "@contexts/ModalContext";
 import {useUpsertJob} from "@hooks/useUpsertJob";
-import {JobUpdate} from "@/types/JobUpdate";
-import {JobEntry} from "@/types/JobEntry";
+import {JobUpdate} from "@shared-types/JobUpdate";
+import {JobEntry} from "@shared-types/JobEntry";
 
 export default function Component({data}: Props) {
     const [warning, setWarning] = useState<string | null>(null);

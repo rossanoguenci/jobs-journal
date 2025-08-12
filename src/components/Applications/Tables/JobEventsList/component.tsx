@@ -13,7 +13,7 @@ import {
 
 import useJobEventLog from "@hooks/useJobEventLog";
 import columns from "./columns";
-import {JobEvent} from "@/types/JobEvent";
+import {JobEvent} from "@shared-types/JobEvent";
 import jobStatusOptions from "@config/jobStatusOptions";
 import {Pagination} from "@heroui/pagination";
 

@@ -11,8 +11,8 @@ import {useUserStore} from "@stores/useUserStore";
 import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
 import {useModal} from "@contexts/ModalContext";
 import {addToast} from "@heroui/toast";
-import {UserProfile} from "@/types/UserProfile";
-import {allowedColors, HeroColor} from "@/types/HeroColor";
+import {UserProfile} from "@shared-types/UserProfile";
+import {allowedColors, HeroColor} from "@shared-types/HeroColor";
 import getJsonDiff from "@utilities/getJsonDiff";
 import {debugLog} from "@utilities/devLog";
 

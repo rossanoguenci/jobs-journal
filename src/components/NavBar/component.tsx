@@ -7,7 +7,7 @@ import {
 } from "@heroui/react";
 import {Dropdown, DropdownItem, DropdownMenu, DropdownTrigger} from "@heroui/dropdown";
 import Icon from "@components/Icons";
-import {HeroColor} from "@/types/HeroColor";
+import {HeroColor} from "@shared-types/HeroColor";
 import {useUserStore} from "@stores/useUserStore";
 // import {useRouter} from "next/navigation";
 

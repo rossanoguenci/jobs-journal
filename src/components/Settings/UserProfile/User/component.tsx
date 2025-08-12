@@ -6,7 +6,7 @@ import styles from "./styles.module.scss";
 
 import {Avatar} from "@heroui/avatar";
 
-import {HeroColor, isValidColor} from "@/types/HeroColor";
+import {HeroColor, isValidColor} from "@shared-types/HeroColor";
 import {Skeleton} from "@heroui/skeleton";
 import {useUserStore} from "@stores/useUserStore";
 

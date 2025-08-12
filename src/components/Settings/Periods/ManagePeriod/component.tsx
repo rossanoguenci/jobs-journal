@@ -9,7 +9,7 @@ import {UpsertPeriod} from "@components/Settings/Periods";
 import {useJobPeriodsStore} from "@stores/useJobPeriodsStore";
 import {debugLog} from "@utilities/devLog";
 import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
-import {JobPeriod} from "@/types/JobPeriod";
+import {JobPeriod} from "@shared-types/JobPeriod";
 import {addToast} from "@heroui/toast";
 import {useModal} from "@contexts/ModalContext";
 
