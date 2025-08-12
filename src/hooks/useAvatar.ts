@@ -10,6 +10,7 @@ export type UseAvatarResult = {
     uploadAvatar: () => Promise<void>;
     deleteAvatar: () => Promise<void>;
     loading: boolean;
+    loaded: boolean;
     error: string | null;
 };
 
@@ -28,6 +29,7 @@ export type UseAvatarResult = {
 export default function useAvatar(): UseAvatarResult {
     const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [loaded, setLoaded] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     /**
@@ -43,6 +45,7 @@ export default function useAvatar(): UseAvatarResult {
         debugLog("loadAvatar()");
 
         setLoading(true);
+        setLoaded(false);
         setError(null);
         try {
             const dataUrl = await invoke<string>("load_avatar");
@@ -54,6 +57,7 @@ export default function useAvatar(): UseAvatarResult {
             setAvatarDataUrl(null);
         } finally {
             setLoading(false);
+            setLoaded(true);
         }
     }, []);
 
@@ -82,7 +86,7 @@ export default function useAvatar(): UseAvatarResult {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [avatarDataUrl]);
 
     /**
      * Opens a file dialogue for the user to select and upload an image as their avatar.
@@ -153,6 +157,7 @@ export default function useAvatar(): UseAvatarResult {
         uploadAvatar,
         deleteAvatar,
         loading,
+        loaded,
         error,
     };
 }

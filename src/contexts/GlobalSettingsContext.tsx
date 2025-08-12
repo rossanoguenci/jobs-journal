@@ -1,30 +1,50 @@
-import React, {createContext, useContext, useEffect} from "react";
+import React, {createContext, useContext, useEffect, useMemo, useRef, useState} from "react";
 import {useUserConfig} from "./modules/useUserConfig";
 import {useSettingsConfig} from "./modules/useSettingsConfig";
 import {useAvatarConfig} from "./modules/useAvatarConfig";
-import {debugLog} from "@utilities/devLog";
 import useJobPeriodsConfig from "@contexts/modules/useJobPeriodsConfig";
 
 /**
- * Context for managing global application settings and user profile data.
- * Handles loading, saving, and synchronising user profile, app settings, and avatar.
+ * Global settings context contract for the application.
+ * Aggregates managers responsible for user profile, application settings, avatar data,
+ * and job periods. Also carries initialisation status and a potential init error.
+ *
+ * Fields:
+ * - userManager: Provides methods and state for user profile management (init, load/save, reset, etc.).
+ * - settingsManager: Provides methods and state for application settings.
+ * - avatarManager: Provides methods and state for avatar handling.
+ * - jobPeriodsManager: Provides methods and state for job periods configuration.
+ * - initialised: Indicates whether all managers completed their initialisation cycle.
+ * - initError: Present if initialisation failed for any manager; UI may decide how to display it.
  */
 type GlobalSettingsContextType = {
     userManager: ReturnType<typeof useUserConfig>;
-    settingsManager: ReturnType<typeof useSettingsConfig> ;
-    avatarManager: ReturnType<typeof useAvatarConfig> ;
+    settingsManager: ReturnType<typeof useSettingsConfig>;
+    avatarManager: ReturnType<typeof useAvatarConfig>;
     jobPeriodsManager: ReturnType<typeof useJobPeriodsConfig>;
+    initialised: boolean;
+    initError: string | null;
 };
 
+/**
+ * React Context instance that holds the global settings state and managers.
+ *
+ * Note: The value can be undefined outside the provider; consumers should use
+ * the provided `useGlobalSettingsContext` hook which enforces usage within the provider.
+ */
 const GlobalSettingsContext = createContext<GlobalSettingsContextType | undefined>(undefined);
 
 /**
- * Provider component that manages global settings, user profile, and avatar data.
- * Handles data hydration from persistent storage and synchronises state across the application.
- * Provides methods for loading, saving, and resetting user data and application settings.
+ * Provider component that manages global settings, user profile, avatar data, and job periods.
+ * Performs initial bootstrapping (hydration) from persistent storage and exposes
+ * the managers and initialisation state to the component tree.
+ *
+ * @param children React nodes that will have access to the global settings context.
+ * @returns A provider element that must wrap parts of the app needing access to global settings.
  */
 export const GlobalSettingsProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
-    // const [initialized, setInitialized] = useState(false);
+    const [initialised, setInitialised] = useState(false);
+    const [initError, setInitError] = useState<string | null>(null);
 
     const userConfig = useUserConfig();
     const settingsConfig = useSettingsConfig();
@@ -32,36 +52,37 @@ export const GlobalSettingsProvider: React.FC<{ children: React.ReactNode }> = (
     const jobPeriodsConfig = useJobPeriodsConfig();
 
     // Combine the settings
-    const combinedSettings: GlobalSettingsContextType = {
+    const combinedSettings: GlobalSettingsContextType = useMemo(() => ({
         userManager: {...userConfig},
         settingsManager: {...settingsConfig},
         avatarManager: {...avatarConfig},
         jobPeriodsManager: {...jobPeriodsConfig},
-    };
+        initialised: initialised,
+        initError,
+    }), [userConfig, settingsConfig, avatarConfig, jobPeriodsConfig, initialised, initError]);
+
+    const initRan = useRef(false);
 
     useEffect(() => {
-        debugLog("GlobalSettingsProvider: init");
+        if (initRan.current) return;
+        initRan.current = true;
 
-        userConfig.init().then()
-        avatarConfig.init().then()
-        settingsConfig.init().then()
-        jobPeriodsConfig.init().then()
+        async function bootstrap() {
+            try {
+                await Promise.all([
+                    userConfig.init(),
+                    avatarConfig.init(),
+                    settingsConfig.init(),
+                    jobPeriodsConfig.init(),
+                ]);
+                setInitialised(true);
+            } catch (e) {
+                setInitError(e instanceof Error ? e.message : String(e));
+                setInitialised(true); // Proceed; UI can show the error state
+            }
+        }
 
-
-        //TODO: Testing a better performance of the init function
-
-        // if (initialized) return;
-        // debugLog("GlobalSettingsProvider: initial mount");
-
-        /*Promise.all([
-            userSettings.init(),
-            avatarSettings.init(),
-            appSettings.init(),
-        ]).then(() => {
-            debugLog("GlobalSettingsProvider: init complete");
-            setInitialized(true);
-        });*/
-
+        bootstrap().then();
     }, [avatarConfig, jobPeriodsConfig, settingsConfig, userConfig]);
 
     return (
@@ -75,7 +96,9 @@ export const GlobalSettingsProvider: React.FC<{ children: React.ReactNode }> = (
  * Hook to access the global settings context.
  * Provides access to user profile, app settings, avatar management, and related utility functions.
  * Must be used within a GlobalSettingsProvider component.
- * @throws Error if used outside GlobalSettingsProvider
+ *
+ * @returns {GlobalSettingsContextType} The aggregated managers and initialisation state.
+ * @throws {Error} If used outside of a GlobalSettingsProvider.
  */
 export function useGlobalSettingsContext() {
     const context = useContext(GlobalSettingsContext);

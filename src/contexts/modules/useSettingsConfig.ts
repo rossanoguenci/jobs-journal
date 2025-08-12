@@ -4,17 +4,22 @@ import {AppSettings} from "@/types/AppSettings";
 import {useEffect} from "react";
 
 export function useSettingsConfig() {
+    const {appSettings, setAppSettings} = useSettingsStore();
     const options = useOptions<AppSettings>("app_settings");
 
-    const appSettings = useSettingsStore((s) => s.appSettings);
-    const setAppSettings = useSettingsStore((s) => s.setAppSettings);
-
-    async function init(){
-        if(appSettings) return;
+    async function init() {
+        if (appSettings) return;
 
         await options.load();
         setAppSettings(options.value);
     }
+
+    useEffect(() => {
+        if (options.loaded && options.value) {
+            console.log("useSettingsConfig.useEffect() - loaded", options.value)
+            setAppSettings(options.value);
+        }
+    }, [options.loaded, options.value, setAppSettings]);
 
     return {
         init,
