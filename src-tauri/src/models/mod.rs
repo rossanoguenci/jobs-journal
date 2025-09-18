@@ -8,3 +8,4 @@ pub mod job_event_meta;
 pub mod app_settings;
 pub mod user_profile;
 pub mod job_period;
+pub mod job_upsert;

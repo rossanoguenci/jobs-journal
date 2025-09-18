@@ -2,18 +2,18 @@ import React, {useEffect, useRef, useState} from "react";
 import Props from './props.types';
 import styles from "./styles.module.scss";
 import {Form, Textarea, Button} from "@heroui/react";
-import {addToast} from "@heroui/toast";
 import {useModal} from "@contexts/ModalContext";
-import {useUpsertJob} from "@hooks/useUpsertJob";
 import {JobUpdate} from "@shared-types/JobUpdate";
 import {JobEntry} from "@shared-types/JobEntry";
+import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
+import {toastWarning} from "@utilities/toast";
 
 export default function Component({data}: Props) {
     const [warning, setWarning] = useState<string | null>(null);
     const formRef = useRef<HTMLFormElement>(null);
     const {closeModal} = useModal();
-    const {upsertJob, loading, error, success} = useUpsertJob();
 
+    const {jobsManager} = useGlobalSettingsContext();
 
     /*On Submit*/
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -45,23 +45,22 @@ export default function Component({data}: Props) {
             note = updates.note as string;
         }
 
-        await upsertJob({id: data.id, meta: {note: note}} as JobUpdate);
+        if (action === "remove") {
+            note = "";
+        }
+
+        await jobsManager.upsert({id: data.id, meta: {note}} as JobUpdate, {source: "user"});
     };
 
     useEffect(() => {
-        if (error || success || warning) {
-            addToast({
-                title: error ? "Error" : warning ? "Warning" : "Success",
-                description: error || warning || success || "",
-                color: error ? "danger" : warning ? "warning" : "success",
-            });
+        if (warning) {
+            toastWarning(warning);
+            return;
         }
-
-        if (success) { //Updated
+        if (jobsManager.upsertStatus.success) {
             closeModal();
         }
-
-    }, [error, success, warning, closeModal]);
+    }, [warning, closeModal, jobsManager.upsertStatus.success]);
 
 
     const default_size = "md";
@@ -89,7 +88,7 @@ export default function Component({data}: Props) {
                     size={default_size}
                     radius={default_size}
                     type="submit"
-                    isDisabled={loading}
+                    isDisabled={jobsManager.upsertStatus.loading}
                 >{data?.meta.note ? "Update" : "Insert"}
                 </Button>
 
@@ -100,7 +99,7 @@ export default function Component({data}: Props) {
                     size={default_size}
                     radius={default_size}
                     type="submit"
-                    isDisabled={loading}
+                    isDisabled={jobsManager.upsertStatus.loading}
                 >Remove
                 </Button>
             </div>

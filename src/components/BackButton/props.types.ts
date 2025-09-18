@@ -1,3 +1,4 @@
 export default interface Props {
-    title: string;
+    title?: string;
+    onPress?: () => void;
 }

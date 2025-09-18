@@ -6,24 +6,24 @@ import style from "./style.module.scss";
 
 import {Button, DatePicker, Input, Form, Autocomplete, AutocompleteItem} from "@heroui/react"
 
-// import {JobEntry} from "@shared-types/JobEntry";
 import {parseDate, getLocalTimeZone, today} from "@internationalized/date";
 import {useModal} from "@contexts/ModalContext";
 import locations from "@config/locations";
-import {addToast} from "@heroui/toast";
-import {useUpsertJob} from "@hooks/useUpsertJob";
 import {JobInsert} from "@shared-types/JobInsert";
 import {JobUpdate} from "@shared-types/JobUpdate";
 import {Key} from "@react-types/shared";
 import {toJobInsert} from "@utilities/toJobInsert";
 import {debugLog} from "@utilities/devLog";
 import {toJobUpdate} from "@utilities/toJobUpdate";
+import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
+import {toastWarning} from "@utilities/toast";
 
 export default function Component({data = null}: Props) {
     const [warning, setWarning] = useState<string | null>(null);
     const formRef = useRef<HTMLFormElement>(null);
     const {closeModal} = useModal();
-    const {upsertJob, loading, error, success} = useUpsertJob();
+
+    const {jobsManager} = useGlobalSettingsContext();
 
     /* Autocomplete workaround
     *
@@ -73,26 +73,23 @@ export default function Component({data = null}: Props) {
             }
         }
 
-        await upsertJob(payload);
+        await jobsManager.upsert(payload);
 
     };
 
     useEffect(() => {
-        if (error || success || warning) {
-            addToast({
-                title: error ? "Error" : warning ? "Warning" : "Success",
-                description: error || warning || success || "",
-                color: error ? "danger" : warning ? "warning" : "success",
-            });
+        if(warning) {
+            toastWarning(warning)
+            return
         }
 
-        if (data?.id && success) { //Updated
+        if (data?.id && jobsManager.upsertStatus.success) { //Updated
             closeModal();
-        } else if (!data?.id && success) { //Inserted
+        } else if (!data?.id && jobsManager.upsertStatus.success) { //Inserted
             formRef.current?.reset();
         }
 
-    }, [data?.id, error, success, warning, closeModal]);
+    }, [data?.id, warning, closeModal, jobsManager.upsertStatus.error, jobsManager.upsertStatus.success, jobsManager]);
 
 
     const default_size = "md";
@@ -184,9 +181,9 @@ export default function Component({data = null}: Props) {
                             size={default_size}
                             radius={default_size}
                             type="submit"
-                            isLoading={loading}
-                            disabled={loading}
-                        >{loading ? "Is updating..." : "Update"}
+                            isLoading={jobsManager.upsertStatus.loading}
+                            disabled={jobsManager.upsertStatus.loading}
+                        >{jobsManager.upsertStatus.loading ? "Is updating..." : "Update"}
                         </Button>
 
                         <Button
@@ -206,9 +203,9 @@ export default function Component({data = null}: Props) {
                             size={default_size}
                             radius={default_size}
                             type="submit"
-                            isLoading={loading}
-                            disabled={loading}
-                        >{loading ? "Inserting..." : "Insert"}
+                            isLoading={jobsManager.upsertStatus.loading}
+                            disabled={jobsManager.upsertStatus.loading}
+                        >{jobsManager.upsertStatus.loading ? "Inserting..." : "Insert"}
                         </Button>
 
                         <Button

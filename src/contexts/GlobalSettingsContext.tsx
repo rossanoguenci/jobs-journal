@@ -2,7 +2,10 @@ import React, {createContext, useContext, useEffect, useMemo, useRef, useState} 
 import {useUserConfig} from "./modules/useUserConfig";
 import {useSettingsConfig} from "./modules/useSettingsConfig";
 import {useAvatarConfig} from "./modules/useAvatarConfig";
-import useJobPeriodsConfig from "@contexts/modules/useJobPeriodsConfig";
+import useJobPeriodsConfig from "./modules/useJobPeriodsConfig";
+import useJobsConfig from "./modules/useJobsConfig";
+import useI18nConfig from "./modules/useI18nConfig";
+import useEventsConfig from "./modules/useEventsConfig";
 
 /**
  * Global settings context contract for the application.
@@ -22,6 +25,9 @@ type GlobalSettingsContextType = {
     settingsManager: ReturnType<typeof useSettingsConfig>;
     avatarManager: ReturnType<typeof useAvatarConfig>;
     jobPeriodsManager: ReturnType<typeof useJobPeriodsConfig>;
+    jobsManager: ReturnType<typeof useJobsConfig>;
+    eventsManager: ReturnType<typeof useEventsConfig>;
+    i18nManager: ReturnType<typeof useI18nConfig>;
     initialised: boolean;
     initError: string | null;
 };
@@ -50,6 +56,9 @@ export const GlobalSettingsProvider: React.FC<{ children: React.ReactNode }> = (
     const settingsConfig = useSettingsConfig();
     const avatarConfig = useAvatarConfig();
     const jobPeriodsConfig = useJobPeriodsConfig();
+    const jobsManager = useJobsConfig();
+    const eventsManager = useEventsConfig();
+    const i18nManager = useI18nConfig();
 
     // Combine the settings
     const combinedSettings: GlobalSettingsContextType = useMemo(() => ({
@@ -57,9 +66,12 @@ export const GlobalSettingsProvider: React.FC<{ children: React.ReactNode }> = (
         settingsManager: {...settingsConfig},
         avatarManager: {...avatarConfig},
         jobPeriodsManager: {...jobPeriodsConfig},
+        jobsManager: {...jobsManager},
+        eventsManager: {...eventsManager},
+        i18nManager: { ...i18nManager },
         initialised: initialised,
         initError,
-    }), [userConfig, settingsConfig, avatarConfig, jobPeriodsConfig, initialised, initError]);
+    }), [userConfig, settingsConfig, avatarConfig, jobPeriodsConfig, jobsManager, eventsManager, i18nManager, initialised, initError]);
 
     const initRan = useRef(false);
 
@@ -74,6 +86,8 @@ export const GlobalSettingsProvider: React.FC<{ children: React.ReactNode }> = (
                     avatarConfig.init(),
                     settingsConfig.init(),
                     jobPeriodsConfig.init(),
+                    jobsManager.init(),
+                    i18nManager.init(),
                 ]);
                 setInitialised(true);
             } catch (e) {
@@ -83,7 +97,7 @@ export const GlobalSettingsProvider: React.FC<{ children: React.ReactNode }> = (
         }
 
         bootstrap().then();
-    }, [avatarConfig, jobPeriodsConfig, settingsConfig, userConfig]);
+    }, [avatarConfig, i18nManager, jobPeriodsConfig, jobsManager, settingsConfig, userConfig]);
 
     return (
         <GlobalSettingsContext.Provider value={combinedSettings}>
@@ -98,9 +112,9 @@ export const GlobalSettingsProvider: React.FC<{ children: React.ReactNode }> = (
  * Must be used within a GlobalSettingsProvider component.
  *
  * @returns {GlobalSettingsContextType} The aggregated managers and initialisation state.
- * @throws {Error} If used outside of a GlobalSettingsProvider.
+ * @throws {Error} If used outside a GlobalSettingsProvider.
  */
-export function useGlobalSettingsContext() {
+export function useGlobalSettingsContext(): GlobalSettingsContextType {
     const context = useContext(GlobalSettingsContext);
     if (!context) {
         throw new Error("useGlobalSettingsContext must be used within a GlobalSettingsProvider");

@@ -8,15 +8,15 @@ import {useModal} from "@contexts/ModalContext";
 import {Select, SelectItem} from "@heroui/select";
 import jobStatusOptions from "@config/jobStatusOptions";
 import {JobUpdate} from "@shared-types/JobUpdate";
-import {useUpsertJob} from "@hooks/useUpsertJob";
-import {addToast} from "@heroui/toast";
+import {toastWarning} from "@utilities/toast"
+import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
 
 export default function Component({data}: { data: null | JobUpdate }) {
     const [selectedStatus, setSelectedStatus] = useState<Selection>(new Set([data?.status || ""]));
     const [warning, setWarning] = useState<string | null>(null);
-    const {closeModal} = useModal();
-    const {upsertJob, error, success, loading} = useUpsertJob();
 
+    const {closeModal} = useModal(); //todo: check if this can be passed as a prop for future proofing the component
+    const {jobsManager} = useGlobalSettingsContext();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -25,41 +25,21 @@ export default function Component({data}: { data: null | JobUpdate }) {
         const selected_status: string = Array.from(selectedStatus)[0].toString() ?? null;
 
         if (!selected_status || selected_status === current_status) {
-            setWarning("Nothing to change.");
+            setWarning("Nothing to change."); //todo: replace with t()
             return;
         }
 
-        await upsertJob({id: data!.id, status: selected_status});
+        await jobsManager.upsert({id: data!.id, status: selected_status}, {source:"user"});
     };
 
     useEffect(() => {
-        let toastConfig;
-
-        if (success && closeModal) {
-            toastConfig = {
-                title: "Success",
-                description: success,
-                color: "success" as const,
-            };
+        if (warning) {
+            toastWarning(warning)
+        } else if (jobsManager.upsertStatus.success && closeModal) {
             closeModal();
-        } else if (error) {
-            toastConfig = {
-                title: "Error",
-                description: error,
-                color: "danger" as const,
-            };
-        } else if (warning) {
-            toastConfig = {
-                title: "Warning",
-                description: warning,
-                color: "warning" as const,
-            };
         }
 
-        if (toastConfig) {
-            addToast(toastConfig);
-        }
-    }, [warning, success, error, closeModal]);
+    }, [warning, closeModal, jobsManager.upsertStatus.success]);
 
 
     const default_size = "md";
@@ -90,7 +70,7 @@ export default function Component({data}: { data: null | JobUpdate }) {
                     size={default_size}
                     radius={default_size}
                     type="submit"
-                    disabled={loading}
+                    disabled={jobsManager.upsertStatus.loading}
                 >Update
                 </Button>
                 <Button
@@ -98,7 +78,7 @@ export default function Component({data}: { data: null | JobUpdate }) {
                     size={default_size}
                     radius={default_size}
                     onPress={closeModal}
-                    disabled={loading}
+                    disabled={jobsManager.upsertStatus.loading}
                 >Cancel
                 </Button>
             </div>

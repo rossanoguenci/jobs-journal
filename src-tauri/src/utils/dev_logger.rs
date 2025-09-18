@@ -10,7 +10,8 @@ pub fn init_logger() {
             use std::io::Write;
             writeln!(
                 buf,
-                "{} [{}] - {}",
+                "{} {} [{}] - {}",
+                chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
                 record.level(),
                 record.target(),
                 record.args()
@@ -27,32 +28,31 @@ pub fn init_logger() {
     }
 }
 
-
 // Shorthand macros for structured logging
 #[macro_export]
 macro_rules! debug_log {
     ($($arg:tt)*) => {
-        log::debug!($($arg)*);
+        log::debug!("\n{}\n", format_args!($($arg)*));
     };
 }
 
 #[macro_export]
 macro_rules! info_log {
     ($($arg:tt)*) => {
-        log::info!($($arg)*);
+        log::info!("\n{}\n", format_args!($($arg)*));
     };
 }
 
 #[macro_export]
 macro_rules! warn_log {
     ($($arg:tt)*) => {
-        log::warn!($($arg)*);
+        log::warn!("\n{}\n", format_args!($($arg)*));
     };
 }
 
 #[macro_export]
 macro_rules! error_log {
     ($($arg:tt)*) => {
-        log::error!($($arg)*);
+        log::error!("\n{}\n", format_args!($($arg)*));
     };
 }

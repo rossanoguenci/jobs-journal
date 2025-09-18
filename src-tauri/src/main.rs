@@ -38,6 +38,7 @@ async fn main() {
             // check_ready,
             jobs_insert,
             jobs_update,
+            jobs_upsert,
             jobs_get_list,
             jobs_get_details,
             delete_job_entry,

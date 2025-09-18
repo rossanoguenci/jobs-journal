@@ -1,7 +1,7 @@
 "use client";
 
 // Core React and Types
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo} from "react";
 import type {Key} from "@react-types/shared";
 import Link from "next/link";
 
@@ -22,76 +22,59 @@ import Icon from "@components/Icons";
 
 // Forms
 import UpdateStatus from "@components/Applications/Forms/UpdateStatus/component";
-import InsertEditJob from "@components/Applications/Forms/InsertEditJob";
+import UpsertJob from "@components/Applications/Forms/UpsertJob";
 import InsertEvent from "@components/Applications/Forms/InsertEvent";
 
 // Hooks and Utilities
-import useFetchJobs, {JobsListRowsType} from "@hooks/useFetchJobs";
+import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
 import {useModal} from "@contexts/ModalContext";
-import useToggleJobArchive from "@hooks/useToggleJobArchive";
 import daysFromDate from "@utilities/daysFromDate";
+import {debugLog} from "@utilities/devLog";
 
 // Config
-import jobStatusOptions from "@config/jobStatusOptions";
+import jobStatusOptions, {JobStatusKey} from "@config/jobStatusOptions";
 import columns from "./columns";
-import {addToast} from "@heroui/toast";
 
 // Types
 import type {Action} from "@components/JobActionsDropdown/props.types";
+import {JobEntry} from "@shared-types/JobEntry";
+import {JobUpdate} from "@shared-types//JobUpdate";
 
-type JobsListRowType = JobsListRowsType[number];
+//Stores
+import {useJobsStore} from "@stores/useJobsStore";
+
+import {useRouter} from "next/navigation";
 
 export default function Component() {
-    const [filterValue, setFilterValue] = useState("");
-    const [statusFilter, setStatusFilter] = useState<Set<Key>>(
-        () => new Set(jobStatusOptions.map((status) => status.key))
-    );
+    const router = useRouter();
+    const {jobsList: data, setCurrentDetailsId} = useJobsStore();
+    const {filters, setFilter, setAllStatuses} = useJobsStore();
 
-    const {error: errorToggleJobArchive, success: successToggleJobArchive, toggleJobArchive} = useToggleJobArchive();
-    const {data, loading, error, refresh} = useFetchJobs();
+    const {jobsManager} = useGlobalSettingsContext();
     const {openModal} = useModal();
 
     /* Paging */
+    //todo: check when moving to job page and back
     const rowsPerPage = 9;
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const {paging, setPaging} = useJobsStore();
 
-    /* Handler for archiving job entry */
-    const handleJobArchive = useCallback(async (jobId: string) => {
+    /* Handlers */
+    const handleJobArchive = useCallback(async (jobId: JobUpdate["id"]) => {
         if (!jobId || jobId.length === 0) return;
 
-        const statusTo = "archive";
-        const verb = "archived";
+        await jobsManager.upsert({id: jobId, insert_status: "archived"} as JobUpdate, {source: "user"});
 
-        await toggleJobArchive({id: jobId, statusTo});
+    }, [jobsManager]);
 
-        if (errorToggleJobArchive) {
-            addToast({
-                title: "Error",
-                description: `Error ${verb} job: ${errorToggleJobArchive}`,
-                color: "danger",
-            });
-        } else if (successToggleJobArchive) {
-            addToast({
-                title: "Success",
-                description: successToggleJobArchive,
-                color: "success",
-            });
-        } else {
-            addToast({
-                title: "Warning",
-                description: `Something went wrong`,
-                color: "warning",
-            });
-        }
-
-        refresh().then();
-
-    }, [toggleJobArchive, successToggleJobArchive, errorToggleJobArchive, refresh]);
+    const handleDetailsPage = useCallback((jobId: JobEntry["id"]) => {
+        debugLog("handleDetailsPage - jobId: ", jobId);
+        setCurrentDetailsId(jobId);
+        router.push(`/job/`);
+    }, [router, setCurrentDetailsId])
 
 
     /* Render cell */
-    const renderCell = useCallback((item: JobsListRowType, columnKey: React.Key) => {
+    const renderCell = useCallback((item: JobEntry, columnKey: React.Key) => {
         if (columnKey === "job_entry") {
             return (
                 <div className="flex flex-col">
@@ -137,21 +120,21 @@ export default function Component() {
                     key: "add_event",
                     label: "Add event",
                     icon: <Icon name="addEvent"/>,
-                    onClick: () => openModal(<InsertEvent jobId={item.id}/>, refresh),
+                    onClick: () => openModal(<InsertEvent jobId={item.id}/>, jobsManager.reload),
                     section: "main",
                 },
                 {
                     key: "update_status",
                     label: "Update status",
                     icon: <Icon name="updateStatus"/>,
-                    onClick: () => openModal(<UpdateStatus data={item}/>, refresh),
+                    onClick: () => openModal(<UpdateStatus data={item}/>, jobsManager.reload),
                     section: "main",
                 },
                 {
                     key: "edit_job",
                     label: "Edit job info",
                     icon: <Icon name="edit"/>,
-                    onClick: () => openModal(<InsertEditJob data={item}/>, refresh),
+                    onClick: () => openModal(<UpsertJob data={item}/>, jobsManager.reload),
                     section: "main",
                 },
                 {
@@ -166,12 +149,19 @@ export default function Component() {
 
             return (
                 <div className="relative flex items-center gap-2">
-                    <Link href={`/job#${item.id}`} className="job-link">
-                        <Button isIconOnly title="View job details" aria-label="View job details" color="default"
-                                variant="faded" size="sm">
-                            <Icon name="seeMore"/>
-                        </Button>
-                    </Link>
+                    {/*<Link href={`/job#${item.id}`} className="job-link">*/}
+                    {/*<Link href={{pathname: "/job/", query: {id: item.id} }} className="job-link">*/}
+                    <Button
+                        isIconOnly
+                        title="View job details"
+                        aria-label="View job details"
+                        color="default"
+                        variant="faded"
+                        size="sm"
+                        onPress={() => handleDetailsPage(item.id)}
+                    >
+                        <Icon name="seeMore"/>
+                    </Button>
 
                     <JobActionsDropdown
                         actions={actions}
@@ -184,47 +174,45 @@ export default function Component() {
         }
 
         return null; // default fallback, avoids returning something unsafe
-    }, [handleJobArchive, openModal, refresh]);
+    }, [handleJobArchive, jobsManager.reload, openModal]);
 
 
     /* Top content */
-    const hasSearchFilter = Boolean(filterValue);
+    const hasSearchFilter = Boolean(filters.search);
 
     const filteredItems = useMemo(() => {
-        let filteredJobEntries = [...data];
+        let filteredJobEntries = data ?? [] as JobEntry[];
 
         if (hasSearchFilter) {
             filteredJobEntries = filteredJobEntries.filter((jobEntry) =>
-                jobEntry.title.toLowerCase().includes(filterValue.toLowerCase()) ||
-                jobEntry.company.toLowerCase().includes(filterValue.toLowerCase())
+                jobEntry.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+                jobEntry.company.toLowerCase().includes(filters.search.toLowerCase())
             );
         }
-        if (statusFilter.size > 0 && statusFilter.size !== jobStatusOptions.length) {
+        if (filters.status.size > 0 && filters.status.size !== jobStatusOptions.length) {
             filteredJobEntries = filteredJobEntries.filter((jobEntry) =>
-                statusFilter.has(jobEntry.status)
+                filters.status.has(jobEntry.status as JobStatusKey)
             );
         }
 
         return filteredJobEntries;
-    }, [data, filterValue, statusFilter, hasSearchFilter]);
+    }, [data, hasSearchFilter, filters.status, filters.search]);
 
-    const onSearchChange = useCallback((value: string) => {
-        if (value) {
-            setFilterValue(value);
-            setCurrentPage(1);
-        } else {
-            setFilterValue("");
+    const onSearchChange = useCallback((search: string) => {
+        setFilter({search});
+        setPaging({currentPage: 1});
+    }, [setFilter, setPaging]);
+
+
+    const handleSelectionChange = useCallback((keys: Iterable<Key>) => {
+        if (keys === "all") {
+            setAllStatuses();
+            return;
         }
-    }, []);
 
-    const onSearchClear = useCallback(() => {
-        setFilterValue("");
-        setCurrentPage(1);
-    }, []);
-
-    const handleSelectionChange = (keys: Iterable<Key>) => {
-        setStatusFilter(new Set(keys));
-    };
+        const next = new Set(keys as Set<JobStatusKey>);
+        setFilter({status: next});
+    }, [setAllStatuses, setFilter]);
 
     const topContent = useMemo(() => {
         return (
@@ -235,8 +223,8 @@ export default function Component() {
                         className="w-full sm:max-w-[44%]"
                         placeholder="Search by title or company..."
                         startContent={<Icon name="search" className="size-4"/>}
-                        value={filterValue}
-                        onClear={() => onSearchClear()}
+                        value={filters.search}
+                        onClear={() => onSearchChange("")}
                         onValueChange={onSearchChange}
                         size="sm"
                     />
@@ -251,7 +239,7 @@ export default function Component() {
                                 disallowEmptySelection
                                 aria-label="Status selection"
                                 closeOnSelect={false}
-                                selectedKeys={statusFilter}
+                                selectedKeys={filters.status}
                                 selectionMode="multiple"
                                 onSelectionChange={handleSelectionChange}
                             >
@@ -263,45 +251,39 @@ export default function Component() {
                             </DropdownMenu>
                         </Dropdown>
 
-                        <Button size="sm" color="default" onPress={refresh} isLoading={loading}>
-                            {loading ? "Refreshing..." : "Refresh list"}
+                        <Button size="sm" color="default"
+                                onPress={() => jobsManager.reload({source: "user", retry: true})}
+                                isLoading={jobsManager.loadStatus.loading}>
+                            {jobsManager.loadStatus.loading ? "Refreshing..." : "Refresh list"}
                         </Button>
 
                         <Button size="sm" color="primary" onPress={() => {
-                            openModal(<InsertEditJob/>, refresh)
+                            openModal(<UpsertJob/>, jobsManager.reload)
                         }}>
                             Add new
                         </Button>
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {data.length} entries</span>
+                    <span className="text-default-400 text-small">Total {data ? data.length : "0"} entries</span>
                 </div>
             </div>
         );
-    }, [
-        loading,
-        openModal,
-        refresh,
-        filterValue,
-        statusFilter,
-        data.length,
-        onSearchChange,
-        onSearchClear
-    ]);
+    }, [filters.search, filters.status, onSearchChange, handleSelectionChange, jobsManager, data, openModal]);
 
     /* The items (shown) */
     const items = useMemo(() => {
-        const start = (currentPage - 1) * rowsPerPage;
+        const start = (paging.currentPage - 1) * rowsPerPage;
         const end = start + rowsPerPage;
 
         return filteredItems.slice(start, end);
-    }, [currentPage, filteredItems, rowsPerPage]);
+    }, [filteredItems, paging.currentPage]);
 
+    //todo: this is ok when loaded and jobsManager.reload has called, but when the table just need to be refreshed without resetting the paging (we can remove this frustration...). Check and fix.
     useEffect(() => {
-        setTotalPages(Math.ceil(filteredItems.length / rowsPerPage));
+        setPaging({totalPages: Math.ceil(filteredItems.length / rowsPerPage), currentPage: 1});
 
-    }, [filteredItems, refresh]);
+    }, [filteredItems, jobsManager.reload, setPaging]);
 
     return (
         <div className={style.container}>
@@ -313,9 +295,9 @@ export default function Component() {
                                isCompact
                                showControls
                                color="default"
-                               page={currentPage}
-                               total={totalPages}
-                               onChange={(page) => setCurrentPage(page)}
+                               page={paging.currentPage}
+                               total={paging.totalPages}
+                               onChange={(page) => setPaging({currentPage: page})}
                            />
                        </div>
                    }
@@ -329,9 +311,10 @@ export default function Component() {
                         </TableColumn>}
                 </TableHeader>
                 <TableBody
-                    isLoading={loading}
+                    isLoading={jobsManager.loadStatus.loading}
                     loadingContent={"Loading..."}
-                    emptyContent={error ? <p className="text-danger">{error}</p> : "No rows to display."}
+                    emptyContent={jobsManager.loadStatus.error ?
+                        <p className="text-danger">{jobsManager.loadStatus.error}</p> : "No rows to display."}
                     items={items ?? []}
                 >
                     {(item) => (
@@ -344,9 +327,6 @@ export default function Component() {
                     )}
                 </TableBody>
             </Table>
-
-            <pre>{errorToggleJobArchive}{successToggleJobArchive}</pre>
-
         </div>
     );
 }

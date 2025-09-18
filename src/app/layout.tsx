@@ -8,6 +8,7 @@ import React from "react";
 import NavBar from "@components/NavBar/component";
 import {ModalProvider} from "@contexts/ModalContext";
 import GlobalModal from "@components/GlobalModal";
+import {JobsTB} from "@components/ToastBoundary";
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
     return (
@@ -20,8 +21,10 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
                 <NavBar/>
                 {children}
                 <GlobalModal/>
+                <JobsTB/>
             </ModalProvider>
         </Providers>
+
         </body>
         </html>
     );

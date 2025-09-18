@@ -13,10 +13,13 @@ pub async fn jobs_insert(db: State<'_, Database>, mut data: JobInsert) -> Result
     
     let pool = db.pool.lock().await;
 
-    // Generate the UUID before insertion
-    if data.id.is_none() {
-        data.id = Some(generate_id());
+    // Guard: Insert mode must not include a client-provided id
+    if data.id.is_some() {
+        return Err("Insert payload must not include an 'id'. Omit 'id' to create a new entry".to_string());
     }
+
+    // Generate the UUID before insertion
+    data.id = Some(generate_id());
 
     // Convert data to a JSON object
     let serialized = serde_json::to_value(&data).map_err(|e| e.to_string())?;

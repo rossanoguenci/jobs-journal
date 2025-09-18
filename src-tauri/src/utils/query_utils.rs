@@ -53,6 +53,13 @@ pub fn extract_fields(obj: &Map<String, Value>) -> (Vec<String>, Vec<BindValue>)
         values.push(bind_value);
     }
 
+    // Debug log for terminal visibility
+    crate::debug_log!(
+        "extract_fields → columns: {:?}, values_len: {}",
+        columns,
+        values.len()
+    );
+
     (columns, values)
 }
 
@@ -65,8 +72,19 @@ pub fn build_update_set_clause<'a>(
     let (columns, values) = extract_fields(obj);
 
     if columns.is_empty() {
+        crate::debug_log!(
+            "build_update_set_clause('{}') → No updatable fields found",
+            table_name
+        );
         return Err("No updatable fields found".into());
     }
+
+    crate::debug_log!(
+        "build_update_set_clause('{}') → columns: {:?}, values_len: {}",
+        table_name,
+        columns,
+        values.len()
+    );
 
     let mut query_builder = QueryBuilder::<Sqlite>::new(format!("UPDATE {} SET ", table_name));
 
@@ -131,8 +149,21 @@ pub fn build_insert_query_with_mode<'a>(
     let (columns, values) = extract_fields(obj);
 
     if columns.is_empty() {
+        crate::debug_log!(
+            "build_insert_query_with_mode('{}', mode={:?}) → No insertable fields found",
+            table_name,
+            mode
+        );
         return Err("No insertable fields found".into());
     }
+
+    crate::debug_log!(
+        "build_insert_query_with_mode('{}', mode={:?}) → columns: {:?}, values_len: {}",
+        table_name,
+        mode,
+        columns,
+        values.len()
+    );
 
     let insert_clause = match mode {
         // InsertMode::Ignore => "INSERT OR IGNORE INTO",

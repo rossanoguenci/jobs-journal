@@ -6,13 +6,14 @@ import style from "./style.module.scss";
 import {Button, DatePicker, Input, Form,} from "@heroui/react"
 import {getLocalTimeZone, today} from "@internationalized/date";
 import {useModal} from "@contexts/ModalContext";
-import useInsertJobEvent from "@hooks/useInsertJobEvent";
-import {addToast} from "@heroui/toast";
 import {JobEvent} from "@shared-types/JobEvent";
+import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
+// import {toastWarning} from "@utilities/toast";
 
 
-export default function Component({jobId}: { jobId: string }) {
-    const {success, error, loading, insertEvent} = useInsertJobEvent();
+export default function Component({jobId}: { jobId: string | null }) {
+    // const [warning, setWarning] = useState<string | null>(null);
+    const {eventsManager} = useGlobalSettingsContext();
     const {closeModal} = useModal();
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -23,70 +24,65 @@ export default function Component({jobId}: { jobId: string }) {
             job_id: jobId,
         };
 
-        await insertEvent(data as JobEvent);
+        await eventsManager.upsert(data as JobEvent);
     };
 
     useEffect(() => {
-        if (error || success) {
-            addToast({
-                title: error ? "Error" : "Success",
-                description: error || success || "",
-                color: error ? "danger" : "success",
-            });
-        }
-
-        if (success) {
+        if (eventsManager.upsertStatus.success) {
             closeModal();
         }
 
-    }, [error, success, closeModal]);
+    }, [closeModal, eventsManager.upsertStatus.success]);
 
 
     const default_size = "md";
 
 
     return (
-        <Form
-            className={style.container}
-            onSubmit={onSubmit}
-        >
-            <Input
-                isRequired
-                label="Description"
-                aria-label="Description"
-                type="text"
-                name="description"
-                size={default_size}
-            />
-
-            <DatePicker
-                isRequired
-                label="Date of the event"
-                aria-label="Date of the event"
-                name="date_of_event"
-                size={default_size}
-                defaultValue={today(getLocalTimeZone())}
-            />
-
-            <div className="flex gap-2">
-                <Button
-                    aria-label="Insert"
-                    color="primary"
+        jobId ?
+            <Form
+                className={style.container}
+                onSubmit={onSubmit}
+            >
+                <Input
+                    isRequired
+                    label="Description"
+                    aria-label="Description"
+                    type="text"
+                    name="description"
                     size={default_size}
-                    radius={default_size}
-                    type="submit"
-                    isDisabled={loading}
-                >{loading ? "Inserting..." : "Insert"}
-                </Button>
-                <Button
-                    aria-label="Reset"
-                    size={default_size}
-                    radius={default_size}
-                    type="reset">
-                    Reset
-                </Button>
-            </div>
+                />
 
-        </Form>
+                <DatePicker
+                    isRequired
+                    label="Date of the event"
+                    aria-label="Date of the event"
+                    name="date_of_event"
+                    size={default_size}
+                    defaultValue={today(getLocalTimeZone())}
+                />
+
+                <div className="flex gap-2">
+                    <Button
+                        aria-label="Insert"
+                        color="primary"
+                        size={default_size}
+                        radius={default_size}
+                        type="submit"
+                        isDisabled={eventsManager.upsertStatus.loading}
+                    >{eventsManager.upsertStatus.loading ? "Inserting..." : "Insert"}
+                    </Button>
+                    <Button
+                        aria-label="Reset"
+                        size={default_size}
+                        radius={default_size}
+                        type="reset">
+                        Reset
+                    </Button>
+                </div>
+
+            </Form>
+            :
+            <p className="text-red-500">Job not found</p>
     );
 }
