@@ -3,10 +3,9 @@
 // Core React and Types
 import React, {useCallback, useEffect, useMemo} from "react";
 import type {Key} from "@react-types/shared";
-import Link from "next/link";
 
 // Styles
-import style from "./style.module.scss"
+import style from "./style.module.css"
 
 // UI Components
 import {Button} from "@heroui/button";
@@ -174,7 +173,7 @@ export default function Component() {
         }
 
         return null; // default fallback, avoids returning something unsafe
-    }, [handleJobArchive, jobsManager.reload, openModal]);
+    }, [handleDetailsPage, handleJobArchive, jobsManager.reload, openModal]);
 
 
     /* Top content */

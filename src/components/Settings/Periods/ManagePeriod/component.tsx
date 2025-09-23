@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useState} from "react";
-import styles from "./styles.module.scss";
 import {Form} from "@heroui/form";
 import {Select, SelectItem} from "@heroui/select";
 import {Selection} from "@heroui/react";
@@ -70,8 +69,9 @@ export default function Component() {
             {isEditing ? (
                 <UpsertPeriod jobPeriodItem={store.getJobPeriodItem(selectedId)} onClose={() => setIsEditing(false)}/>
             ) : (
-                <Form className={styles.container} onSubmit={onSubmit}>
-
+                <Form className="p-10 flex w-full flex-wrap md:flex-nowrap mb-7 gap-4 rounded-2xl"
+                      onSubmit={onSubmit}
+                >
                     {!store.selectedJobPeriodID &&
                         <div className="text-tiny text-center w-full"><p className="text-danger font-bold">No period
                             set</p><p>Please choose one from the list</p></div>

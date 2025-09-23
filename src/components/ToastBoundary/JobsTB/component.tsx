@@ -2,7 +2,6 @@
 
 import React, {useEffect, useRef} from "react";
 // import Props from './props.types';
-// import styles from "./styles.module.scss";
 import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
 import {toastError, toastSuccess} from "@utilities/toast";
 

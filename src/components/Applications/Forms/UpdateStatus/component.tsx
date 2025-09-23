@@ -2,7 +2,6 @@
 
 import React, {useEffect, useState} from "react";
 // import Props from './props.types';
-import style from "./style.module.scss";
 import {Button, Form, Selection} from "@heroui/react"
 import {useModal} from "@contexts/ModalContext";
 import {Select, SelectItem} from "@heroui/select";
@@ -47,7 +46,7 @@ export default function Component({data}: { data: null | JobUpdate }) {
 
     return (
         <Form
-            className={style.container}
+            className="p-10 flex w-full flex-wrap md:flex-nowrap mb-7 gap-4 rounded-2xl"
             onSubmit={onSubmit}
         >
 

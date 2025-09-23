@@ -1,6 +1,6 @@
 import React from "react";
 // import Props from './props.types';
-import styles from "./styles.module.scss";
+import styles from "./styles.module.css";
 
 export default function Component(){
 

@@ -2,7 +2,6 @@
 
 import React, {useEffect, useRef, useState} from "react";
 import Props from './props.types';
-import style from "./style.module.scss";
 
 import {Button, DatePicker, Input, Form, Autocomplete, AutocompleteItem} from "@heroui/react"
 
@@ -97,7 +96,7 @@ export default function Component({data = null}: Props) {
     return (
         <Form
             ref={formRef}
-            className={style.container}
+            className="p-10 flex w-full max-w-[1000px] flex-wrap md:flex-nowrap mb-7 gap-4 rounded-2xl"
             onSubmit={onSubmit}
             onReset={() => setLocationValue(data?.meta.location || "")}
         >

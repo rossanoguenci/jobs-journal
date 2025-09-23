@@ -1,0 +1,12 @@
+.container {
+  width: 100%;
+
+  p {
+    margin-top: 0;
+  }
+
+  thead {
+    text-transform: uppercase;
+  }
+
+}

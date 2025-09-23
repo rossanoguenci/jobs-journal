@@ -3,18 +3,18 @@
 import React, {useEffect, useRef, useState} from "react";
 // import Props from './props.types';
 import {Button, Input, Form} from "@heroui/react"
-import style from "./style.module.scss";
+import style from "./style.module.css";
 
 import Icon from "@components/Icons";
 import User from "@components/Settings/UserProfile/User";
 import {useUserStore} from "@stores/useUserStore";
 import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
 import {useModal} from "@contexts/ModalContext";
-import {addToast} from "@heroui/toast";
 import {UserProfile} from "@shared-types/UserProfile";
 import {allowedColors, HeroColor} from "@shared-types/HeroColor";
 import getJsonDiff from "@utilities/getJsonDiff";
 import {debugLog} from "@utilities/devLog";
+import {toastWarning} from "@utilities/toast";
 
 
 const default_size = "md";
@@ -34,9 +34,7 @@ const default_size = "md";
 export default function Component() {
     const user = useUserStore((s) => s.user);
     const avatarDataUrl = useUserStore((s) => s.avatar);
-    const {...userOptions} = useGlobalSettingsContext();
-
-    const {uploadAvatar, deleteAvatar} = useGlobalSettingsContext();
+    const {avatarManager, userManager} = useGlobalSettingsContext();
 
     const [warning, setWarning] = useState<string | null>(null);
 
@@ -74,30 +72,21 @@ export default function Component() {
             return;
         }
 
-        await userOptions.saveUserProfile(newUserData as UserProfile)
+        await userManager.saveUserProfile(newUserData as UserProfile)
     };
 
     /**
-     * Handles notifications and post-operation actions.
-     * Displays toast messages for errors, warnings, and success states.
+     * Handles warning notification and post-operation actions.
+     * Displaying toast messages for errors and success states are managed globally.
      * Closes modal and reloads user data after a successful profile update.
      */
     useEffect(() => {
-        if (userOptions.userError || userOptions.userSuccess || warning) {
-            addToast({
-                title: userOptions.userError ? "Error" : warning ? "Warning" : "Success",
-                description: userOptions.userError || warning || userOptions.userSuccess || "",
-                color: userOptions.userError ? "danger" : warning ? "warning" : "success",
-            });
-        }
-
-        if (userOptions.userSuccess) { //Updated
-            debugLog("onSuccess: userOptions.success", userOptions.userSuccess);
-            userOptions.userReload().then();
+        if (warning) {
+            toastWarning(warning)
+        }else if (userManager.userSuccess) {
             closeModal();
         }
-
-    }, [userOptions.userError, userOptions.userSuccess, warning, closeModal, user, userOptions]);
+    }, [warning, closeModal, user, userManager.userSuccess]);
 
     return (
         <>
@@ -108,7 +97,7 @@ export default function Component() {
 
                     {/* Hover overlay button (upload) */}
                     <button
-                        onClick={uploadAvatar}
+                        onClick={avatarManager.uploadAvatar}
                         className="absolute inset-0 z-10 flex items-center justify-center rounded-full bg-gray-500 bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     >
                         <Icon name="image" className="w-6 h-6 text-white"/>
@@ -117,7 +106,7 @@ export default function Component() {
                     {/* Delete button (top-right corner) */}
                     {avatarDataUrl && (
                         <button
-                            onClick={deleteAvatar}
+                            onClick={avatarManager.deleteAvatar}
                             className="absolute -top-1 -right-1 z-20 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition-colors duration-200"
                         >
                             <Icon name="delete" className="w-3 h-3"/>
@@ -129,7 +118,7 @@ export default function Component() {
 
             <Form
                 ref={formRef}
-                className={style.container}
+                className="p-10 flex w-full max-w-[1000px] flex-wrap md:flex-nowrap mb-7 gap-4 rounded-2xl"
                 onSubmit={onSubmit}
             >
 
@@ -180,9 +169,9 @@ export default function Component() {
                                 size={default_size}
                                 radius={default_size}
                                 type="submit"
-                                isLoading={userOptions.userLoading}
-                                disabled={userOptions.userLoading}
-                            >{userOptions.userLoading ? "Is updating..." : "Update"}
+                                isLoading={userManager.userLoading}
+                                disabled={userManager.userLoading}
+                            >{userManager.userLoading ? "Is updating..." : "Update"}
                             </Button>
 
                             <Button
@@ -202,9 +191,9 @@ export default function Component() {
                                 size={default_size}
                                 radius={default_size}
                                 type="submit"
-                                isLoading={userOptions.userLoading}
-                                disabled={userOptions.userLoading}
-                            >{userOptions.userLoading ? "Inserting..." : "Insert"}
+                                isLoading={userManager.userLoading}
+                                disabled={userManager.userLoading}
+                            >{userManager.userLoading ? "Inserting..." : "Insert"}
                             </Button>
 
                             <Button

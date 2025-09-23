@@ -1,0 +1,14 @@
+/*
+Note on styling and Tailwind CSS v4 (as of 2025-09-19):
+
+- Tailwind CSS v4 does not support CSS preprocessors (Sass/SCSS, Less, etc.). Use plain CSS and Tailwind utility classes.
+- This CSS module exists only for exceptional styling needs that cannot be expressed with Tailwind utilities or CSS variables.
+- It is slated for complete removal in the future. Prefer utilities, CSS variables, and small component refactors instead of adding rules here.
+- Moving to Tailwind v4 helps you write future-proof, spec-based styles with fewer build-time dependencies.
+
+Guidelines for any temporary rules added here:
+- Scope styles narrowly to this component.
+- Document why utilities were insufficient and, if possible, a plan to remove these rules later.
+*/
+
+.container {}

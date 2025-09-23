@@ -1,6 +1,5 @@
 import React from "react";
 import Props from './props.types';
-import styles from "./styles.module.scss";
 import Icon from "@components/Icons/component";
 import {Button} from "@heroui/button";
 import {useRouter} from "next/navigation";
@@ -14,7 +13,7 @@ export default function Component(props: Props) {
 
     return (
         <Button
-            className={styles.container}
+            className="mb-5"
             onPress={props.onPress ?? defaultOnPress}
             size="sm" variant="flat" color="default"
         >

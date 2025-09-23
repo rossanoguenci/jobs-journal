@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@plugin '../../hero.ts';
+@source '../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+@custom-variant dark (&:is(.dark *));
+
+:root {
+    /* Make light background ~6% darker than the base token */
+    --container-bg: color-mix(in hsl, hsl(var(--heroui-content1) / 1) 94%, black);
+}
+
+.dark {
+    /* Keep your preferred dark appearance, still tied to the token */
+    --container-bg: hsl(var(--heroui-content1) / 1);
+}
+
+/* Converted Tailwind @apply utilities to plain CSS rules */
+
+.wrapper {
+    max-width: 64rem; /* max-w-5xl */
+    margin-left: auto; /* mx-auto */
+    margin-right: auto; /* mx-auto */
+    padding: 1.25rem; /* p-5 */
+}
+
+.container {
+    padding: 0.75rem; /* p-3 */
+    width: 100%; /* w-full */
+    max-width: 1000px; /* max-w-[1000px] */
+    margin-bottom: 1.75rem; /* mb-7 */
+    border-radius: 1rem; /* rounded-2xl */
+}
+
+.container-bg {
+    background-color: var(--container-bg);
+}
+
+@media (min-width: 768px) {
+    .container {
+        padding: 2.5rem; /* md:p-10 */
+    }
+}
+
+p:not(:first-of-type) {
+    margin-top: 0.75rem; /* mt-3 */
+}

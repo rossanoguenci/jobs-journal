@@ -1,7 +1,6 @@
 "use client";
 
 import React, {useEffect, useMemo, useState} from "react";
-import style from "./style.module.scss"
 import {
     Table,
     TableHeader,
@@ -37,7 +36,7 @@ export default function Component({jobId}: { jobId: string }) {
         if (columnKey === "description") {
             let updatedValue = item.description;
 
-            jobStatusOptions.forEach(({ key, label }) => {
+            jobStatusOptions.forEach(({key, label}) => {
                 const regex = new RegExp(`\\b${key}\\b`, "gi");
                 updatedValue = updatedValue.replace(regex, label);
             });
@@ -65,23 +64,28 @@ export default function Component({jobId}: { jobId: string }) {
     }, [data]);
 
     return (
-        <div className={`${style.container}`}>
-            <h2 className="text-sm">List of event</h2>
-            <Table hideHeader
-                   shadow="none"
-                   aria-label="Table of events"
-                   bottomContent={
-                       <div className="flex w-full justify-center">
-                           <Pagination
-                               isCompact
-                               showControls
-                               color="default"
-                               page={currentPage}
-                               total={totalPages}
-                               onChange={(page) => setCurrentPage(page)}
-                           />
-                       </div>
-                   }
+        <div className="mt-15 p-4 container-bg rounded-xl">
+            <h2 className="text-sm font-semibold">List of event</h2>
+            <Table
+                classNames={{
+                    wrapper: "container-bg",
+                }}
+                hideHeader
+                // isStriped
+                shadow="none"
+                aria-label="Table of events"
+                bottomContent={
+                    <div className="flex w-full justify-center">
+                        <Pagination
+                            isCompact
+                            showControls
+                            color="default"
+                            page={currentPage}
+                            total={totalPages}
+                            onChange={(page) => setCurrentPage(page)}
+                        />
+                    </div>
+                }
             >
                 <TableHeader columns={columns ?? []}>
                     {/* there's an issue with props, they are trying to fix*/}

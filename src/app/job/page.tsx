@@ -26,7 +26,6 @@ import BackButton from "@components/BackButton";
 import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
 import {debugLog, infoLog} from "@utilities/devLog";
 import {JobUpdate} from "@shared-types/JobUpdate";
-import {JobEntry} from "@shared-types/JobEntry";
 import {useJobsStore} from "@stores/useJobsStore";
 
 export default function JobDetailsPage() {
@@ -86,6 +85,7 @@ export default function JobDetailsPage() {
         // 2) If we already have details for this job, and we're not loading, skip,
         //    UNLESS an upsert just succeeded (we need a refresh).
         const sameJobId = jobsManager.details?.id === jobId;
+
         debugLog(
             "details page - useEffect",
             `sameJobId: ${sameJobId}`,
@@ -113,17 +113,17 @@ export default function JobDetailsPage() {
 
     const handleUpdateStatus = useCallback(() => {
         if (!details) return;
-        openModal(<UpdateStatus data={details}/>, () => setRefreshKey(prev => prev + 1)); //todo: still we need refreshKey?
+        openModal(<UpdateStatus data={details}/>, () => setRefreshKey(prev => prev + 1));
     }, [details, openModal]);
 
     const handleEditJob = useCallback(() => {
         if (!details) return;
-        openModal(<InsertEditJob data={details}/>);//todo: jobsManager.reload might be redundant, removed now, job details should be reloaded instead
+        openModal(<InsertEditJob data={details}/>);
     }, [details, openModal]);
 
     const handleEditNote = useCallback(() => {
         if (!details) return;
-        openModal(<InsertEditNote data={details}/>);//todo: see above
+        openModal(<InsertEditNote data={details}/>);
     }, [details, openModal]);
 
     const handleToggleJobArchive = useCallback(async () => {
@@ -182,11 +182,14 @@ export default function JobDetailsPage() {
     return (
         <main className="wrapper">
 
-            <BackButton title="Back to the list" onPress={() => {
-                clearCurrentDetailsId()
-                jobsManager.resetDetails()
-                router.back()
-            }}/>
+            <BackButton
+                title="Back to the list"
+                onPress={() => {
+                    clearCurrentDetailsId()
+                    jobsManager.resetDetails()
+                    router.back()
+                }}
+            />
 
             {!details && !jobsManager.detailsStatus.loading &&
                 <div className="flex items-center justify-center">Data not loaded</div>}
@@ -198,7 +201,7 @@ export default function JobDetailsPage() {
                         {/* Job Title */}
                         <div className="col-span-1 sm:col-span-2 flex items-center">
                             <Skeleton className="rounded-lg" isLoaded={!jobsManager.detailsStatus.loading}>
-                                <h1 className="text-xl flex items-center gap-2">{details.insert_status === "archived" ? <>
+                                <h1 className="text-xl font-semibold flex items-center gap-2">{details.insert_status === "archived" ? <>
                                     <Icon
                                         name="archive"/> Archived - </> : ''}{details.title ?? "N/A"}</h1>
                             </Skeleton>
@@ -206,7 +209,11 @@ export default function JobDetailsPage() {
 
                         {/* Actions */}
                         <div className="col-span-1 flex justify-end">
-                            <JobActionsDropdown actions={actions} icon={<Icon name="menu" className="size-5"/>}/>
+                            <JobActionsDropdown
+                                variant="flat"
+                                actions={actions}
+                                icon={<Icon name="menu" className="size-5"/>}
+                            />
                         </div>
 
                         {/* Company Info */}

@@ -1,6 +1,5 @@
 import React from "react";
 import Props from './props.types';
-import styles from "./styles.module.scss";
 import {Chip} from "@heroui/react";
 
 export default function StatusChip({
@@ -10,7 +9,7 @@ export default function StatusChip({
                                        variant = 'solid'
                                    }: Props) {
     return (
-        <div className={styles.container}>
+        <div className="">
             <Chip
                 className="capitalize"
                 color={color}

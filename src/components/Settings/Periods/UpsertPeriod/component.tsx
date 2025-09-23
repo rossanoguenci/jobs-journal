@@ -1,7 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 
 import Props from './props.types';
-import styles from "./styles.module.scss";
 import {Button} from "@heroui/button";
 import {Form} from "@heroui/form";
 import {DateValue, getLocalTimeZone, parseDate, today} from "@internationalized/date";
@@ -61,8 +60,10 @@ export default function Component({jobPeriodItem, onClose}: Props) {
 
 
     return (
-        <Form className={styles.container} onSubmit={onSubmit} ref={formRef}>
-
+        <Form
+            className="p-10 flex w-full flex-wrap md:flex-nowrap mb-7 gap-4 rounded-2xl"
+            onSubmit={onSubmit} ref={formRef}
+        >
             <DatePicker
                 isRequired
                 label="Start date"

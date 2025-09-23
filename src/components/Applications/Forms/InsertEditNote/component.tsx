@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
 import Props from './props.types';
-import styles from "./styles.module.scss";
 import {Form, Textarea, Button} from "@heroui/react";
 import {useModal} from "@contexts/ModalContext";
 import {JobUpdate} from "@shared-types/JobUpdate";
@@ -68,7 +67,7 @@ export default function Component({data}: Props) {
     return (
         <Form
             ref={formRef}
-            className={styles.container}
+            className="p-5"
             onSubmit={onSubmit}
         >
             <Textarea

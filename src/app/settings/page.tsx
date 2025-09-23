@@ -60,7 +60,7 @@ export default function SettingsPage() {
 
             <Section title="Profile">
                 <SectionList>
-                    <SectionItemList>
+                    <SectionItemList variant="actions">
                         {user ? <User size="lg" variant="compact"/> :
                             <p>No user data available. Please click here to complete onboarding</p>}
 
@@ -77,7 +77,7 @@ export default function SettingsPage() {
             <Section title="Job hunting">
                 <SectionList>
 
-                    <SectionItemList>
+                    <SectionItemList variant="actions">
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Periods</p>
                             <p className="text-tiny text-default-400 max-w-md">
@@ -93,7 +93,7 @@ export default function SettingsPage() {
                         ><Icon name="calendarRange"/> Manage periods</Button>
                     </SectionItemList>
 
-                    <SectionItemList>
+                    <SectionItemList variant="actions">
                         <div className="flex flex-col gap-1">
                             <p className="text-tiny text-default-400 max-w-md">
                                 Create a new period
@@ -111,7 +111,7 @@ export default function SettingsPage() {
 
             <Section title="Appearance">
                 <SectionList>
-                    <SectionItemList>
+                    <SectionItemList variant="actions">
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Light or Dark mode</p>
                             <p className="text-tiny text-default-400 max-w-md">
@@ -136,7 +136,7 @@ export default function SettingsPage() {
 
             <Section title="Database">
                 <SectionList>
-                    <SectionItemList>
+                    <SectionItemList variant="actions">
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Import</p>
                             <p className="text-tiny text-default-400 max-w-md">
@@ -156,7 +156,7 @@ export default function SettingsPage() {
                             className="hidden md:block"> {importData.loading ? "Importing..." : "Import data"}</span></Button>
                     </SectionItemList>
 
-                    <SectionItemList>
+                    <SectionItemList variant="actions">
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Export</p>
                             <p className="text-tiny text-default-400 max-w-md">
@@ -173,7 +173,7 @@ export default function SettingsPage() {
                         ><Icon name="export"/><span className="hidden md:block"> Export data</span></Button>
                     </SectionItemList>
 
-                    <SectionItemList>
+                    <SectionItemList variant="actions">
                         {/*todo: add a prompt to confirm the choice*/}
                         <div className="flex flex-col gap-1">
                             <p className="text-medium">Reset Database</p>

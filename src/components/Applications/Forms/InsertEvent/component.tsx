@@ -2,7 +2,6 @@
 
 import React, {useEffect} from "react";
 // import Props from './props.types';
-import style from "./style.module.scss";
 import {Button, DatePicker, Input, Form,} from "@heroui/react"
 import {getLocalTimeZone, today} from "@internationalized/date";
 import {useModal} from "@contexts/ModalContext";
@@ -41,7 +40,7 @@ export default function Component({jobId}: { jobId: string | null }) {
     return (
         jobId ?
             <Form
-                className={style.container}
+                className="p-10 flex w-full flex-wrap md:flex-nowrap mb-7 gap-4 rounded-2xl"
                 onSubmit={onSubmit}
             >
                 <Input

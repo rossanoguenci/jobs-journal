@@ -14,7 +14,7 @@ const Component: FC<IconProps> = ({ name = 'default', className = '' }) => {
     const hasSizeClass = /\b(size-|w-|h-)\d+/.test(className);
     const finalClassName = hasSizeClass ? className : `${className} ${default_size}`.trim();
     
-    return <Icon className={`${finalClassName}`} />;
+    return <Icon className={`${finalClassName}`}/>;
 };
 
 export default Component;

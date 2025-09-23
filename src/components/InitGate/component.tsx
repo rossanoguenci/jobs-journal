@@ -2,7 +2,6 @@
 
 import React, {useMemo, useState} from "react";
 // import Props from './props.types';
-// import styles from "./styles.module.scss";
 import {
     Spinner,
     Button,
