@@ -58,6 +58,7 @@ async fn main() {
             get_periods,
             upsert_period,
             remove_period,
+            startup_run_checks,
         ])
         .plugin(opener::init())
         .plugin(dialog::init())

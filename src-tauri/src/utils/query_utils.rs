@@ -1,6 +1,5 @@
 use serde_json::{Map, Value};
 use sqlx::{QueryBuilder, Sqlite};
-use log::debug;
 
 #[derive(Debug)]
 pub enum BindValue {
@@ -67,7 +66,7 @@ pub fn build_update_set_clause<'a>(
     table_name: &str,
     obj: &'a Map<String, Value>,
 ) -> Result<(QueryBuilder<'a, Sqlite>, usize), String> {
-    debug!("Update object: {:?}", obj);
+    crate::debug_log!("Update object: {:?}", obj);
 
     let (columns, values) = extract_fields(obj);
 

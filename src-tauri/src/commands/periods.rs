@@ -1,19 +1,52 @@
+//! Period management commands exposed to the Tauri frontend.
+//!
+//! This module persists job periods and the currently selected period under the
+//! application options keys `job_periods` and `job_period_selected`.
+//!
+//! Commands provided:
+//! - `get_periods` — return all stored periods and the selected period id.
+//! - `upsert_period` — add a new period (auto-generating an `id`) or edit an existing one by `id`.
+//! - `remove_period` — delete a period by `id`.
+//! - `ensure_periods` — ensure at least one period exists (creating one starting today if none).
+
 use crate::db::Database;
 use crate::models::job_period::JobPeriod;
 use crate::utils::id::generate_id;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::State;
+use chrono::Local;
 
+/// Response payload for [`get_periods`].
+///
+/// - `periods` contains all stored periods.
+/// - `selected` is the currently selected period id (empty string if none).
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PeriodsResponse {
+    /// All stored job periods.
     pub periods: Vec<JobPeriod>,
+    /// The currently selected period id (maybe empty if none selected).
     pub selected: String,
 }
 
+/// Options storage key for the array of periods.
 const PERIODS_KEY: &str = "job_periods";
+/// Options storage key for the currently selected period id.
 const SELECTED_PERIOD_KEY: &str = "job_period_selected";
 
+/// Returns all periods and the currently selected period id.
+///
+/// # Arguments
+/// - `db`: Tauri-managed `Database` state.
+///
+/// # Errors
+/// Returns an error if reading options fail or values cannot be deserialized into [`JobPeriod`].
+///
+/// # Examples
+/// ```ignore
+/// // From the frontend (Tauri):
+/// // window.__TAURI__.invoke('get_periods') -> { periods: [...], selected: "..." }
+/// ```
 #[tauri::command]
 pub async fn get_periods(db: State<'_, Database>) -> Result<PeriodsResponse, String> {
     crate::info_log!("get_periods()");
@@ -54,6 +87,23 @@ pub async fn get_periods(db: State<'_, Database>) -> Result<PeriodsResponse, Str
     Ok(PeriodsResponse { periods, selected })
 }
 
+/// Inserts a new period or updates an existing period.
+///
+/// - Add: when `period_value` has no `id`, a new id is generated and the new period becomes selected.
+/// - Edit: when `period_value.id` exists, fields present in the incoming object (except `id`) are merged.
+///
+/// # Arguments
+/// - `db`: Tauri-managed `Database` state.
+/// - `period_value`: JSON representation of a period. Must be a JSON object.
+///
+/// # Errors
+/// - Returns an error if the period cannot be parsed or updated, or persistence fails.
+///
+/// # Examples
+/// Expected shapes
+/// ```json
+/// { "start": "YYYY-MM-DD", "end": "YYYY-MM-DD" }
+/// ```
 #[tauri::command]
 pub async fn upsert_period(db: State<'_, Database>, period_value: Value) -> Result<(), String> {
     crate::debug_log!("upsert_period() - period_value: {:#?}", period_value);
@@ -67,7 +117,7 @@ pub async fn upsert_period(db: State<'_, Database>, period_value: Value) -> Resu
         _ => Vec::new(),
     };
 
-    // To know whether we should update the selected period after an add
+    // To know whether we should update the selected period after an adding
     let mut newly_added_id: Option<String> = None;
 
     // Check if period has an ID
@@ -178,6 +228,14 @@ pub async fn upsert_period(db: State<'_, Database>, period_value: Value) -> Resu
     Ok(())
 }
 
+/// Removes the period with the given `period_id`.
+///
+/// # Arguments
+/// - `db`: Tauri-managed `Database` state.
+/// - `period_id`: The id of the period to remove.
+///
+/// # Errors
+/// Returns an error if no period matches `period_id` or if persistence fails.
 #[tauri::command]
 pub async fn remove_period(db: State<'_, Database>, period_id: String) -> Result<(), String> {
     crate::debug_log!("remove_period() - period_id: {}", period_id);
@@ -212,6 +270,72 @@ pub async fn remove_period(db: State<'_, Database>, period_id: String) -> Result
     crate::commands::options::set_option(db, PERIODS_KEY, periods_value).await?;
 
     crate::info_log!("remove_period() - done");
+
+    Ok(())
+}
+
+
+/// Ensures periods and selection consistency.
+///
+/// - If no periods exist, creates one starting today and selects it.
+/// - If periods exist but the selected id is missing or invalid, selects the first valid period.
+///
+/// # Arguments
+/// - `db`: Tauri-managed `Database` state.
+///
+/// # Errors
+/// Returns an error if reading or writing options fail.
+#[tauri::command]
+pub async fn ensure_periods(db: State<'_, Database>) -> Result<(), String> {
+    crate::info_log!("ensure_periods()");
+
+    // Retrieve current periods and current selection from options
+    let periods_value = crate::commands::options::get_option(db.clone(), PERIODS_KEY).await?;
+    let selected_value = crate::commands::options::get_option(db.clone(), SELECTED_PERIOD_KEY).await?;
+
+    // Parse periods as an array or initialise empty
+    let mut periods = match periods_value {
+        Some(Value::Array(arr)) => arr,
+        _ => Vec::new(),
+    };
+
+    // Helper to get first valid id from list
+    let first_valid_id = |list: &Vec<Value>| -> Option<String> {
+        list.iter()
+            .filter_map(|p| p.get("id").and_then(|v| v.as_str()).map(|s| s.to_string()))
+            .next()
+    };
+
+    if periods.is_empty() {
+        // Create a default period with today's date (YYYY-MM-DD)
+        let new_id = generate_id();
+        let today = Local::now().format("%Y-%m-%d").to_string();
+
+        let mut obj = serde_json::Map::new();
+        obj.insert("id".into(), Value::String(new_id.clone()));
+        obj.insert("start".into(), Value::String(today));
+
+        let period_value = Value::Object(obj);
+        periods.push(period_value);
+
+        // Persist periods
+        let periods_value = Value::Array(periods);
+        crate::commands::options::set_option(db.clone(), PERIODS_KEY, periods_value).await?;
+
+        // Select the newly created period
+        crate::commands::options::set_option(db.clone(), SELECTED_PERIOD_KEY, Value::String(new_id)).await?;
+    } else {
+        // Ensure a valid selection exists
+        let selected_id = match selected_value { Some(Value::String(s)) => s, _ => String::new() };
+        let selected_is_valid = !selected_id.is_empty()
+            && periods.iter().any(|p| p.get("id").and_then(|v| v.as_str()) == Some(selected_id.as_str()));
+
+        if !selected_is_valid {
+            if let Some(first_id) = first_valid_id(&periods) {
+                crate::commands::options::set_option(db.clone(), SELECTED_PERIOD_KEY, Value::String(first_id)).await?;
+            }
+        }
+    }
 
     Ok(())
 }

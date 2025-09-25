@@ -79,15 +79,17 @@ export const GlobalSettingsProvider: React.FC<{ children: React.ReactNode }> = (
         if (initRan.current) return;
         initRan.current = true;
 
+        // Essential bootstrapping logic
         async function bootstrap() {
             try {
                 await Promise.all([
                     userConfig.init(),
                     avatarConfig.init(),
                     settingsConfig.init(),
-                    jobPeriodsConfig.init(),
-                    jobsManager.init(),
                     i18nManager.init(),
+
+                    // jobPeriodsConfig.init(),
+                    // jobsManager.init(),
                 ]);
                 setInitialised(true);
             } catch (e) {

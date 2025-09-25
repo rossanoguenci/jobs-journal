@@ -13,7 +13,7 @@ import {
     Select,
     SelectItem
 } from "@heroui/react";
-import {useAppInit} from "@contexts/modules/useAppInit";
+import {useAppInit} from "@hooks/useAppInit";
 
 export default function AppInitGate({children}: { children: React.ReactNode }) {
     const {

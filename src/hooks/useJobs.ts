@@ -8,7 +8,7 @@ import {RequestStatus, RequestSource} from "@shared-types/Requests";
 import {newRequestId, now} from "@utilities/requestUtils";
 import retryWithBackoff from "@utilities/retryWithBackoff";
 
-export type JobsListRowsType = JobEntry[] | [];
+export type JobsListRowsType = JobEntry[] | null;
 
 export type UseJobsReturnType = {
     data: JobsListRowsType;
@@ -38,7 +38,7 @@ const defaultRequestStatus: RequestStatus = {
 };
 
 export default function useJobs(): UseJobsReturnType {
-    const [data, setData] = useState<JobsListRowsType>([]);
+    const [data, setData] = useState<JobsListRowsType>(null);
     const [loadStatus, setLoadStatus] = useState<RequestStatus>(defaultRequestStatus);
     const [upsertStatus, setUpsertStatus] = useState<RequestStatus>(defaultRequestStatus);
 
@@ -52,22 +52,6 @@ export default function useJobs(): UseJobsReturnType {
     const latestLoadId = useRef<string | null>(null);
     const latestUpsertId = useRef<string | null>(null);
     const latestDetailsId = useRef<string | null>(null);
-
-    /*async function retryWithBackoff<T>(fn: () => Promise<T>, attempts = 3, baseDelay = 350): Promise<T> {
-        let lastErr: unknown;
-        for (let i = 0; i < attempts; i++) {
-            try {
-                return await fn();
-            } catch (e) {
-                lastErr = e;
-                if (i < attempts - 1) {
-                    const delay = baseDelay * Math.pow(2, i); // 350, 700, 1400...
-                    await new Promise((r) => setTimeout(r, delay));
-                }
-            }
-        }
-        throw lastErr;
-    }*/
 
     const load = useCallback(async (opts?: { source?: RequestSource; retry?: boolean }) => {
         const source = opts?.source ?? "system";
@@ -100,7 +84,7 @@ export default function useJobs(): UseJobsReturnType {
                 meta: {requestId, startedAt: loadStatus.meta?.startedAt ?? now(), finishedAt: now(), source},
             });
 
-            infoLog("useJobs.load() - Jobs loaded successfully: ", rows.length, "rows")
+            infoLog("useJobs.load() - Jobs loaded successfully: ", rows?.length ?? "null", "rows")
         } catch (e) {
             if (latestLoadId.current !== requestId) return;
             setLoadStatus({

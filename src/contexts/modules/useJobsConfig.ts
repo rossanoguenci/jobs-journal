@@ -11,6 +11,7 @@ export default function useJobsConfig() {
         infoLog("useJobsListConfig.init() called", jobsList)
         if (jobsList) return
 
+        infoLog("useJobsListConfig.init() - loading")
         await options.load()
         setJobsList(options.data)
     }

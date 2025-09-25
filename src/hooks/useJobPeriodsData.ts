@@ -1,6 +1,6 @@
 import {useState, useCallback} from "react";
 import {invoke} from "@tauri-apps/api/core";
-import {debugLog, errorLog} from "@utilities/devLog";
+import {debugLog, errorLog, infoLog} from "@utilities/devLog";
 import {JobPeriod} from "@/types/JobPeriod";
 
 type ValueProp = {
@@ -15,43 +15,54 @@ export default function useJobPeriodsData() {
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
 
-    const load = useCallback(async () => {
-        debugLog("useJobPeriods load()");
-
-        setLoading(true);
+    const clearMessages = () => {
         setError(null);
         setSuccess(null);
+    }
+
+    const reset = () => {
+        setValue(null);
+        setLoaded(false);
+        setSuccess(null);
+        setError(null);
+    }
+
+    const load = useCallback(async () => {
+        infoLog("useJobPeriodsData.load()");
+
+        setLoading(true);
+        reset()
 
         try {
             const result = await invoke<ValueProp>("get_periods");
 
-            setValue(result as ValueProp);
+            if (result) {
+                setValue(result as ValueProp);
+                setLoaded(true);
+            }
 
-            debugLog("Periods loaded:", result);
+            infoLog("Periods loaded:", result);
         } catch (err) {
             errorLog("Load periods error:", err);
             setError("Failed to load periods");
         } finally {
             setLoading(false);
-            setLoaded(true);
         }
     }, []);
 
     const upsert = useCallback(async (periodValue: JobPeriod) => {
-        debugLog("useJobPeriods upsert():", periodValue);
+        infoLog("useJobPeriodsData.upsert()", periodValue);
 
         setLoading(true);
-        setError(null);
-        setSuccess(null);
+        clearMessages()
 
         try {
             const upsert_period_result = await invoke<JobPeriod>("upsert_period", {periodValue});
             const get_periods_result = await invoke<ValueProp>("get_periods");
             setValue(get_periods_result as ValueProp);
-
             setSuccess("Period saved");
 
-            debugLog("Period saved & value reloaded:", upsert_period_result, get_periods_result);
+            infoLog("Period saved & value reloaded:", upsert_period_result, get_periods_result);
         } catch (err) {
             errorLog("Save option error:", err);
             setError("Failed to save period.");
@@ -61,11 +72,10 @@ export default function useJobPeriodsData() {
     }, []);
 
     const setPeriod = useCallback(async (periodID: ValueProp["selected"]) => {
-        debugLog("useJobPeriods setPeriod():", periodID);
+        infoLog("useJobPeriodsData.setPeriod()", periodID);
 
         setLoading(true);
-        setError(null);
-        setSuccess(null);
+        clearMessages()
 
         const obj: { key: string, value: ValueProp["selected"] } = {
             key: "job_period_selected",
@@ -76,10 +86,9 @@ export default function useJobPeriodsData() {
             const result = await invoke<ValueProp["selected"]>("set_option", obj);
             const get_periods_result = await invoke<ValueProp>("get_periods");
             setValue(get_periods_result as ValueProp);
-
             setSuccess("Period selected successfully");
 
-            debugLog("Period selected, option saved:", obj, result);
+            infoLog("Period selected, option saved:", obj, result);
         } catch (err) {
             errorLog("Period selected error:", err);
             setError("Failed to select period");
@@ -97,9 +106,7 @@ export default function useJobPeriodsData() {
         loaded,
         error,
         success,
-        clearMessages:()=>{
-            setError(null);
-            setSuccess(null);
-        }
+        clearMessages,
+        reset,
     };
 }

@@ -9,7 +9,7 @@ export type I18nManager = {
 };
 
 export default function useI18nConfig(): I18nManager {
-    // Source of truth for current locale lives in both module-level (t.ts) and React state.
+    // Source of truth for the current locale lives in both module-level (t.ts) and React state.
     // This hook syncs them.
     const [locale, setLocaleState] = useState<Locale>(getLocale()); // defaults to "en" from t.ts
 
@@ -19,7 +19,7 @@ export default function useI18nConfig(): I18nManager {
     }, []);
 
     const t = useCallback((path: string, opts?: { defaultText?: string }) => {
-        // Bind current locale implicitly
+        // Bind the current locale implicitly
         return baseT(path, { locale, defaultText: opts?.defaultText });
     }, [locale]);
 

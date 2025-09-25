@@ -1,6 +1,6 @@
 import {useJobPeriodsStore} from "@stores/useJobPeriodsStore";
 import useJobPeriodsData from "@hooks/useJobPeriodsData";
-import {debugLog} from "@utilities/devLog";
+import {debugLog, infoLog} from "@utilities/devLog";
 import {useEffect} from "react";
 
 export default function useJobPeriodsConfig() {
@@ -8,14 +8,17 @@ export default function useJobPeriodsConfig() {
     const jobPeriodsData = useJobPeriodsData();
 
     async function init() {
-        debugLog("useJobPeriodsSettings.init() called", jobPeriodsList, selectedJobPeriodID)
+        infoLog("useJobPeriodsConfig.init()")
+        debugLog("jobPeriodsList", jobPeriodsList)
+        debugLog("selectedJobPeriodID", selectedJobPeriodID)
 
         if (jobPeriodsList === null || selectedJobPeriodID === null) {
 
             if (!jobPeriodsData.loaded && !jobPeriodsLoaded) {
+                infoLog("useJobPeriodsConfig.init() - loading")
                 await jobPeriodsData.load();
             } else if (jobPeriodsData.loaded && jobPeriodsData.value) {
-                debugLog("useJobPeriodsSettings.init() - loaded", jobPeriodsData.value)
+                infoLog("useJobPeriodsConfig.init() - loaded", jobPeriodsData.value)
 
                 setJobPeriodsList(jobPeriodsData.value?.periods ?? [])
                 setSelectedJobPeriodID(jobPeriodsData.value?.selected ?? "")
@@ -28,7 +31,8 @@ export default function useJobPeriodsConfig() {
 
     useEffect(() => {
         if (jobPeriodsData.loaded && jobPeriodsData.value) {
-            debugLog("useJobPeriodsSettings.useEffect() - loaded", jobPeriodsData.value)
+            infoLog("useJobPeriodsConfig - useEffect() - loaded", jobPeriodsData.value)
+
             setJobPeriodsList(jobPeriodsData.value?.periods ?? [])
             setSelectedJobPeriodID(jobPeriodsData.value?.selected ?? "")
             setJobPeriodsLoaded(true)

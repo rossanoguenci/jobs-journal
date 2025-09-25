@@ -13,17 +13,30 @@ pub async fn get_option(db: State<'_, Database>, key: &str) -> Result<Option<Val
         .await
         .map_err(|e| format!("DB error: {}", e))?;
 
-    crate::debug_log!("get_option() - Result for key {:?} : {:?} ", key, if result.is_some() { "Some(row)" } else { "None" });
+    crate::debug_log!(
+        "get_option() - Result for key {:?} : {:?} ",
+        key,
+        if result.is_some() {
+            "Some(row)"
+        } else {
+            "None"
+        }
+    );
 
     match result {
         Some(row) => {
             let raw: String = row.get("value");
 
-            crate::debug_log!(
-            "Result for key '{:?}' -> Some(value: {:?})",
-            key, raw
-        );
+            crate::debug_log!("Result for key {:?} -> Some(value: {:?})", key, raw);
 
+            if raw.trim().is_empty() {
+                // Empty DB value is not valid JSON; treat as no value.
+                crate::debug_log!(
+                    "Empty JSON string for key {:?}, returning None (no value)",
+                    key
+                );
+                return Ok(None);
+            }
 
             serde_json::from_str(&raw)
                 .map(Some)
