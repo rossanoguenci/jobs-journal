@@ -6,6 +6,7 @@ pub mod default_settings;
 pub mod avatar;
 pub mod periods;
 pub mod startup;
+pub mod orphans;
 
 pub use export_jobs_json::*;
 pub use import_from_csv::*;
@@ -15,3 +16,4 @@ pub use options::*;
 pub use avatar::*;
 pub use periods::*;
 pub use startup::*;
+pub use orphans::*;

@@ -10,24 +10,12 @@
 //! - `ensure_periods` — ensure at least one period exists (creating one starting today if none).
 
 use crate::db::Database;
-use crate::models::job_period::JobPeriod;
+use crate::models::job_period::{JobPeriod, PeriodsResponse};
 use crate::utils::id::generate_id;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use tauri::State;
 use chrono::Local;
-
-/// Response payload for [`get_periods`].
-///
-/// - `periods` contains all stored periods.
-/// - `selected` is the currently selected period id (empty string if none).
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct PeriodsResponse {
-    /// All stored job periods.
-    pub periods: Vec<JobPeriod>,
-    /// The currently selected period id (maybe empty if none selected).
-    pub selected: String,
-}
 
 /// Options storage key for the array of periods.
 const PERIODS_KEY: &str = "job_periods";
@@ -43,9 +31,9 @@ const SELECTED_PERIOD_KEY: &str = "job_period_selected";
 /// Returns an error if reading options fail or values cannot be deserialized into [`JobPeriod`].
 ///
 /// # Examples
-/// ```ignore
-/// // From the frontend (Tauri):
-/// // window.__TAURI__.invoke('get_periods') -> { periods: [...], selected: "..." }
+/// ```text
+/// From the frontend (Tauri):
+/// window.__TAURI__.invoke('get_periods') -> { periods: [...], selected: "..." }
 /// ```
 #[tauri::command]
 pub async fn get_periods(db: State<'_, Database>) -> Result<PeriodsResponse, String> {
@@ -284,10 +272,34 @@ pub async fn remove_period(db: State<'_, Database>, period_id: String) -> Result
 /// - `db`: Tauri-managed `Database` state.
 ///
 /// # Errors
-/// Returns an error if reading or writing options fail.
-#[tauri::command]
-pub async fn ensure_periods(db: State<'_, Database>) -> Result<(), String> {
-    crate::info_log!("ensure_periods()");
+/// Return an error if reading or writing options fail.
+/// Outcome of the ensure_periods step.
+///
+/// This is returned by the internal step function used by startup checks.
+/// It is not exposed as a Tauri command payload; the public command keeps
+/// its original () return type for backward compatibility.
+#[derive(Debug, Clone)]
+pub struct EnsurePeriodsOutcome {
+    /// Whether any changes were made to periods or selection.
+    pub changed: bool,
+    /// Number of periods created by this step (0 or more; currently 0 or 1).
+    pub created_count: usize,
+    /// Whether the selected period id was set or adjusted.
+    pub selected_adjusted: bool,
+    /// Human-readable message summarising the action.
+    pub message: String,
+}
+
+/// Ensure periods and a valid selection, returning a rich outcome for startup aggregation.
+///
+/// - If no periods exist, creates one starting today and selects it.
+/// - If periods exist but the selected id is missing or invalid, selects the first valid period.
+///
+/// This function is meant for internal use (startup registry) and intentionally
+/// is not annotated as a Tauri command. Use the `ensure_periods` command wrapper
+/// if you need to invoke it from the frontend.
+pub(crate) async fn ensure_periods_step(db: State<'_, Database>) -> Result<EnsurePeriodsOutcome, String> {
+    crate::info_log!("ensure_periods_step()");
 
     // Retrieve current periods and current selection from options
     let periods_value = crate::commands::options::get_option(db.clone(), PERIODS_KEY).await?;
@@ -299,7 +311,10 @@ pub async fn ensure_periods(db: State<'_, Database>) -> Result<(), String> {
         _ => Vec::new(),
     };
 
-    // Helper to get first valid id from list
+    let mut created_count = 0usize;
+    let mut selected_adjusted = false;
+
+    // Helper to get the first valid id from a list
     let first_valid_id = |list: &Vec<Value>| -> Option<String> {
         list.iter()
             .filter_map(|p| p.get("id").and_then(|v| v.as_str()).map(|s| s.to_string()))
@@ -317,6 +332,7 @@ pub async fn ensure_periods(db: State<'_, Database>) -> Result<(), String> {
 
         let period_value = Value::Object(obj);
         periods.push(period_value);
+        created_count = 1;
 
         // Persist periods
         let periods_value = Value::Array(periods);
@@ -324,6 +340,7 @@ pub async fn ensure_periods(db: State<'_, Database>) -> Result<(), String> {
 
         // Select the newly created period
         crate::commands::options::set_option(db.clone(), SELECTED_PERIOD_KEY, Value::String(new_id)).await?;
+        selected_adjusted = true;
     } else {
         // Ensure a valid selection exists
         let selected_id = match selected_value { Some(Value::String(s)) => s, _ => String::new() };
@@ -333,9 +350,34 @@ pub async fn ensure_periods(db: State<'_, Database>) -> Result<(), String> {
         if !selected_is_valid {
             if let Some(first_id) = first_valid_id(&periods) {
                 crate::commands::options::set_option(db.clone(), SELECTED_PERIOD_KEY, Value::String(first_id)).await?;
+                selected_adjusted = true;
             }
         }
     }
 
+    let changed = created_count > 0 || selected_adjusted;
+    let message = if created_count > 0 {
+        if selected_adjusted {
+            "Created default period and selected it".to_string()
+        } else {
+            "Created default period".to_string()
+        }
+    } else if selected_adjusted {
+        "Selected a valid existing period".to_string()
+    } else {
+        "Periods and selection already valid".to_string()
+    };
+
+    Ok(EnsurePeriodsOutcome { changed, created_count, selected_adjusted, message })
+}
+
+/// Ensures periods and selection consistency.
+///
+/// This public Tauri command preserves the original API shape (returns ())
+/// for backward compatibility. For richer outcome details, use
+/// [`ensure_periods_step`] internally.
+#[tauri::command]
+pub async fn ensure_periods(db: State<'_, Database>) -> Result<(), String> {
+    let _ = ensure_periods_step(db).await?;
     Ok(())
 }

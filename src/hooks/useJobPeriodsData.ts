@@ -1,15 +1,12 @@
 import {useState, useCallback} from "react";
 import {invoke} from "@tauri-apps/api/core";
-import {debugLog, errorLog, infoLog} from "@utilities/devLog";
-import {JobPeriod} from "@/types/JobPeriod";
+import {errorLog, infoLog} from "@utilities/devLog";
+import {JobPeriod} from "@shared-types/JobPeriod";
+import {PeriodsResponse} from "@shared-types/PeriodsResponse";
 
-type ValueProp = {
-    periods: JobPeriod[],
-    selected: JobPeriod['id']
-}
 
 export default function useJobPeriodsData() {
-    const [value, setValue] = useState<ValueProp | null>(null);
+    const [value, setValue] = useState<PeriodsResponse | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [loaded, setLoaded] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -34,10 +31,10 @@ export default function useJobPeriodsData() {
         reset()
 
         try {
-            const result = await invoke<ValueProp>("get_periods");
+            const result = await invoke<PeriodsResponse>("get_periods");
 
             if (result) {
-                setValue(result as ValueProp);
+                setValue(result as PeriodsResponse);
                 setLoaded(true);
             }
 
@@ -58,8 +55,8 @@ export default function useJobPeriodsData() {
 
         try {
             const upsert_period_result = await invoke<JobPeriod>("upsert_period", {periodValue});
-            const get_periods_result = await invoke<ValueProp>("get_periods");
-            setValue(get_periods_result as ValueProp);
+            const get_periods_result = await invoke<PeriodsResponse>("get_periods");
+            setValue(get_periods_result as PeriodsResponse);
             setSuccess("Period saved");
 
             infoLog("Period saved & value reloaded:", upsert_period_result, get_periods_result);
@@ -71,21 +68,21 @@ export default function useJobPeriodsData() {
         }
     }, []);
 
-    const setPeriod = useCallback(async (periodID: ValueProp["selected"]) => {
+    const setPeriod = useCallback(async (periodID: PeriodsResponse["selected"]) => {
         infoLog("useJobPeriodsData.setPeriod()", periodID);
 
         setLoading(true);
         clearMessages()
 
-        const obj: { key: string, value: ValueProp["selected"] } = {
+        const obj: { key: string, value: PeriodsResponse["selected"] } = {
             key: "job_period_selected",
             value: periodID
         }
 
         try {
-            const result = await invoke<ValueProp["selected"]>("set_option", obj);
-            const get_periods_result = await invoke<ValueProp>("get_periods");
-            setValue(get_periods_result as ValueProp);
+            const result = await invoke<PeriodsResponse["selected"]>("set_option", obj);
+            const get_periods_result = await invoke<PeriodsResponse>("get_periods");
+            setValue(get_periods_result as PeriodsResponse);
             setSuccess("Period selected successfully");
 
             infoLog("Period selected, option saved:", obj, result);
