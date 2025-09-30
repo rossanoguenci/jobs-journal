@@ -1,30 +1,43 @@
 "use client";
 
-import React, {useMemo, useState} from "react";
-// import Props from './props.types';
-import {
-    Spinner,
-    Button,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    Select,
-    SelectItem
-} from "@heroui/react";
+import React, {ReactNode, useEffect, useMemo} from "react";
+import { Spinner } from "@heroui/react";
 import {useAppInit} from "@hooks/useAppInit";
+import {useModal} from "@contexts/ModalContext";
+import OrphansResolverContent from "@/components/orphans/OrphansResolverContent";
+import {infoLog} from "@utilities/devLog";
 
-export default function AppInitGate({children}: { children: React.ReactNode }) {
-    const {
-        state, message, error,
-        // hasOrphans, orphans,
-        // periods, selectedPeriodId,
-        // actions
-    } = useAppInit();
-    // const [chosenPeriod, setChosenPeriod] = useState<string>(selectedPeriodId);
+export default function AppInitGate({children}: { children: ReactNode }) {
+    const { state, message, error, activeStep, refreshChecks } = useAppInit();
+    const { openModal, isOpen } = useModal();
+
+    // When in checking-data and a blocking interactive step exists, open the global modal with resolver content
+    useEffect(() => {
+        if (state !== "checking-data") return;
+        const key = activeStep?.key;
+
+        infoLog("AppInitGate - activeStep key: ", key)
+
+        if (!key) return;
+        if (!isOpen) {
+            if (key === "ensure_orphans_preview") {
+                infoLog("AppInitGate - opening modal for orphans resolver")
+                openModal(<OrphansResolverContent onResolvedAction={refreshChecks} />);
+            }
+            // Future: add other key => resolver mappings here
+        }
+    }, [state, activeStep?.key, isOpen, openModal, refreshChecks]);
 
     const loading = useMemo(() => state !== "ready" && state !== "error", [state]);
+
+    if (state === "checking-data") {
+        return (
+            <div className="min-h-dvh flex flex-col items-center justify-center gap-3">
+                <Spinner size="lg"/>
+                <div className="text-default-500">{message}</div>
+            </div>
+        );
+    }
 
     if (loading) {
         return (
@@ -45,43 +58,5 @@ export default function AppInitGate({children}: { children: React.ReactNode }) {
         );
     }
 
-    return (
-        <>
-            {children}
-
-            {/*<Modal isOpen={hasOrphans} isDismissable={false}>
-                <ModalContent>
-                    <ModalHeader>Fix orphan jobs</ModalHeader>
-                    <ModalBody>
-                        <p>Found {orphans.length} job(s) with missing or invalid period.</p>
-                        <p>Select a period to assign them to:</p>
-                        <Select
-                            selectedKeys={chosenPeriod ? [chosenPeriod] : []}
-                            onSelectionChange={(keys) => {
-                                const val = Array.from(keys)[0] as string | undefined;
-                                setChosenPeriod(val ?? "");
-                            }}
-                            placeholder="Choose a period"
-                            disallowEmptySelection
-                        >
-                            {periods.map(p => (
-                                <SelectItem key={p.id} value={p.id}>
-                                    {"label" in p ? String(p.label) : p.id}
-                                </SelectItem>
-                            ))}
-                        </Select>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color="default" variant="flat" onPress={actions.skipFix}>
-                            Skip for now
-                        </Button>
-                        <Button color="primary" isDisabled={!chosenPeriod}
-                                onPress={() => chosenPeriod && actions.fixOrphansTo(chosenPeriod)}>
-                            Assign {orphans.length} job(s)
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>*/}
-        </>
-    );
+    return <>{children}</>;
 }

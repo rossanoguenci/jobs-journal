@@ -21,24 +21,23 @@ use tauri::State;
 
 pub const ORPHANS_FLAG_KEY: &str = "orphans_check_at_startup";
 
-/// Internal helper: build a WHERE clause that matches orphan jobs against the given valid period ids.
-fn build_orphan_where_clause(valid_ids: &[String]) -> (String, usize) {
-    // An orphan is a row where json_extract(meta, '$.period_id') is NULL or '' or NOT IN valid_ids.
-    let mut clause = String::from(
-        "(json_extract(meta, '$.period_id') IS NULL OR json_extract(meta, '$.period_id') = ''",
-    );
+/// Build the orphan predicate directly into the QueryBuilder.
+///
+/// Orphan = meta.period_id is NULL or '' or NOT IN valid_ids (when valid_ids is non-empty).
+fn push_orphan_predicate<'a>(
+    qb: &mut sqlx::QueryBuilder<'a, sqlx::Sqlite>,
+    valid_ids: &'a [String],
+) {
+    qb.push("(json_extract(meta, '$.period_id') IS NULL OR json_extract(meta, '$.period_id') = ''");
     if !valid_ids.is_empty() {
-        let placeholders = std::iter::repeat("?")
-            .take(valid_ids.len())
-            .collect::<Vec<_>>()
-            .join(", ");
-        clause.push_str(&format!(
-            " OR json_extract(meta, '$.period_id') NOT IN ({})",
-            placeholders
-        ));
+        qb.push(" OR json_extract(meta, '$.period_id') NOT IN (");
+        let mut sep = qb.separated(", ");
+        for id in valid_ids {
+            sep.push_bind(id);
+        }
+        qb.push(")");
     }
-    clause.push(')');
-    (clause, valid_ids.len())
+    qb.push(")");
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -58,7 +57,9 @@ pub async fn ensure_orphans_preview(db: State<'_, Database>) -> Result<EnsureOrp
     let periods_resp: PeriodsResponse = crate::commands::periods::get_periods(db.clone()).await?;
     let valid_ids: Vec<String> = periods_resp.periods.iter().map(|p| p.id.clone()).collect();
 
-    let (where_clause, bind_count) = build_orphan_where_clause(&valid_ids);
+    crate::debug_log!("ensure_orphans_preview() periods_resp -> {:?}", periods_resp);
+    crate::debug_log!("ensure_orphans_preview() valid_ids -> {:?}", valid_ids);
+
 
     let pool = db.pool.lock().await;
 
@@ -68,22 +69,20 @@ pub async fn ensure_orphans_preview(db: State<'_, Database>) -> Result<EnsureOrp
         .await
         .map_err(|e| e.to_string())?;
 
-    // Count orphans using the where clause
+    crate::debug_log!("ensure_orphans_preview() total_jobs -> {:?}", total_jobs);
+
+    // Count orphans using predicate builder
     let mut qb = sqlx::QueryBuilder::new("SELECT COUNT(*) FROM jobs WHERE ");
-    qb.push(where_clause);
-    if bind_count > 0 {
-        let mut sep = qb.separated(", ");
-        for id in &valid_ids {
-            sep.push_bind(id);
-        }
-    }
+    push_orphan_predicate(&mut qb, &valid_ids);
     let orphan_count: (i64,) = qb
         .build_query_as()
         .fetch_one(&*pool)
         .await
         .map_err(|e| e.to_string())?;
 
-    Ok(EnsureOrphansPreview {
+    crate::debug_log!("ensure_orphans_preview() orphan_count ->  {:?}", orphan_count);
+
+    let result = EnsureOrphansPreview {
         orphan_count: orphan_count.0,
         total_jobs: total_jobs.0,
         period_ids: valid_ids,
@@ -100,7 +99,9 @@ pub async fn ensure_orphans_preview(db: State<'_, Database>) -> Result<EnsureOrp
         } else {
             format!("No orphan jobs ({} total)", total_jobs.0)
         },
-    })
+    };
+    crate::info_log!("ensure_orphans_preview() result -> {:?}", result);
+    Ok(result)
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -160,7 +161,6 @@ pub async fn ensure_orphans_apply_infer_by_date(
         .map(|p| p.id.clone())
         .collect();
 
-    let (orphan_sql, bind_count) = build_orphan_where_clause(&valid_ids);
 
     let pool = db.pool.lock().await;
 
@@ -176,18 +176,12 @@ pub async fn ensure_orphans_apply_infer_by_date(
         );
         qb.push_bind(pid);
         qb.push(") WHERE ");
-        qb.push(&orphan_sql);
+        push_orphan_predicate(&mut qb, &valid_ids);
         qb.push(" AND application_date >= ");
         qb.push_bind(start);
         if let Some(end) = end_opt {
             qb.push(" AND application_date <= ");
             qb.push_bind(end);
-        }
-        if bind_count > 0 {
-            let mut sep = qb.separated(", ");
-            for id in &valid_ids {
-                sep.push_bind(id);
-            }
         }
         let res = qb.build().execute(&*pool).await.map_err(|e| e.to_string())?;
         updated_by_infer += res.rows_affected();
@@ -199,13 +193,7 @@ pub async fn ensure_orphans_apply_infer_by_date(
     );
     qb.push_bind(&fallback_period_id);
     qb.push(") WHERE ");
-    qb.push(&orphan_sql);
-    if bind_count > 0 {
-        let mut sep = qb.separated(", ");
-        for id in &valid_ids {
-            sep.push_bind(id);
-        }
-    }
+    push_orphan_predicate(&mut qb, &valid_ids);
     let res = qb.build().execute(&*pool).await.map_err(|e| e.to_string())?;
     let updated_by_fallback = res.rows_affected() as i64;
 

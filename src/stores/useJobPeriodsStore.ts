@@ -1,15 +1,15 @@
 import {create} from 'zustand';
-import {JobPeriod} from "@/types/JobPeriod";
+import {JobPeriod} from "@shared-types/JobPeriod";
 
 type OptionsState = {
     jobPeriodsList: JobPeriod[] | null;
-    selectedJobPeriodID: JobPeriod['id'] | null;
+    selectedJobPeriodId: JobPeriod['id'] | null;
     jobPeriodsLoaded: boolean;
 };
 
 type OptionsActions = {
-    setJobPeriodsList: (periods: JobPeriod[]) => void;
-    setSelectedJobPeriodID: (id: JobPeriod['id']) => void;
+    setJobPeriodsList: (periods: JobPeriod[] | null) => void;
+    setSelectedJobPeriodId: (id: JobPeriod['id']) => void;
     setJobPeriodsLoaded: (loaded: boolean) => void;
     getSelectedJobPeriodItem: () => JobPeriod | null;
     getJobPeriodItem: (id: JobPeriod['id']) => JobPeriod | null;
@@ -19,23 +19,22 @@ type OptionsStore = OptionsState & OptionsActions;
 
 export const useJobPeriodsStore = create<OptionsStore>((set, get) => ({
     jobPeriodsList: null,
-    selectedJobPeriodID: null,
+    selectedJobPeriodId: null,
     jobPeriodsLoaded: false,
 
-    setJobPeriodsList: (jobPeriodsList) => set((state) => ({
+    setJobPeriodsList: (jobPeriodsList) => set(() => ({
         jobPeriodsList,
-        jobPeriodsLoaded: jobPeriodsList != null && (state.selectedJobPeriodID !== null),
+        jobPeriodsLoaded: jobPeriodsList != null,
     })),
-    setSelectedJobPeriodID: (selectedJobPeriodID) => set((state) => ({
-        selectedJobPeriodID,
-        jobPeriodsLoaded: (state.jobPeriodsList != null) && selectedJobPeriodID !== null,
+    setSelectedJobPeriodId: (selectedJobPeriodId) => set(() => ({
+        selectedJobPeriodId,
     })),
     setJobPeriodsLoaded: (jobPeriodsLoaded) => set({ jobPeriodsLoaded }),
     getSelectedJobPeriodItem: () => {
-        if (!get().selectedJobPeriodID || !get().jobPeriodsList) return null;
+        if (!get().selectedJobPeriodId || !get().jobPeriodsList) return null;
 
-        const {jobPeriodsList, selectedJobPeriodID} = get();
-        const jobPeriodItem = jobPeriodsList!.find(item => item.id === selectedJobPeriodID);
+        const {jobPeriodsList, selectedJobPeriodId} = get();
+        const jobPeriodItem = jobPeriodsList!.find(item => item.id === selectedJobPeriodId);
         return jobPeriodItem || null;
     },
     getJobPeriodItem: (id: JobPeriod["id"]) => {

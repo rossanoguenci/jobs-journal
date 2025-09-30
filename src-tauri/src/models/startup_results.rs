@@ -18,6 +18,8 @@ pub struct StepResult {
     pub changed: bool,
     /// A human-readable message describing what the step did.
     pub message: String,
+    /// Whether the frontend must prompt the user to take action before continuing.
+    pub requires_action: bool,
 }
 
 /// Aggregated results of running all startup steps.

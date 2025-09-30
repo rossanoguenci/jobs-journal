@@ -94,6 +94,17 @@ export default function useJobPeriodsData() {
         }
     }, [])
 
+    // list-only fetch, with no local state mutation
+    const prefetchList = useCallback(async (): Promise<JobPeriod[]> => {
+        try {
+            const res = await invoke<PeriodsResponse>("get_periods");
+            return res?.periods ?? [];
+        } catch (err) {
+            errorLog("prefetchList error:", err);
+            return [];
+        }
+    }, []);
+
     return {
         value,
         load,
@@ -105,5 +116,6 @@ export default function useJobPeriodsData() {
         success,
         clearMessages,
         reset,
+        prefetchList,
     };
 }

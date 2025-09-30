@@ -1,13 +1,18 @@
 "use client"
 
-import React from "react";
+import React, {useEffect} from "react";
 // import Props from "./props.types";
 import {Button} from "@heroui/react";
-import { useModal } from '@contexts/ModalContext';
+import {useModal} from '@contexts/ModalContext';
+import {infoLog} from "@utilities/devLog";
 
 export default function Component() {
 
-    const { isOpen, content, closeModal } = useModal();
+    const {isOpen, content, closeModal} = useModal();
+
+    useEffect(() => {
+        infoLog("GlobalModal - isOpen", isOpen);
+    }, [isOpen]);
 
     if (!isOpen) return null;
 

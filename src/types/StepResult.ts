@@ -15,4 +15,8 @@ changed: boolean,
 /**
  * A human-readable message describing what the step did.
  */
-message: string, };
+message: string, 
+/**
+ * Whether the frontend must prompt the user to take action before continuing.
+ */
+requires_action: boolean, };

@@ -26,6 +26,7 @@ async fn run_registry(db: State<'_, Database>) -> Result<Vec<StepResult>, String
         key: "ensure_periods".into(),
         changed: outcome.changed,
         message: outcome.message,
+        requires_action: false,
     });
 
     // Optionally run a lightweight orphans preview if the flag is enabled
@@ -36,7 +37,8 @@ async fn run_registry(db: State<'_, Database>) -> Result<Vec<StepResult>, String
 
     if check_flag {
         let preview = crate::commands::orphans::ensure_orphans_preview(db.clone()).await?;
-        let msg = if preview.orphan_count > 0 {
+        let needs_action = preview.orphan_count > 0;
+        let msg = if needs_action {
             format!("{} — open Orphans dialog to resolve.", preview.message)
         } else {
             preview.message
@@ -45,6 +47,7 @@ async fn run_registry(db: State<'_, Database>) -> Result<Vec<StepResult>, String
             key: "ensure_orphans_preview".into(),
             changed: false, // preview doesn't mutate data
             message: msg,
+            requires_action: needs_action,
         });
     }
 

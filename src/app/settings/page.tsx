@@ -29,7 +29,7 @@ export default function SettingsPage() {
     const settings = useSettingsStore(s => s.appSettings);
     const user = useUserStore(s => s.user);
 
-    const {jobPeriodsList, selectedJobPeriodID, getSelectedJobPeriodItem} = useJobPeriodsStore()
+    const {jobPeriodsList, selectedJobPeriodId, getSelectedJobPeriodItem} = useJobPeriodsStore()
 
     const {openModal} = useModal();
 
@@ -45,7 +45,7 @@ export default function SettingsPage() {
 
     const periodRangeText = () => {
         const item = getSelectedJobPeriodItem()!
-        if (!selectedJobPeriodID || !item) return "No period selected or available."
+        if (!selectedJobPeriodId || !item) return "No period selected or available."
 
         const start = item.start ? dateFormat(item.start) : "N/A"
         const end = item.end ? dateFormat(item.end) : "present"

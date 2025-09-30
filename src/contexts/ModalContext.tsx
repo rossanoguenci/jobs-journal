@@ -1,6 +1,7 @@
 'use client';
 
 import React, {createContext, useContext, useState, ReactNode} from 'react';
+import {infoLog} from "@utilities/devLog";
 
 type ModalContextType = {
     openModal: (content: ReactNode, onCloseCallback?: () => void) => void;
@@ -21,12 +22,16 @@ export const ModalProvider: React.FC<ModalProviderProps> = ({children}) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const openModal = (content: ReactNode, onCloseCallback?: () => void) => {
+        infoLog("openModal()")
+
         setContent(content);
         setIsOpen(true);
         if (onCloseCallback) setOnCloseCallback(() => onCloseCallback);
     };
 
     const closeModal = () => {
+        infoLog("closeModal()")
+
         setContent(null);
         setIsOpen(false);
         if (onCloseCallback) {

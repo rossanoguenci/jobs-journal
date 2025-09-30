@@ -1,13 +1,13 @@
 "use client";
 
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useGlobalSettingsContext} from "@contexts/GlobalSettingsContext";
-import {debugLog, errorLog, infoLog} from "@utilities/devLog";
-import { invoke } from "@tauri-apps/api/core";
-import {RunResult} from "@/types/RunResult";
+import {debugLog, errorLog} from "@utilities/devLog";
+import {invoke} from "@tauri-apps/api/core";
+import {RunResult} from "@shared-types/RunResult";
+import {StepResult} from "@shared-types/StepResult";
 
 type AppInitState =
-    | "idle"
     | "configuration"
     | "checking-data"
     | "load-data"
@@ -17,9 +17,15 @@ type AppInitState =
 export function useAppInit() {
     const {initialised, initError, jobPeriodsManager, jobsManager} = useGlobalSettingsContext();
 
-    const [state, setState] = useState<AppInitState>("idle");
+    const [state, setState] = useState<AppInitState>("configuration");
     const [message, setMessage] = useState<string>("Starting…");
     const [error, setError] = useState<string | null>(null);
+
+    // Startup steps (from backend) and active blocking step
+    const [steps, setSteps] = useState<StepResult[]>([]);
+
+    // Determine if a step requires user action (authoritative from backend)
+    const requiresUserAction = (s: StepResult): boolean => s.requires_action;
 
     //debug only
     useEffect(() => {
@@ -29,7 +35,7 @@ export function useAppInit() {
 
     // Phase 1: configuration — wait for GlobalSettingsProvider hydration
     useEffect(() => {
-        if (state !== "idle") return;
+        if (state !== "configuration") return;
 
         setMessage("Loading configuration…");
 
@@ -42,23 +48,29 @@ export function useAppInit() {
         if (initialised) {
             setState("checking-data");
         }
-    }, [initialised, initError, state]);
+    }, [state, initialised, initError]);
 
-    // Phase 2: checking-data — run backend startup checks once
-    const ranRef = useRef(false);
+    // Shared runner for backend startup checks
+    const didRunChecksRef = useRef(false);
+    const runChecksAndMaybeAdvance = useCallback(async () => {
+        setMessage("Checking data…");
+        const result: RunResult = await invoke("startup_run_checks");
+        const newSteps: StepResult[] = result?.steps || [];
+        setSteps(newSteps);
+        if (newSteps.filter(requiresUserAction).length === 0) {
+            setState("load-data");
+        }
+    },[]);
+
+    // Phase 2: checking-data — run backend startup checks
     useEffect(() => {
         if (state !== "checking-data") return;
-        if (ranRef.current) return;
-        ranRef.current = true;
+        if (didRunChecksRef.current) return;
+        didRunChecksRef.current = true;
 
         (async () => {
             try {
-                setMessage("Checking data…");
-
-                const result: RunResult = await invoke("startup_run_checks");
-                debugLog("startup_run_checks result:", result);
-
-                setState("load-data");
+                await runChecksAndMaybeAdvance();
             } catch (e) {
                 const msg = e instanceof Error ? e.message : String(e);
                 errorLog("startup_run_checks error", msg);
@@ -66,7 +78,19 @@ export function useAppInit() {
                 setState("error");
             }
         })();
-    }, [state]);
+    }, [runChecksAndMaybeAdvance, state]);
+
+    // Refresh checks after a resolver finishes
+    const refreshChecks = async () => {
+        try {
+            await runChecksAndMaybeAdvance();
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            errorLog("refreshChecks error", msg);
+            setError(msg);
+            setState("error");
+        }
+    };
 
     // Phase 3: load-data — refresh client caches
     useEffect(() => {
@@ -84,13 +108,20 @@ export function useAppInit() {
                 setState("ready");
             } catch (e) {
                 const msg = e instanceof Error ? e.message : String(e);
+                errorLog("load-data error", msg);
                 setError(msg);
                 setState("error");
             }
         })();
     }, [state, jobPeriodsManager, jobsManager]);
 
+    // Derive active blocking step (first in queue)
+    const blockingQueue = useMemo(() => steps.filter(requiresUserAction), [steps]);
+    const activeStep: StepResult | null = blockingQueue[0] ?? null;
+
     return {
         state, message, error,
+        activeStep,
+        refreshChecks,
     };
 }
