@@ -1,22 +1,17 @@
-//! Startup checks command and registry.
+//! Start-up checks command and registry.
 //!
-//! This module exposes a Tauri command that runs a set of idempotent
-//! startup checks/migrations against the app's database. Each check
-//! returns a rich internal outcome which is then mapped into a
-//! `StepResult` to indicate what was done and whether anything changed.
-//! The aggregated results are returned as a `RunResult` and can be
-//! displayed by the frontend.
+//! This module exposes a Tauri command that runs a set of idempotent start-up checks/migrations against the app's database.
+//! Each check returns a rich internal outcome which is then mapped into a `StepResult` to indicate what was done and whether anything changed.
+//! The aggregated results are returned as a `RunResult` and can be displayed by the front end.
 
 use crate::db::Database;
 use tauri::State;
 use crate::models::startup_results::{StepResult,RunResult};
 use crate::commands::orphans::ORPHANS_FLAG_KEY;
 
-/// Run all registered startup steps and collect their results.
+/// Run all registered start-up steps and collect their results.
 ///
-/// This function is kept private to the module and is invoked by
-/// the public Tauri command. It is designed to be idempotent: re-running
-/// it should not cause unintended side effects.
+/// This function is kept private to the module and is invoked by the public Tauri command; it is designed to be idempotent, so re-running it should not cause unintended side effects.
 async fn run_registry(db: State<'_, Database>) -> Result<Vec<StepResult>, String> {
     let mut steps = Vec::new();
 
@@ -54,11 +49,9 @@ async fn run_registry(db: State<'_, Database>) -> Result<Vec<StepResult>, String
     Ok(steps)
 }
 
-/// Run the startup checks and return their aggregated results.
+/// Run the start-up checks and return their aggregated results.
 ///
-/// This function is exposed to the Tauri runtime as a command and can be
-/// invoked from the frontend. It returns a RunResult that the UI can
-/// render for diagnostics or onboarding flows.
+/// This function is exposed to the Tauri runtime as a command and can be invoked from the front end; it returns a RunResult that the UI can render for diagnostics or onboarding flows.
 #[tauri::command]
 pub async fn startup_run_checks(db: State<'_, Database>) -> Result<RunResult, String> {
     let steps = run_registry(db).await?;

@@ -60,6 +60,7 @@ async fn main() {
             remove_period,
             startup_run_checks,
             ensure_orphans_preview,
+            ensure_orphans_preview_split,
             ensure_orphans_apply_infer_by_date,
             get_orphans_check_flag,
             set_orphans_check_flag,

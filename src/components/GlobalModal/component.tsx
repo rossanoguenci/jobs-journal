@@ -8,30 +8,33 @@ import {infoLog} from "@utilities/devLog";
 
 export default function Component() {
 
-    const {isOpen, content, closeModal} = useModal();
+    const {...hook} = useModal();
 
     useEffect(() => {
-        infoLog("GlobalModal - isOpen", isOpen);
-    }, [isOpen]);
+        infoLog("GlobalModal - isOpen", hook.isOpen);
+    }, [hook.isOpen]);
 
-    if (!isOpen) return null;
+    if (!hook.isOpen) return null;
 
     return (
         <div className="absolute size-full top-0 left-0 flex justify-center sm:items-center z-10 bg-overlay/30 backdrop-saturate-150 backdrop-blur-sm">
 
             <div className="border-3 border-gray-700 rounded-xl w-full sm:max-w-sm text-foreground container-bg">
-                <div className="mt-2 ml-2">
-                    <Button
-                        aria-label="Close modal"
-                        className="opacity-75"
-                        // isIconOnly
-                        color="default"
-                        variant="light"
-                        // radius="full"
-                        size="sm"
-                        onPress={closeModal}
-                    >Close</Button></div>
-                {content}
+                {hook.isCloseButtonVisible && (
+                    <div className="mt-2 ml-2">
+                        <Button
+                            aria-label="Close modal"
+                            className="opacity-75"
+                            // isIconOnly
+                            color="default"
+                            variant="light"
+                            // radius="full"
+                            size="sm"
+                            onPress={hook.closeModal}
+                        >Close</Button>
+                    </div>
+                )}
+                {hook.content}
             </div>
         </div>
     );

@@ -28,11 +28,11 @@ const SELECTED_PERIOD_KEY: &str = "job_period_selected";
 /// - `db`: Tauri-managed `Database` state.
 ///
 /// # Errors
-/// Returns an error if reading options fail or values cannot be deserialized into [`JobPeriod`].
+/// Returns an error if reading options fail or values cannot be deserialised into [`JobPeriod`].
 ///
 /// # Examples
 /// ```text
-/// From the frontend (Tauri):
+/// From the front end (Tauri):
 /// window.__TAURI__.invoke('get_periods') -> { periods: [...], selected: "..." }
 /// ```
 #[tauri::command]
@@ -275,9 +275,7 @@ pub async fn remove_period(db: State<'_, Database>, period_id: String) -> Result
 /// Return an error if reading or writing options fail.
 /// Outcome of the ensure_periods step.
 ///
-/// This is returned by the internal step function used by startup checks.
-/// It is not exposed as a Tauri command payload; the public command keeps
-/// its original () return type for backward compatibility.
+/// This is returned by the internal step function used by start-up checks and is not exposed as a Tauri command payload; the public command keeps its original () return type for backward compatibility.
 #[derive(Debug, Clone)]
 pub struct EnsurePeriodsOutcome {
     /// Whether any changes were made to periods or selection.
@@ -290,14 +288,12 @@ pub struct EnsurePeriodsOutcome {
     pub message: String,
 }
 
-/// Ensure periods and a valid selection, returning a rich outcome for startup aggregation.
+/// Ensure periods and a valid selection, returning a rich outcome for start-up aggregation.
 ///
 /// - If no periods exist, creates one starting today and selects it.
 /// - If periods exist but the selected id is missing or invalid, selects the first valid period.
 ///
-/// This function is meant for internal use (startup registry) and intentionally
-/// is not annotated as a Tauri command. Use the `ensure_periods` command wrapper
-/// if you need to invoke it from the frontend.
+/// This function is meant for internal use (start-up registry) and is intentionally not annotated as a Tauri command; use the `ensure_periods` command wrapper if you need to invoke it from the front end.
 pub(crate) async fn ensure_periods_step(db: State<'_, Database>) -> Result<EnsurePeriodsOutcome, String> {
     crate::info_log!("ensure_periods_step()");
 
@@ -373,9 +369,7 @@ pub(crate) async fn ensure_periods_step(db: State<'_, Database>) -> Result<Ensur
 
 /// Ensures periods and selection consistency.
 ///
-/// This public Tauri command preserves the original API shape (returns ())
-/// for backward compatibility. For richer outcome details, use
-/// [`ensure_periods_step`] internally.
+/// This public Tauri command preserves the original API shape (returns ()); for richer outcome details, use [`ensure_periods_step`] internally.
 #[tauri::command]
 pub async fn ensure_periods(db: State<'_, Database>) -> Result<(), String> {
     let _ = ensure_periods_step(db).await?;
